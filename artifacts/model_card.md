@@ -1,6 +1,6 @@
-# Query runtime model v3-e3d9219d
+# Query runtime model v4-f3d6bdea
 
-Trained 2026-08-21T20:04:14+00:00 on 80 measured queries from 3 batch(es).
+Trained 2026-08-21T20:06:15+00:00 on 120 measured queries from 4 batch(es).
 
 ## What it predicts
 
@@ -10,10 +10,10 @@ filter selectivity, order by, window function, limit.
 
 ## Data
 
-- 120 measured queries, median of 5 timed repetitions each after a warm-up run.
+- 160 measured queries, median of 5 timed repetitions each after a warm-up run.
 - Measured on 4 vCPU, DuckDB threads pinned to 4.
-- Runtimes range 0.040s to 2.804s (median 0.182s).
-- Calibration factors ranged 0.917 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.
+- Runtimes range 0.036s to 2.804s (median 0.183s).
+- Calibration factors ranged 0.741 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.
 
 ## Method
 
@@ -26,41 +26,41 @@ filter selectivity, order by, window function, limit.
 
 | metric | value |
 |---|---|
-| holdout MAE | 0.0310 s |
-| holdout MAPE | 11.10% (95% CI 8.53–13.91) |
-| holdout R2 (log10 s) | 0.9741 |
-| 5-fold CV MAPE | 21.06% |
-| OLS baseline MAPE | 26.49% |
-| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |
+| holdout MAE | 0.0341 s |
+| holdout MAPE | 15.86% (95% CI 12.60–19.38) |
+| holdout R2 (log10 s) | 0.9525 |
+| 5-fold CV MAPE | 17.45% |
+| OLS baseline MAPE | 29.69% |
+| gate | FAIL (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |
 
 ## Permutation importance (holdout, log seconds)
 
 | feature | importance |
 |---|---|
-| log_rows_after_filter | 0.6884 |
-| has_groupby | 0.2870 |
-| log_rows_in | 0.1424 |
-| has_window | 0.1144 |
-| n_joins | 0.0896 |
-| log_limit_rows | 0.0208 |
-| has_orderby | 0.0036 |
+| log_rows_after_filter | 0.5395 |
+| has_groupby | 0.3155 |
+| has_window | 0.1220 |
+| log_rows_in | 0.1084 |
+| n_joins | 0.0467 |
+| log_limit_rows | 0.0108 |
+| has_orderby | 0.0107 |
 | log_bytes_est | 0.0000 |
-| selectivity | -0.0012 |
+| selectivity | -0.0036 |
 
 ## Calibration
 
 | decile | queries | predicted s | actual s | error |
 |---|---|---|---|---|
-| 1 | 4 | 0.0508 | 0.0560 | 12.6% |
-| 2 | 4 | 0.0699 | 0.0728 | 3.8% |
-| 3 | 4 | 0.0979 | 0.1065 | 22.9% |
-| 4 | 4 | 0.1248 | 0.1313 | 9.3% |
-| 5 | 4 | 0.1579 | 0.1809 | 12.7% |
-| 6 | 4 | 0.1885 | 0.2103 | 9.6% |
-| 7 | 4 | 0.3269 | 0.3092 | 11.2% |
-| 8 | 4 | 0.4032 | 0.4207 | 11.4% |
-| 9 | 4 | 0.5436 | 0.5383 | 8.1% |
-| 10 | 4 | 1.0028 | 0.9568 | 9.4% |
+| 1 | 4 | 0.0538 | 0.0463 | 17.7% |
+| 2 | 4 | 0.0745 | 0.0595 | 25.9% |
+| 3 | 4 | 0.0971 | 0.1018 | 15.6% |
+| 4 | 4 | 0.1302 | 0.1288 | 11.9% |
+| 5 | 4 | 0.1795 | 0.1947 | 13.9% |
+| 6 | 4 | 0.2166 | 0.2010 | 11.2% |
+| 7 | 4 | 0.2447 | 0.2116 | 16.8% |
+| 8 | 4 | 0.2831 | 0.2612 | 17.9% |
+| 9 | 4 | 0.4347 | 0.4738 | 7.8% |
+| 10 | 4 | 0.7206 | 0.6815 | 20.0% |
 
 ## Limits
 
