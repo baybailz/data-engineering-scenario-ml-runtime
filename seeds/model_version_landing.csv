@@ -1,7 +1,1 @@
 model_version,trained_at,batches_measured,n_train_rows,n_holdout_rows,model_kind,holdout_mae_seconds,holdout_mape_pct,mape_ci_low_pct,mape_ci_high_pct,holdout_r2,cv_mape_pct,baseline_mape_pct,passes_gate,gate_rule
-v1-75965306,2026-08-21T19:51:41+00:00,1,28,12,HistGradientBoostingRegressor(log seconds),0.04414,35.441,21.843,50.858,0.8797,94.148,50.177,False,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
-v2-9e727790,2026-08-21T19:51:47+00:00,2,40,40,HistGradientBoostingRegressor(log seconds),0.03565,24.223,19.294,29.689,0.8866,40.837,37.29,False,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
-v3-9701d770,2026-08-21T19:51:56+00:00,3,80,40,HistGradientBoostingRegressor(log seconds),0.01685,14.618,11.501,17.823,0.9622,23.352,31.835,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
-v4-2351f902,2026-08-21T19:52:04+00:00,4,120,40,HistGradientBoostingRegressor(log seconds),0.01149,11.968,8.216,16.624,0.9588,17.934,25.387,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
-v5-33218fae,2026-08-21T19:52:11+00:00,5,160,40,HistGradientBoostingRegressor(log seconds),0.01839,10.425,7.726,13.478,0.9821,12.849,29.436,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
-v6-e927caf6,2026-08-21T19:52:20+00:00,6,200,40,HistGradientBoostingRegressor(log seconds),0.01191,14.28,10.664,18.047,0.9565,10.226,27.338,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds

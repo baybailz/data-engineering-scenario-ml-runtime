@@ -1,40 +1,16 @@
 {
  "nodes": [
   {
-   "id": "fact_query_run",
-   "layer": "conformed",
+   "id": "trn_tbl_query_run",
+   "layer": "transform",
    "type": "model",
-   "path": "models/conformed/fact_query_run.sql"
-  },
-  {
-   "id": "dim_model_version",
-   "layer": "conformed",
-   "type": "model",
-   "path": "models/conformed/dim_model_version.sql"
-  },
-  {
-   "id": "dim_query_template",
-   "layer": "conformed",
-   "type": "model",
-   "path": "models/conformed/dim_query_template.sql"
-  },
-  {
-   "id": "dm_model_scorecard",
-   "layer": "datamart",
-   "type": "model",
-   "path": "models/datamart/dm_model_scorecard.sql"
+   "path": "models/transform/trn_tbl_query_run.sql"
   },
   {
    "id": "trn_tbl_query_prediction",
    "layer": "transform",
    "type": "model",
    "path": "models/transform/trn_tbl_query_prediction.sql"
-  },
-  {
-   "id": "trn_tbl_query_run",
-   "layer": "transform",
-   "type": "model",
-   "path": "models/transform/trn_tbl_query_run.sql"
   },
   {
    "id": "stg_query_run",
@@ -55,10 +31,16 @@
    "path": "models/stage/stg_model_version.sql"
   },
   {
-   "id": "dm_prediction_detail",
-   "layer": "datamart",
+   "id": "dim_model_version",
+   "layer": "conformed",
    "type": "model",
-   "path": "models/datamart/dm_prediction_detail.sql"
+   "path": "models/conformed/dim_model_version.sql"
+  },
+  {
+   "id": "fact_query_run",
+   "layer": "conformed",
+   "type": "model",
+   "path": "models/conformed/fact_query_run.sql"
   },
   {
    "id": "fact_query_prediction",
@@ -67,10 +49,34 @@
    "path": "models/conformed/fact_query_prediction.sql"
   },
   {
+   "id": "dim_query_template",
+   "layer": "conformed",
+   "type": "model",
+   "path": "models/conformed/dim_query_template.sql"
+  },
+  {
+   "id": "dm_prediction_detail",
+   "layer": "datamart",
+   "type": "model",
+   "path": "models/datamart/dm_prediction_detail.sql"
+  },
+  {
+   "id": "dm_model_scorecard",
+   "layer": "datamart",
+   "type": "model",
+   "path": "models/datamart/dm_model_scorecard.sql"
+  },
+  {
    "id": "dm_runtime_sla",
    "layer": "datamart",
    "type": "model",
    "path": "models/datamart/dm_runtime_sla.sql"
+  },
+  {
+   "id": "model_version_landing",
+   "layer": "seed",
+   "type": "seed",
+   "path": "seeds/model_version_landing.csv"
   },
   {
    "id": "query_prediction_landing",
@@ -83,30 +89,12 @@
    "layer": "seed",
    "type": "seed",
    "path": "seeds/query_run_landing.csv"
-  },
-  {
-   "id": "model_version_landing",
-   "layer": "seed",
-   "type": "seed",
-   "path": "seeds/model_version_landing.csv"
   }
  ],
  "edges": [
   [
-   "trn_tbl_query_run",
-   "fact_query_run"
-  ],
-  [
-   "stg_model_version",
-   "dim_model_version"
-  ],
-  [
-   "trn_tbl_query_run",
-   "dim_query_template"
-  ],
-  [
-   "dim_model_version",
-   "dm_model_scorecard"
+   "stg_query_run",
+   "trn_tbl_query_run"
   ],
   [
    "stg_prediction",
@@ -115,10 +103,6 @@
   [
    "trn_tbl_query_run",
    "trn_tbl_query_prediction"
-  ],
-  [
-   "stg_query_run",
-   "trn_tbl_query_run"
   ],
   [
    "query_run_landing",
@@ -131,6 +115,22 @@
   [
    "model_version_landing",
    "stg_model_version"
+  ],
+  [
+   "stg_model_version",
+   "dim_model_version"
+  ],
+  [
+   "trn_tbl_query_run",
+   "fact_query_run"
+  ],
+  [
+   "trn_tbl_query_prediction",
+   "fact_query_prediction"
+  ],
+  [
+   "trn_tbl_query_run",
+   "dim_query_template"
   ],
   [
    "dim_model_version",
@@ -149,8 +149,8 @@
    "dm_prediction_detail"
   ],
   [
-   "trn_tbl_query_prediction",
-   "fact_query_prediction"
+   "dim_model_version",
+   "dm_model_scorecard"
   ],
   [
    "dim_model_version",
