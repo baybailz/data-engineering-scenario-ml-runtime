@@ -83,5 +83,22 @@
   "baseline_mape_pct": 25.689,
   "passes_gate": true,
   "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds"
+ },
+ {
+  "model_version": "v6-00b9305f",
+  "trained_at": "2026-08-21T20:14:01+00:00",
+  "batches_measured": 6,
+  "n_train_rows": 200,
+  "n_holdout_rows": 40,
+  "model_kind": "HistGradientBoostingRegressor(log seconds)",
+  "holdout_mae_seconds": 0.02854,
+  "holdout_mape_pct": 10.86,
+  "mape_ci_low_pct": 8.299,
+  "mape_ci_high_pct": 13.945,
+  "holdout_r2": 0.9651,
+  "cv_mape_pct": 11.65,
+  "baseline_mape_pct": 23.0,
+  "passes_gate": true,
+  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds"
  }
 ]

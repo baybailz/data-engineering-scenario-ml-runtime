@@ -1,38 +1,37 @@
 {
- "generated_at": "2026-08-21T20:08:49+00:00",
+ "generated_at": "2026-08-21T20:14:11+00:00",
  "files_loaded": [
   "batch_01",
   "batch_02",
   "batch_03",
   "batch_04",
-  "batch_05"
- ],
- "files_pending": [
+  "batch_05",
   "batch_06"
  ],
- "next_file": "batch_06",
+ "files_pending": [],
+ "next_file": null,
  "row_counts": {
-  "dm_prediction_detail": 200,
-  "dim_model_version": 5,
-  "dm_runtime_sla": 59,
-  "dm_model_scorecard": 5
+  "dm_prediction_detail": 240,
+  "dim_model_version": 6,
+  "dm_runtime_sla": 60,
+  "dm_model_scorecard": 6
  },
- "queries_measured": 200,
- "templates": 59,
- "models_trained": 5,
- "model_version": "v5-d0ae27ac",
- "holdout_mape_pct": 9.366,
- "mape_ci_low_pct": 7.0,
- "mape_ci_high_pct": 11.947,
- "holdout_r2": 0.981,
- "holdout_mae_seconds": 0.04518,
- "baseline_mape_pct": 25.689,
- "cv_mape_pct": 13.255,
+ "queries_measured": 240,
+ "templates": 60,
+ "models_trained": 6,
+ "model_version": "v6-00b9305f",
+ "holdout_mape_pct": 10.86,
+ "mape_ci_low_pct": 8.299,
+ "mape_ci_high_pct": 13.945,
+ "holdout_r2": 0.9651,
+ "holdout_mae_seconds": 0.02854,
+ "baseline_mape_pct": 23.0,
+ "cv_mape_pct": 11.65,
  "passes_gate": true,
  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
  "gate_mape_pct": 15.0,
  "gate_r2": 0.9,
- "n_train_rows": 160,
+ "n_train_rows": 200,
  "n_holdout_rows": 40,
  "cpu_count": 4,
  "duckdb_threads": 4,
@@ -40,117 +39,117 @@
  "importances": [
   {
    "feature": "log_rows_after_filter",
-   "importance": 0.6376
+   "importance": 0.5153
   },
   {
    "feature": "has_groupby",
-   "importance": 0.3229
+   "importance": 0.2369
   },
   {
    "feature": "log_rows_in",
-   "importance": 0.1604
+   "importance": 0.1636
   },
   {
    "feature": "has_window",
-   "importance": 0.1363
+   "importance": 0.1252
   },
   {
    "feature": "n_joins",
-   "importance": 0.1097
-  },
-  {
-   "feature": "log_limit_rows",
-   "importance": 0.0189
+   "importance": 0.0317
   },
   {
    "feature": "has_orderby",
-   "importance": 0.0027
+   "importance": 0.0086
   },
   {
    "feature": "log_bytes_est",
    "importance": 0.0
   },
   {
+   "feature": "log_limit_rows",
+   "importance": -0.0003
+  },
+  {
    "feature": "selectivity",
-   "importance": -0.0029
+   "importance": -0.0006
   }
  ],
  "calibration": [
   {
    "decile": 1,
    "queries": 4,
-   "predicted_seconds": 0.0606,
-   "actual_seconds": 0.0647,
-   "abs_pct_error": 5.91
+   "predicted_seconds": 0.0572,
+   "actual_seconds": 0.061,
+   "abs_pct_error": 8.04
   },
   {
    "decile": 2,
    "queries": 4,
-   "predicted_seconds": 0.0718,
-   "actual_seconds": 0.0749,
-   "abs_pct_error": 6.88
+   "predicted_seconds": 0.0864,
+   "actual_seconds": 0.0878,
+   "abs_pct_error": 7.67
   },
   {
    "decile": 3,
    "queries": 4,
-   "predicted_seconds": 0.0928,
-   "actual_seconds": 0.0983,
-   "abs_pct_error": 7.33
+   "predicted_seconds": 0.116,
+   "actual_seconds": 0.1118,
+   "abs_pct_error": 6.94
   },
   {
    "decile": 4,
    "queries": 4,
-   "predicted_seconds": 0.1249,
-   "actual_seconds": 0.1384,
-   "abs_pct_error": 11.31
+   "predicted_seconds": 0.1292,
+   "actual_seconds": 0.114,
+   "abs_pct_error": 13.5
   },
   {
    "decile": 5,
    "queries": 4,
-   "predicted_seconds": 0.167,
-   "actual_seconds": 0.1778,
-   "abs_pct_error": 5.93
+   "predicted_seconds": 0.1454,
+   "actual_seconds": 0.1399,
+   "abs_pct_error": 19.12
   },
   {
    "decile": 6,
    "queries": 4,
-   "predicted_seconds": 0.1912,
-   "actual_seconds": 0.2108,
-   "abs_pct_error": 8.9
+   "predicted_seconds": 0.161,
+   "actual_seconds": 0.1699,
+   "abs_pct_error": 12.19
   },
   {
    "decile": 7,
    "queries": 4,
-   "predicted_seconds": 0.2315,
-   "actual_seconds": 0.2266,
-   "abs_pct_error": 7.96
+   "predicted_seconds": 0.186,
+   "actual_seconds": 0.1829,
+   "abs_pct_error": 10.49
   },
   {
    "decile": 8,
    "queries": 4,
-   "predicted_seconds": 0.4635,
-   "actual_seconds": 0.4602,
-   "abs_pct_error": 14.36
+   "predicted_seconds": 0.2146,
+   "actual_seconds": 0.1963,
+   "abs_pct_error": 12.12
   },
   {
    "decile": 9,
    "queries": 4,
-   "predicted_seconds": 0.7402,
-   "actual_seconds": 0.803,
-   "abs_pct_error": 14.63
+   "predicted_seconds": 0.3758,
+   "actual_seconds": 0.3617,
+   "abs_pct_error": 4.32
   },
   {
    "decile": 10,
    "queries": 4,
-   "predicted_seconds": 1.269,
-   "actual_seconds": 1.4088,
-   "abs_pct_error": 10.45
+   "predicted_seconds": 0.9079,
+   "actual_seconds": 0.7918,
+   "abs_pct_error": 14.21
   }
  ],
  "runtime_fastest_seconds": 0.0364,
  "runtime_slowest_seconds": 2.8035,
  "sla_seconds": "0.2",
- "sla_missed_breaches": 2,
- "sla_breaches_called": 39,
- "model_card": "# Query runtime model v5-d0ae27ac\n\nTrained 2026-08-21T20:08:41+00:00 on 160 measured queries from 5 batch(es).\n\n## What it predicts\n\nWall-clock seconds for a DuckDB query, from features that are known before the\nquery runs: rows in the scanned tables, estimated bytes, join count, group by,\nfilter selectivity, order by, window function, limit.\n\n## Data\n\n- 200 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Measured on 4 vCPU, DuckDB threads pinned to 4.\n- Runtimes range 0.036s to 2.804s (median 0.187s).\n- Calibration factors ranged 0.741 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(calibrated seconds). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 0.0452 s |\n| holdout MAPE | 9.37% (95% CI 7.00\u201311.95) |\n| holdout R2 (log10 s) | 0.9810 |\n| 5-fold CV MAPE | 13.26% |\n| OLS baseline MAPE | 25.69% |\n| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |\n\n## Permutation importance (holdout, log seconds)\n\n| feature | importance |\n|---|---|\n| log_rows_after_filter | 0.6376 |\n| has_groupby | 0.3229 |\n| log_rows_in | 0.1604 |\n| has_window | 0.1363 |\n| n_joins | 0.1097 |\n| log_limit_rows | 0.0189 |\n| has_orderby | 0.0027 |\n| log_bytes_est | 0.0000 |\n| selectivity | -0.0029 |\n\n## Calibration\n\n| decile | queries | predicted s | actual s | error |\n|---|---|---|---|---|\n| 1 | 4 | 0.0606 | 0.0647 | 5.9% |\n| 2 | 4 | 0.0718 | 0.0749 | 6.9% |\n| 3 | 4 | 0.0928 | 0.0983 | 7.3% |\n| 4 | 4 | 0.1249 | 0.1384 | 11.3% |\n| 5 | 4 | 0.1670 | 0.1778 | 5.9% |\n| 6 | 4 | 0.1912 | 0.2108 | 8.9% |\n| 7 | 4 | 0.2315 | 0.2266 | 8.0% |\n| 8 | 4 | 0.4635 | 0.4602 | 14.4% |\n| 9 | 4 | 0.7402 | 0.8030 | 14.6% |\n| 10 | 4 | 1.2690 | 1.4088 | 10.4% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit. It does not cover spills to disk, concurrency, or user-defined\n  functions, and the model should not be trusted outside that envelope.\n"
+ "sla_missed_breaches": 1,
+ "sla_breaches_called": 42,
+ "model_card": "# Query runtime model v6-00b9305f\n\nTrained 2026-08-21T20:14:01+00:00 on 200 measured queries from 6 batch(es).\n\n## What it predicts\n\nWall-clock seconds for a DuckDB query, from features that are known before the\nquery runs: rows in the scanned tables, estimated bytes, join count, group by,\nfilter selectivity, order by, window function, limit.\n\n## Data\n\n- 240 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Measured on 4 vCPU, DuckDB threads pinned to 4.\n- Runtimes range 0.036s to 2.804s (median 0.180s).\n- Calibration factors ranged 0.741 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(calibrated seconds). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 0.0285 s |\n| holdout MAPE | 10.86% (95% CI 8.30\u201313.95) |\n| holdout R2 (log10 s) | 0.9651 |\n| 5-fold CV MAPE | 11.65% |\n| OLS baseline MAPE | 23.00% |\n| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |\n\n## Permutation importance (holdout, log seconds)\n\n| feature | importance |\n|---|---|\n| log_rows_after_filter | 0.5153 |\n| has_groupby | 0.2369 |\n| log_rows_in | 0.1636 |\n| has_window | 0.1252 |\n| n_joins | 0.0317 |\n| has_orderby | 0.0086 |\n| log_bytes_est | 0.0000 |\n| log_limit_rows | -0.0003 |\n| selectivity | -0.0006 |\n\n## Calibration\n\n| decile | queries | predicted s | actual s | error |\n|---|---|---|---|---|\n| 1 | 4 | 0.0572 | 0.0610 | 8.0% |\n| 2 | 4 | 0.0864 | 0.0878 | 7.7% |\n| 3 | 4 | 0.1160 | 0.1118 | 6.9% |\n| 4 | 4 | 0.1292 | 0.1140 | 13.5% |\n| 5 | 4 | 0.1454 | 0.1399 | 19.1% |\n| 6 | 4 | 0.1610 | 0.1699 | 12.2% |\n| 7 | 4 | 0.1860 | 0.1829 | 10.5% |\n| 8 | 4 | 0.2146 | 0.1963 | 12.1% |\n| 9 | 4 | 0.3758 | 0.3617 | 4.3% |\n| 10 | 4 | 0.9079 | 0.7918 | 14.2% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit. It does not cover spills to disk, concurrency, or user-defined\n  functions, and the model should not be trusted outside that envelope.\n"
 }
