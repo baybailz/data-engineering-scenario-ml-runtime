@@ -1,0 +1,91 @@
+{
+ "model_version": "v1-e348fc0a",
+ "trained_at": "2026-08-21T19:58:52+00:00",
+ "batches_measured": 1,
+ "batches": [
+  "batch_01"
+ ],
+ "n_train_rows": 28,
+ "n_holdout_rows": 12,
+ "model_kind": "HistGradientBoostingRegressor(log seconds)",
+ "holdout_mae_seconds": 0.11516,
+ "holdout_mape_pct": 32.471,
+ "mape_ci_low_pct": 21.922,
+ "mape_ci_high_pct": 44.436,
+ "holdout_r2": 0.8853,
+ "cv_mape_pct": 73.438,
+ "baseline_mape_pct": 40.672,
+ "passes_gate": false,
+ "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
+ "gate_mape_pct": 15.0,
+ "gate_r2": 0.9,
+ "cpu_count": 4,
+ "duckdb_threads": 4,
+ "reps_median": 5,
+ "runtime_min_seconds": 0.042899,
+ "runtime_max_seconds": 2.33194,
+ "runtime_median_seconds": 0.190345,
+ "machine_factor_min": 1.0,
+ "machine_factor_max": 1.045177,
+ "importances": [
+  {
+   "feature": "log_rows_after_filter",
+   "importance": 0.4902
+  },
+  {
+   "feature": "has_groupby",
+   "importance": 0.2382
+  },
+  {
+   "feature": "log_rows_in",
+   "importance": 0.0935
+  },
+  {
+   "feature": "has_window",
+   "importance": 0.0879
+  },
+  {
+   "feature": "selectivity",
+   "importance": 0.0299
+  },
+  {
+   "feature": "log_bytes_est",
+   "importance": 0.0
+  },
+  {
+   "feature": "n_joins",
+   "importance": -0.0046
+  },
+  {
+   "feature": "log_limit_rows",
+   "importance": -0.0243
+  },
+  {
+   "feature": "has_orderby",
+   "importance": -0.0381
+  }
+ ],
+ "calibration": [
+  {
+   "decile": 1,
+   "queries": 4,
+   "predicted_seconds": 0.0634,
+   "actual_seconds": 0.0678,
+   "abs_pct_error": 20.79
+  },
+  {
+   "decile": 2,
+   "queries": 4,
+   "predicted_seconds": 0.2543,
+   "actual_seconds": 0.2079,
+   "abs_pct_error": 25.55
+  },
+  {
+   "decile": 3,
+   "queries": 4,
+   "predicted_seconds": 0.6606,
+   "actual_seconds": 0.5829,
+   "abs_pct_error": 51.07
+  }
+ ]
+}

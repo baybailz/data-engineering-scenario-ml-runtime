@@ -1,1 +1,2 @@
 model_version,trained_at,batches_measured,n_train_rows,n_holdout_rows,model_kind,holdout_mae_seconds,holdout_mape_pct,mape_ci_low_pct,mape_ci_high_pct,holdout_r2,cv_mape_pct,baseline_mape_pct,passes_gate,gate_rule
+v1-e348fc0a,2026-08-21T19:58:52+00:00,1,28,12,HistGradientBoostingRegressor(log seconds),0.11516,32.471,21.922,44.436,0.8853,73.438,40.672,False,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
