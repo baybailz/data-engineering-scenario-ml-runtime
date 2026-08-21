@@ -1,26 +1,4 @@
 {
- "name": "batch_1",
- "rows": [
-  {
-   "customer_id": "1003",
-   "customer_name": "Cobalt Medical",
-   "city": "Charlotte",
-   "state": "NC",
-   "segment": "enterprise"
-  },
-  {
-   "customer_id": "1005",
-   "customer_name": "Evergreen Logistics",
-   "city": "Savannah",
-   "state": "GA",
-   "segment": "smb"
-  },
-  {
-   "customer_id": "1006",
-   "customer_name": "Foothills Brewing",
-   "city": "Greenville",
-   "state": "SC",
-   "segment": "smb"
-  }
- ]
+ "name": null,
+ "rows": []
 }

@@ -1,23 +1,30 @@
 {
-  "repo": "baybailz/data-engineering-scenario-template",
-  "title": "Scenario Template",
+  "repo": "baybailz/data-engineering-scenario-ml-runtime",
+  "title": "Query Runtime Model",
   "subtitle": "Data engineering scenario · Bailey Thompson",
   "author": "Bailey Thompson",
   "workflow": "pipeline.yml",
-  "actions": { "run": "load_next", "reset": "reset" },
-  "run_label": "Run data pipeline",
+  "actions": { "run": "measure_batch", "reset": "reset" },
+  "run_label": "Measure the next batch",
   "dbt_select": "tag:scenario",
   "pipeline_steps": [
-    { "key": "python", "label": "Python" },
-    { "key": "dbt",    "label": "dbt build" },
-    { "key": "out",    "label": "Conformed tables" }
+    { "key": "measure", "label": "Measure" },
+    { "key": "train", "label": "Train" },
+    { "key": "dbt", "label": "dbt build" }
   ],
+  "arch_subtitles": {
+    "measure": "40 queries, timed on the runner",
+    "train": "gradient boosting on log seconds",
+    "dbt": "stage → conformed → datamart"
+  },
   "landing": {
-    "seed": "incoming_customer",
-    "columns": ["customer_id", "customer_name", "city", "state", "segment"]
+    "seed": "query_run_landing",
+    "columns": ["query_id", "template_id", "rows_in", "n_joins", "selectivity",
+                "median_seconds"]
   },
   "export": {
-    "tables": ["dim_customer", "dim_record_status", "dm_customer_summary"],
+    "tables": ["dm_prediction_detail", "dim_model_version", "dm_runtime_sla",
+               "dm_model_scorecard"],
     "layers": ["seed", "stage", "transform", "conformed", "datamart"]
   }
 }

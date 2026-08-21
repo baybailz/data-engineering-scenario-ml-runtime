@@ -1,30 +1,78 @@
-# Conformed contracts: keys are unique and never null, every status is one
-# of a closed list, and every imported row traces back to an incoming record.
+# Conformed contracts: every key is unique and never null, every flag is one of
+# a closed list, every fact row points at a template that exists.
 version: 2
 
 models:
-  - name: dim_customer
-    description: The customer dimension, master plus imported rows.
+  - name: dim_query_template
+    description: One row per query shape.
     columns:
-      - name: customer_key
+      - name: template_key
         data_tests: [unique, not_null]
-      - name: customer_id
+      - name: template_id
         data_tests: [unique, not_null]
-      - name: customer_name
-        data_tests: [not_null]
-  - name: dim_record_status
-    description: Disposition of every incoming record.
-    columns:
-      - name: record_key
-        data_tests:
-          - unique
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_incoming_customer')
-                field: record_key
-      - name: status
+      - name: has_groupby
         data_tests:
           - accepted_values:
               arguments:
-                values: [new, duplicate_of_master, duplicate_within_incoming]
+                values: ["yes", "no"]
+      - name: has_orderby
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["yes", "no"]
+      - name: has_window
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["yes", "no"]
+  - name: fact_query_run
+    description: One measured run per query.
+    columns:
+      - name: run_key
+        data_tests: [unique, not_null]
+      - name: template_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_query_template')
+                field: template_key
+      - name: normalized_seconds
+        data_tests: [not_null]
+  - name: fact_query_prediction
+    description: One prediction per query per model version.
+    columns:
+      - name: prediction_key
+        data_tests: [unique, not_null]
+      - name: run_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fact_query_run')
+                field: run_key
+      - name: model_version_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_model_version')
+                field: model_version_key
+      - name: prediction_scope
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [holdout, cross_validated]
+  - name: dim_model_version
+    description: One row per trained model, with its metrics and gate verdict.
+    columns:
+      - name: model_version_key
+        data_tests: [unique, not_null]
+      - name: model_version
+        data_tests: [unique, not_null]
+      - name: gate_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [pass, fail]

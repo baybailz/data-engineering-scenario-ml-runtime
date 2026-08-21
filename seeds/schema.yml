@@ -1,25 +1,65 @@
 version: 2
 
 seeds:
-  - name: crm_customer
-    description: Master customer list. Master data always wins.
-    config:
-      column_types:
-        customer_id: integer
-        customer_name: varchar
-        city: varchar
-        state: varchar
-        segment: varchar
-  - name: incoming_customer
+  - name: query_run_landing
     description: >
-      Landing table for incoming batches. Rebuilt by scripts/run.py from
-      state/loaded_files.json on every run, so it is a pure function of state.
+      Landing table for measured query runs. Rebuilt by scripts/run.py from
+      state/measurements.json on every run, so it is a pure function of state.
     config:
       column_types:
-        source_file: varchar
-        row_num: integer
-        customer_id: integer
-        customer_name: varchar
-        city: varchar
-        state: varchar
-        segment: varchar
+        batch_name: varchar
+        query_id: varchar
+        template_id: varchar
+        template_label: varchar
+        fact_table: varchar
+        fact_rows: bigint
+        rows_in: bigint
+        bytes_est: bigint
+        n_joins: integer
+        has_groupby: integer
+        selectivity: double
+        has_orderby: integer
+        has_window: integer
+        limit_rows: integer
+        reps: integer
+        median_seconds: double
+        min_seconds: double
+        max_seconds: double
+        calibration_seconds: double
+        machine_factor: double
+        normalized_seconds: double
+        cpu_count: integer
+        duckdb_threads: integer
+        measured_at: timestamp
+  - name: query_prediction_landing
+    description: >
+      One out-of-sample prediction per measured query per trained model.
+      Written by scripts/train.py.
+    config:
+      column_types:
+        model_version: varchar
+        query_id: varchar
+        actual_seconds: double
+        predicted_seconds: double
+        abs_pct_error: double
+        in_holdout: integer
+        predicted_at: timestamp
+  - name: model_version_landing
+    description: One row per trained model, with the metrics it was scored on.
+    config:
+      column_types:
+        model_version: varchar
+        trained_at: timestamp
+        batches_measured: integer
+        n_train_rows: integer
+        n_holdout_rows: integer
+        model_kind: varchar
+        holdout_mae_seconds: double
+        holdout_mape_pct: double
+        mape_ci_low_pct: double
+        mape_ci_high_pct: double
+        holdout_r2: double
+        cv_mape_pct: double
+        baseline_mape_pct: double
+        passes_gate: boolean
+        gate_rule: varchar

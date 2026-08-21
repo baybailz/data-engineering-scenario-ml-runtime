@@ -1,5 +1,5 @@
 # One dispatchable workflow = one pipeline run:
-# land the next file -> dbt build -> publish JSON for the page.
+# measure the next batch -> retrain -> dbt build -> publish JSON for the page.
 # Fails closed: a red build commits nothing.
 name: pipeline
 
@@ -9,8 +9,8 @@ on:
       action:
         description: "What to do"
         type: choice
-        default: load_next
-        options: [load_next, reset]
+        default: measure_batch
+        options: [measure_batch, reset]
 
 permissions:
   contents: write
@@ -23,7 +23,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     env:
-      ACTION: ${{ inputs.action || 'load_next' }}
+      ACTION: ${{ inputs.action || 'measure_batch' }}
       DBT_PROFILES_DIR: .
     steps:
       - uses: actions/checkout@v4
@@ -34,9 +34,14 @@ jobs:
       - run: pip install -r requirements.txt
 
       # shell: bash => pipefail, so a failing step still fails through tee
-      - name: Land the next file (Python)
+      - name: Measure the next batch (Python)
         shell: bash
         run: python scripts/run.py --action "$ACTION" 2>&1 | tee /tmp/python.log
+
+      - name: Train on everything measured so far
+        if: env.ACTION != 'reset'
+        shell: bash
+        run: python scripts/train.py 2>&1 | tee -a /tmp/python.log
 
       - name: dbt build (seeds + models + tests)
         shell: bash
@@ -53,7 +58,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state seeds docs/data
+          git add state seeds artifacts docs/data scenario.duckdb
           git diff --cached --quiet && echo "nothing changed" && exit 0
           git commit -m "pipeline: $ACTION ($(date -u +%FT%TZ))"
+          git pull --rebase -X theirs origin main || true
           git push

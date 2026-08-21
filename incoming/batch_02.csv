@@ -1,0 +1,1090 @@
+query_id,template_id,template_label,fact_table,fact_rows,rows_in,bytes_est,n_joins,has_groupby,selectivity,has_orderby,has_window,limit_rows,query_sql
+t37_s2,t37,5M rows · 0 joins · no group by · limit 100,fact_event_l,5000000,5000000,360000000,0,0,0.15,0,0,100,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100"
+t51_s3,t51,2M rows · 0 joins · group by · no limit,fact_event_s,2000000,2000000,144000000,0,1,0.45,0,0,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id"
+t31_s2,t31,2M rows · 1 join · no group by · window · limit 100,fact_event_s,2000000,2050000,146000000,1,0,0.15,0,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100"
+t52_s1,t52,2M rows · 2 joins · no group by · window · limit 100,fact_event_s,2000000,2055000,146160000,2,0,0.02,0,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100"
+t07_s4,t07,2M rows · 2 joins · group by · window · limit 100,fact_event_s,2000000,2055000,146160000,2,1,0.9,0,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100"
+t59_s4,t59,3M rows · 1 join · group by · window · order by · limit 1000,fact_event_m,3000000,3050000,218000000,1,1,0.9,1,1,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 1000"
+t55_s1,t55,5M rows · 2 joins · group by · window · limit 100,fact_event_l,5000000,5055000,362160000,2,1,0.02,0,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100"
+t53_s3,t53,5M rows · 1 join · group by · limit 1000,fact_event_l,5000000,5050000,362000000,1,1,0.45,0,0,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id
+    limit 1000"
+t35_s2,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,fact_event_l,5000000,5000000,360000000,0,0,0.15,1,1,1000,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000"
+t12_s4,t12,2M rows · 0 joins · no group by · no limit,fact_event_s,2000000,2000000,144000000,0,0,0.9,0,0,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered"
+t35_s3,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,fact_event_l,5000000,5000000,360000000,0,0,0.45,1,1,1000,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000"
+t47_s2,t47,8M rows · 1 join · no group by · window · order by · limit 1000,fact_event_x,8000000,8050000,578000000,1,0,0.15,1,1,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000"
+t22_s3,t22,5M rows · 2 joins · no group by · order by · limit 100,fact_event_l,5000000,5055000,362160000,2,0,0.45,1,0,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 100"
+t35_s1,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,fact_event_l,5000000,5000000,360000000,0,0,0.02,1,1,1000,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000"
+t48_s4,t48,2M rows · 3 joins · group by · window · order by · no limit,fact_event_s,2000000,2055200,146164800,3,1,0.9,1,1,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc"
+t60_s1,t60,3M rows · 2 joins · group by · window · order by · no limit,fact_event_m,3000000,3055000,218160000,2,1,0.02,1,1,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    order by amount_total desc"
+t34_s1,t34,2M rows · 0 joins · no group by · window · limit 100,fact_event_s,2000000,2000000,144000000,0,0,0.02,0,1,100,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100"
+t51_s2,t51,2M rows · 0 joins · group by · no limit,fact_event_s,2000000,2000000,144000000,0,1,0.15,0,0,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id"
+t06_s3,t06,2M rows · 1 join · no group by · window · order by · no limit,fact_event_s,2000000,2050000,146000000,1,0,0.45,1,1,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc"
+t43_s4,t43,8M rows · 1 join · no group by · order by · limit 100,fact_event_x,8000000,8050000,578000000,1,0,0.9,1,0,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 100"
+t54_s2,t54,8M rows · 0 joins · no group by · no limit,fact_event_x,8000000,8000000,576000000,0,0,0.15,0,0,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered"
+t42_s2,t42,3M rows · 0 joins · group by · window · order by · no limit,fact_event_m,3000000,3000000,216000000,0,1,0.15,1,1,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc"
+t44_s2,t44,5M rows · 3 joins · group by · window · limit 1000,fact_event_l,5000000,5055200,362164800,3,1,0.15,0,1,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    limit 1000"
+t53_s4,t53,5M rows · 1 join · group by · limit 1000,fact_event_l,5000000,5050000,362000000,1,1,0.9,0,0,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id
+    limit 1000"
+t37_s1,t37,5M rows · 0 joins · no group by · limit 100,fact_event_l,5000000,5000000,360000000,0,0,0.02,0,0,100,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100"
+t40_s4,t40,3M rows · 3 joins · group by · window · limit 100,fact_event_m,3000000,3055200,218164800,3,1,0.9,0,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    limit 100"
+t41_s2,t41,3M rows · 1 join · no group by · limit 1000,fact_event_m,3000000,3050000,218000000,1,0,0.15,0,0,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000"
+t32_s4,t32,8M rows · 0 joins · group by · order by · limit 1000,fact_event_x,8000000,8000000,576000000,0,1,0.9,1,0,1000,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000"
+t14_s3,t14,5M rows · 2 joins · no group by · limit 1000,fact_event_l,5000000,5055000,362160000,2,0,0.45,0,0,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000"
+t49_s1,t49,3M rows · 0 joins · group by · window · limit 100,fact_event_m,3000000,3000000,216000000,0,1,0.02,0,1,100,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    limit 100"
+t42_s4,t42,3M rows · 0 joins · group by · window · order by · no limit,fact_event_m,3000000,3000000,216000000,0,1,0.9,1,1,0,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc"
+t18_s3,t18,2M rows · 2 joins · group by · no limit,fact_event_s,2000000,2055000,146160000,2,1,0.45,0,0,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, customer_id"
+t03_s3,t03,8M rows · 2 joins · no group by · window · no limit,fact_event_x,8000000,8055000,578160000,2,0,0.45,0,1,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked"
+t19_s4,t19,8M rows · 3 joins · group by · window · order by · limit 100,fact_event_x,8000000,8055200,578164800,3,1,0.9,1,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100"
+t30_s3,t30,5M rows · 1 join · group by · window · no limit,fact_event_l,5000000,5050000,362000000,1,1,0.45,0,1,0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id"
+t46_s3,t46,8M rows · 1 join · group by · window · order by · limit 100,fact_event_x,8000000,8050000,578000000,1,1,0.45,1,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 100"
+t11_s2,t11,3M rows · 0 joins · group by · limit 1000,fact_event_m,3000000,3000000,216000000,0,1,0.15,0,0,1000,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    limit 1000"
+t25_s4,t25,8M rows · 1 join · no group by · limit 100,fact_event_x,8000000,8050000,578000000,1,0,0.9,0,0,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100"
+t46_s1,t46,8M rows · 1 join · group by · window · order by · limit 100,fact_event_x,8000000,8050000,578000000,1,1,0.02,1,1,100,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 100"
+t56_s2,t56,8M rows · 2 joins · no group by · limit 1000,fact_event_x,8000000,8055000,578160000,2,0,0.15,0,0,1000,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000"

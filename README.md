@@ -1,47 +1,70 @@
-# data-engineering-scenario-template
+# data-engineering-scenario-ml-runtime
 
-The template behind every `data-engineering-scenario-*` repo: a data pipeline you
-can run from a web page. The page is static (GitHub Pages); the **Run** button
-dispatches a GitHub Actions workflow that lands the next incoming file, runs
-`dbt build` (models *and* tests) against DuckDB, and commits the results back as
-JSON for the page to render. No servers, no keys beyond a fine-grained PAT in the
-owner's browser, no cost.
+Predict how long a query will run before it runs.
 
-**[Live demo →](https://baybailz.github.io/data-engineering-scenario-template/)**
+Warehouse work is queued, sized and priced on a guess. This pipeline measures real
+queries on the runner, trains a model on features that are known *before* the query
+starts — table sizes, joins, group by, filter selectivity, sort, window, limit — and
+publishes the error with a confidence interval and a pass/fail gate. The measurements
+are real: nothing here is simulated.
 
-## What you get
+**[Live demo →](https://baybailz.github.io/data-engineering-scenario-ml-runtime/)**
+
+## The hard part
+
+Not the model. The model is 40 lines of scikit-learn and the signal is physics.
+
+- **Measuring anything under a second on a shared runner.** A query that takes 20 ms is
+  mostly scheduler noise. Every query is warmed once, then repeated until 0.6 s of timed
+  work has accumulated, and the median is taken.
+- **Drift between batches.** A batch measured while the runner was busy looks like a batch
+  of slower queries, and a time-ordered holdout reads that as model error. A fixed
+  calibration query runs before and after every batch; every reading is divided by that
+  factor.
+- **Saying how wrong it is.** Holdout MAPE alone is a number without a spread. The
+  pipeline reports a bootstrap 95% CI, R², an OLS baseline to beat, permutation
+  importances and a calibration table, and it publishes a model that misses the gate with
+  the gate marked FAIL.
+- **Keeping predictions out of sample.** Holdout queries are scored by a model that never
+  saw them; earlier queries by 5-fold cross-validation. Nothing on the page is a model
+  grading its own training data.
+
+## How it works
+
+1. `scripts/make_workload.py` builds four fact tables (2M–8M rows), three dimensions and a
+   catalogue of 60 query shapes × 4 filter selectivities, split into six batches of 40.
+   Deterministic: tables are generated from row numbers through `hash()`.
+2. `scripts/run.py --action measure_batch` times the next batch on DuckDB with threads
+   pinned to 4, records the pre-run features and the calibrated runtime, and rebuilds the
+   landing seed from `state/`.
+3. `scripts/train.py` fits a `HistGradientBoostingRegressor` on log(seconds) plus an OLS
+   baseline, scores them on the most recent batch, and writes `artifacts/model.pkl`,
+   `model_card.md`, `metrics.json` and one prediction row per measured query.
+4. `dbt build` runs stage → transform → conformed (`dim_query_template`, `fact_query_run`,
+   `fact_query_prediction`, `dim_model_version`) → datamart (`dm_runtime_sla`,
+   `dm_prediction_detail`, `dm_model_scorecard`), with 73 models and tests.
+5. `scripts/export_json.py` publishes `docs/data/*.json` and the workflow commits it back,
+   so the page renders what the pipeline actually produced.
+
+## Layout
 
 ```
-docs/index.html        the shell: presentation deck + demo console (do not edit per scenario)
-docs/slides.js         the slides for THIS scenario
-docs/panels.js         the console tabs for THIS scenario
-docs/scenario.json     title, repo, pipeline steps, which tables to export
-scripts/run.py         ingest step: incoming/*.csv -> landing seed, queue in state/
-scripts/export_json.py publishes docs/data/*.json (summary, tables, logs, code, lineage, audit)
-scripts/scenario.py    two hooks: headline numbers + the log row for a run
-models/                stage -> transform -> conformed -> datamart (see CONVENTIONS.md)
-macros/                surrogate_key(), metadata_audit()
-tests/                 singular tests
-.github/workflows/pipeline.yml   the dispatchable run
-.github/workflows/ci.yml         PR gate: sqlfluff + dbt build + export smoke test
-.github/actions/ollama           local LLM on the runner, model blobs cached (for the AI scenarios)
-.github/workflows/ollama-smoke.yml  proves the LLM path and reports tok/s
+docs/index.html          the shell: presentation deck + demo console
+docs/slides.js           the slides, including the scatter and the learning curve
+docs/panels.js           the console tabs
+docs/scenario.json       title, repo, pipeline steps, which tables to export
+incoming/batch_*.csv     the query catalogue: 240 queries with their features
+scripts/make_workload.py builds workload.duckdb and the catalogue
+scripts/run.py           measures the next batch -> query_run_landing seed
+scripts/train.py         trains, scores, gates, writes artifacts/ and two seeds
+scripts/export_json.py   publishes docs/data/*.json
+scripts/scenario.py      headline numbers + the log row for a run
+models/                  stage -> transform -> conformed -> datamart
+tests/                   every run has a prediction; no prediction is negative
+artifacts/               model.pkl, model_card.md, metrics.json, predictions.csv
+.github/workflows/pipeline.yml   measure -> train -> dbt build -> export -> commit
+.github/workflows/ci.yml         PR gate: sqlfluff + dbt build + a short measure/train
 ```
-
-## Start a new scenario
-
-1. **Use this template** on GitHub → name it `data-engineering-scenario-<topic>`.
-2. Settings → Pages → Deploy from branch `main`, folder `/docs`.
-3. Edit `docs/scenario.json` (repo, title, steps, export tables) and the `<meta>` tags
-   at the top of `docs/index.html`.
-4. Replace the seeds, `incoming/*.csv`, and the models. Keep the layer folders.
-5. Rewrite `docs/slides.js` and `docs/panels.js`. `S.tablePanel(name, hint)` renders any
-   exported table; `S.incomingPanel()` renders the queue; `S.svgDag()` draws lineage from
-   the manifest. Adjust `scripts/scenario.py` so the log row says something true.
-6. Run the workflow once (`reset`) so `docs/data/` exists, then open the page.
-7. To drive it from the page: gear icon → paste a fine-grained PAT scoped to this repo
-   with *Actions: read & write* and *Contents: read*. Visitors without a token see a
-   locked button and the published state.
 
 Locally:
 
@@ -49,24 +72,9 @@ Locally:
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 export DBT_PROFILES_DIR=.
 .venv/bin/python scripts/run.py --action reset && .venv/bin/dbt build --full-refresh
-.venv/bin/python scripts/run.py --action load_next && .venv/bin/dbt build --select tag:scenario
-.venv/bin/python scripts/export_json.py --action load_next
-(cd docs && python -m http.server 8000)   # http://localhost:8000
+.venv/bin/python scripts/run.py --action measure_batch && .venv/bin/python scripts/train.py
+.venv/bin/dbt build --select tag:scenario && .venv/bin/python scripts/export_json.py --action measure_batch
+(cd docs && python -m http.server 8000)
 ```
 
-## Using a local LLM in a scenario
-
-```yaml
-- uses: ./.github/actions/ollama
-  with: { model: "qwen2.5:3b" }
-- run: curl -s localhost:11434/api/generate -d '{"model":"qwen2.5:3b","format":"json","stream":false,"prompt":"..."}'
-```
-
-Free, keyless, runs on `ubuntu-latest`. The first run pulls the model (~2 GB);
-later runs restore it from the Actions cache. Dispatch `ollama-smoke` to see timings.
-
-## Conventions
-
-See [CONVENTIONS.md](CONVENTIONS.md): layers, keys, tests, SQL shape, and workflow,
-with the places where this series deliberately departs from the enterprise standard
-it grew out of.
+Conventions: [CONVENTIONS.md](CONVENTIONS.md).

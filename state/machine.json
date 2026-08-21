@@ -1,0 +1,7 @@
+{
+ "cpu_count": 28,
+ "duckdb_threads": 4,
+ "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+ "python": "3.12.3",
+ "calibration_baseline_seconds": 0.091979
+}

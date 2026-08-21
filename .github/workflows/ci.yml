@@ -1,12 +1,14 @@
-# Every pull request: lint the SQL and build the whole project with its tests
-# against a throwaway DuckDB. Nothing merges red.
+# Every pull request: lint the SQL, build the whole project with its tests
+# against the committed measurements, then prove the measure-train-build path
+# still works end to end on a short batch. Nothing merges red.
 name: ci
 
 on:
   pull_request:
   push:
     branches: [main]
-    paths-ignore: ["docs/data/**", "state/**", "seeds/incoming_*.csv"]
+    paths-ignore: ["docs/data/**", "state/**", "seeds/query_*.csv", "seeds/model_*.csv",
+                   "artifacts/**"]
 
 permissions:
   contents: read
@@ -28,4 +30,10 @@ jobs:
       - name: dbt build --full-refresh
         run: dbt build --full-refresh --no-use-colors
       - name: export smoke test
-        run: python scripts/export_json.py --action load_next --dbt-log /dev/null
+        run: python scripts/export_json.py --action measure_batch --dbt-log /dev/null
+      - name: measure and train a short batch
+        run: |
+          python scripts/run.py --action reset
+          python scripts/run.py --action measure_batch --limit 16
+          python scripts/train.py
+          dbt build --full-refresh --no-use-colors
