@@ -129,33 +129,30 @@ window.SLIDES = [
       <div class="ptsec">What I assumed</div>
       <ul class="pointlist">
         <li><span class="pt">1</span><span><b>Every feature is known before the query runs.</b>
-          Table sizes, join count, group by, filter selectivity, order by, window, limit. A feature
-          you only have afterwards would make the model useless for the thing it is for.</span></li>
-        <li><span class="pt">2</span><span><b>A model predicts the hardware it was trained on.</b>
-          These numbers were measured on the machine that ran the pipeline: ${s.cpu_count || 4}
-          vCPU, DuckDB threads pinned to ${s.duckdb_threads || 4}. Production would train on
-          production.</span></li>
+          Table sizes, join count, group by, filter selectivity, order by, window,
+          limit.</span></li>
+        <li><span class="pt">2</span><span><b>A model predicts the hardware it trained on.</b>
+          These numbers come from the machine that ran the pipeline: ${s.cpu_count || 4} vCPU,
+          DuckDB threads pinned to ${s.duckdb_threads || 4}.</span></li>
         <li><span class="pt">3</span><span><b>The data is measured, not simulated.</b>
-          ${S.fmtN(s.queries_measured || 0)} queries against tables of 2M to 8M rows, each timed
-          as the median of ${s.reps_median || 5}+ repetitions after a warm-up run.</span></li>
-        <li><span class="pt">4</span><span><b>A shared runner drifts.</b> A fixed calibration query
-          is re-timed every ten queries and each reading is divided by the calibration value at
-          its position, so a runner that got busy halfway through is not read as a batch that
-          turned slower halfway through.</span></li>
+          ${S.fmtN(s.queries_measured || 0)} queries on tables of 2M to 8M rows, the median of
+          ${s.reps_median || 5}+ timed repetitions after a warm-up.</span></li>
+        <li><span class="pt">4</span><span><b>A shared runner drifts.</b> The same calibration
+          query is re-timed every ten queries; each reading is divided by the value interpolated
+          to its position.</span></li>
       </ul>
       <div class="ptsec">How it is built</div>
       <ul class="pointlist">
         <li><span class="pt">1</span><span><b>The gate is fixed before the numbers are known.</b>
-          ${m(S.esc(s.gate_rule || 'holdout MAPE ≤ 15% and R² ≥ 0.90'))}. A model that misses it is
-          still published, and marked FAIL on this page and in
-          ${m('dim_model_version')}.</span></li>
+          ${m(S.esc(s.gate_rule || 'holdout MAPE ≤ 15% and R² ≥ 0.90'))}. A model that misses it
+          is published anyway, marked FAIL here and in ${m('dim_model_version')}.</span></li>
         <li><span class="pt">2</span><span><b>The interval is reported, not hidden.</b> 2,000
           bootstrap draws over the holdout errors give the 95% CI printed beside every MAPE.</span></li>
         <li><span class="pt">3</span><span><b>Retraining is a pipeline step.</b> Measure, train,
-          ${m('dbt build')}, publish. Not a notebook someone runs by hand.</span></li>
+          ${m('dbt build')}, publish; not a notebook someone runs by hand.</span></li>
         <li><span class="pt">4</span><span><b>Layered like the warehouse.</b> stage → transform →
-          conformed (keyed, incremental, tested) → datamart, so the model output is queryable
-          data, not a pickle in a bucket.</span></li>
+          conformed (keyed, incremental, tested) → datamart, so model output is queryable data,
+          not a pickle in a bucket.</span></li>
       </ul>`;}},
 
   {id: 'arch', kicker: 'THE ARCHITECTURE', render() {
@@ -219,7 +216,7 @@ window.SLIDES = [
       <div style="overflow-x:auto">${body}</div></div>`;
     return `<h2>Why the signal is strong</h2>
       <p class="lead">Runtime is not a preference, it is physics: bytes read, rows hashed, rows
-        sorted. Permutation importance says what the query plan says — how much data survives the
+        sorted. Permutation importance agrees with the query plan: how much data survives the
         filter dominates, then whether there is a group by or a window over it. Retraining on every
         new batch moved the holdout error from ${n1(first.holdout_mape_pct)}% to
         ${n1(last.holdout_mape_pct)}%, against an OLS baseline on the same features that stayed
