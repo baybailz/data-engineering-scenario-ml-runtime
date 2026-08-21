@@ -1,6 +1,6 @@
 {
- "model_version": "v6-00b9305f",
- "trained_at": "2026-08-21T20:14:01+00:00",
+ "model_version": "v7-00b9305f",
+ "trained_at": "2026-08-21T21:54:43+00:00",
  "batches_measured": 6,
  "batches": [
   "batch_01",

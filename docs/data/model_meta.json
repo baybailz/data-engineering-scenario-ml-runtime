@@ -1,6 +1,6 @@
 {
- "model_version": "v6-00b9305f",
- "trained_at": "2026-08-21T20:14:01+00:00",
+ "model_version": "v7-00b9305f",
+ "trained_at": "2026-08-21T21:54:43+00:00",
  "input_name": "X",
  "output_name": "variable",
  "features": [
@@ -55,7 +55,7 @@
  "target": "log(seconds)",
  "target_inverse": "exp",
  "calibration_scale": 1.0,
- "onnx_vs_sklearn_max_diff": 4.85e-07,
+ "onnx_vs_sklearn_max_diff": 1.22e-06,
  "onnx_bytes": 547470,
  "n_rows": 240,
  "holdout_mape_pct": 10.86,

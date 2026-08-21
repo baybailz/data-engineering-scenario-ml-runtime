@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-21T20:14:11+00:00",
+ "generated_at": "2026-08-21T21:54:52+00:00",
  "files_loaded": [
   "batch_01",
   "batch_02",
@@ -12,14 +12,14 @@
  "next_file": null,
  "row_counts": {
   "dm_prediction_detail": 240,
-  "dim_model_version": 6,
+  "dim_model_version": 7,
   "dm_runtime_sla": 60,
-  "dm_model_scorecard": 6
+  "dm_model_scorecard": 7
  },
  "queries_measured": 240,
  "templates": 60,
- "models_trained": 6,
- "model_version": "v6-00b9305f",
+ "models_trained": 7,
+ "model_version": "v7-00b9305f",
  "holdout_mape_pct": 10.86,
  "mape_ci_low_pct": 8.299,
  "mape_ci_high_pct": 13.945,
@@ -151,5 +151,5 @@
  "sla_seconds": "0.2",
  "sla_missed_breaches": 1,
  "sla_breaches_called": 42,
- "model_card": "# Query runtime model v6-00b9305f\n\nTrained 2026-08-21T20:14:01+00:00 on 200 measured queries from 6 batch(es).\n\n## What it predicts\n\nWall-clock seconds for a DuckDB query, from features that are known before the\nquery runs: rows in the scanned tables, estimated bytes, join count, group by,\nfilter selectivity, order by, window function, limit.\n\n## Data\n\n- 240 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Measured on 4 vCPU, DuckDB threads pinned to 4.\n- Runtimes range 0.036s to 2.804s (median 0.180s).\n- Calibration factors ranged 0.741 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(calibrated seconds). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 0.0285 s |\n| holdout MAPE | 10.86% (95% CI 8.30\u201313.95) |\n| holdout R2 (log10 s) | 0.9651 |\n| 5-fold CV MAPE | 11.65% |\n| OLS baseline MAPE | 23.00% |\n| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |\n\n## Permutation importance (holdout, log seconds)\n\n| feature | importance |\n|---|---|\n| log_rows_after_filter | 0.5153 |\n| has_groupby | 0.2369 |\n| log_rows_in | 0.1636 |\n| has_window | 0.1252 |\n| n_joins | 0.0317 |\n| has_orderby | 0.0086 |\n| log_bytes_est | 0.0000 |\n| log_limit_rows | -0.0003 |\n| selectivity | -0.0006 |\n\n## Calibration\n\n| decile | queries | predicted s | actual s | error |\n|---|---|---|---|---|\n| 1 | 4 | 0.0572 | 0.0610 | 8.0% |\n| 2 | 4 | 0.0864 | 0.0878 | 7.7% |\n| 3 | 4 | 0.1160 | 0.1118 | 6.9% |\n| 4 | 4 | 0.1292 | 0.1140 | 13.5% |\n| 5 | 4 | 0.1454 | 0.1399 | 19.1% |\n| 6 | 4 | 0.1610 | 0.1699 | 12.2% |\n| 7 | 4 | 0.1860 | 0.1829 | 10.5% |\n| 8 | 4 | 0.2146 | 0.1963 | 12.1% |\n| 9 | 4 | 0.3758 | 0.3617 | 4.3% |\n| 10 | 4 | 0.9079 | 0.7918 | 14.2% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit. It does not cover spills to disk, concurrency, or user-defined\n  functions, and the model should not be trusted outside that envelope.\n"
+ "model_card": "# Query runtime model v7-00b9305f\n\nTrained 2026-08-21T21:54:43+00:00 on 200 measured queries from 6 batch(es).\n\n## What it predicts\n\nWall-clock seconds for a DuckDB query, from features that are known before the\nquery runs: rows in the scanned tables, estimated bytes, join count, group by,\nfilter selectivity, order by, window function, limit.\n\n## Data\n\n- 240 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Measured on 4 vCPU, DuckDB threads pinned to 4.\n- Runtimes range 0.036s to 2.804s (median 0.180s).\n- Calibration factors ranged 0.741 to 1.045. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(calibrated seconds). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 0.0285 s |\n| holdout MAPE | 10.86% (95% CI 8.30\u201313.95) |\n| holdout R2 (log10 s) | 0.9651 |\n| 5-fold CV MAPE | 11.65% |\n| OLS baseline MAPE | 23.00% |\n| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |\n\n## Permutation importance (holdout, log seconds)\n\n| feature | importance |\n|---|---|\n| log_rows_after_filter | 0.5153 |\n| has_groupby | 0.2369 |\n| log_rows_in | 0.1636 |\n| has_window | 0.1252 |\n| n_joins | 0.0317 |\n| has_orderby | 0.0086 |\n| log_bytes_est | 0.0000 |\n| log_limit_rows | -0.0003 |\n| selectivity | -0.0006 |\n\n## Calibration\n\n| decile | queries | predicted s | actual s | error |\n|---|---|---|---|---|\n| 1 | 4 | 0.0572 | 0.0610 | 8.0% |\n| 2 | 4 | 0.0864 | 0.0878 | 7.7% |\n| 3 | 4 | 0.1160 | 0.1118 | 6.9% |\n| 4 | 4 | 0.1292 | 0.1140 | 13.5% |\n| 5 | 4 | 0.1454 | 0.1399 | 19.1% |\n| 6 | 4 | 0.1610 | 0.1699 | 12.2% |\n| 7 | 4 | 0.1860 | 0.1829 | 10.5% |\n| 8 | 4 | 0.2146 | 0.1963 | 12.1% |\n| 9 | 4 | 0.3758 | 0.3617 | 4.3% |\n| 10 | 4 | 0.9079 | 0.7918 | 14.2% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit. It does not cover spills to disk, concurrency, or user-defined\n  functions, and the model should not be trusted outside that envelope.\n"
 }

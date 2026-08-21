@@ -1,6 +1,6 @@
-# Query runtime model v6-00b9305f
+# Query runtime model v7-00b9305f
 
-Trained 2026-08-21T20:14:01+00:00 on 200 measured queries from 6 batch(es).
+Trained 2026-08-21T21:54:43+00:00 on 200 measured queries from 6 batch(es).
 
 ## What it predicts
 

@@ -5,3 +5,4 @@ v3-e3d9219d,2026-08-21T20:04:14+00:00,3,80,40,HistGradientBoostingRegressor(log 
 v4-f3d6bdea,2026-08-21T20:06:15+00:00,4,120,40,HistGradientBoostingRegressor(log seconds),0.03415,15.858,12.595,19.379,0.9525,17.448,29.689,False,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
 v5-d0ae27ac,2026-08-21T20:08:41+00:00,5,160,40,HistGradientBoostingRegressor(log seconds),0.04518,9.366,7.0,11.947,0.981,13.255,25.689,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
 v6-00b9305f,2026-08-21T20:14:01+00:00,6,200,40,HistGradientBoostingRegressor(log seconds),0.02854,10.86,8.299,13.945,0.9651,11.65,23.0,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
+v7-00b9305f,2026-08-21T21:54:43+00:00,6,200,40,HistGradientBoostingRegressor(log seconds),0.02854,10.86,8.299,13.945,0.9651,11.65,23.0,True,holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds
