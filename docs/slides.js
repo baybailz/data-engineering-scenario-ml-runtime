@@ -347,11 +347,7 @@ window.SLIDES = [
         <span class="schip">duckdb</span><span class="schip">scikit-learn</span>
         <span class="schip">github actions</span>
       </div>
-      <p class="lead">Warehouse work is queued, sized and priced on a guess: how long will this
-        thing take. The pipeline measures ${S.fmtN(s.queries_measured || 0)} real queries on the
-        runner, trains a gradient booster on features that are known before the query starts,
-        and publishes the error with a confidence interval. Holdout MAPE
-        ${n1(s.holdout_mape_pct)}% on ${s.n_holdout_rows || 0} unseen queries.</p>
+      <div class="whw"><span class="whw-k">What</span><span>Teams size warehouses, set timeouts and price jobs on a guess of how long a query will take.</span><span class="whw-k">How</span><span>Real queries are timed on the same machine, a model learns from what is known before a query runs (table sizes, joins, filters), and it publishes its own error with a confidence interval.</span><span class="whw-k">Why</span><span>A prediction with a stated error can be used for scheduling and cost. And you can try it yourself on this page.</span></div>
       <div class="byline">${S.esc(S.CFG.author)}</div>
     </div>`;}},
 
