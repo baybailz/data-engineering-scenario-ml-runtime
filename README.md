@@ -36,7 +36,9 @@ Not the model. The model is 40 lines of scikit-learn and the signal is physics.
    landing seed from `state/`.
 3. `scripts/train.py` fits a `HistGradientBoostingRegressor` on log(seconds) plus an OLS
    baseline, scores them on the most recent batch, and writes `artifacts/model.pkl`,
-   `model_card.md`, `metrics.json` and one prediction row per measured query.
+   `model_card.md`, `metrics.json` and one prediction row per measured query. It also
+   exports the deployed model to `docs/data/model.onnx`, checked against sklearn to 1e-4
+   before it is written, so the page can score a query in the visitor's browser.
 4. `dbt build` runs stage → transform → conformed (`dim_query_template`, `fact_query_run`,
    `fact_query_prediction`, `dim_model_version`) → datamart (`dm_runtime_sla`,
    `dm_prediction_detail`, `dm_model_scorecard`), with 73 models and tests.
@@ -47,7 +49,8 @@ Not the model. The model is 40 lines of scikit-learn and the signal is physics.
 
 ```
 docs/index.html          the shell: presentation deck + demo console
-docs/slides.js           the slides, including the scatter and the learning curve
+docs/slides.js           the slides, the scatter, the learning curve, the try-it widget
+docs/data/model.onnx     the published model, run in the browser by onnxruntime-web
 docs/panels.js           the console tabs
 docs/scenario.json       title, repo, pipeline steps, which tables to export
 incoming/batch_*.csv     the query catalogue: 240 queries with their features

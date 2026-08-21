@@ -18,6 +18,10 @@ that never saw the last batch; the earlier rows are scored by 5-fold
 cross-validated predictions. The model.pkl that ships is refit on everything,
 which is the model you would actually deploy.
 
+The deployed model is also exported to ONNX at docs/data/model.onnx with a
+model_meta.json beside it, so the page can run the same model in the visitor's
+browser. The export is checked against sklearn before it is written.
+
 The gate is fixed before the numbers are known: holdout MAPE <= 15% and
 R2 >= 0.90 on log10 seconds. A failing model is still published and still
 labelled on the page.
@@ -31,15 +35,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import onnxruntime
+from skl2onnx import to_onnx
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, cross_val_predict
 
+from make_workload import (DIM_ROW_BYTES, DIM_ROWS, FACT_ROW_BYTES, FACT_TABLES, JOIN_DIMS,
+                           LIMITS, SELECTIVITIES)
+
 ROOT = Path(__file__).resolve().parents[1]
 SEEDS = ROOT / "seeds"
 STATE = ROOT / "state"
 ARTIFACTS = ROOT / "artifacts"
+DOCS_DATA = ROOT / "docs" / "data"
+ONNX_FILE = DOCS_DATA / "model.onnx"
+ONNX_META_FILE = DOCS_DATA / "model_meta.json"
+ONNX_OPSET = {"": 17, "ai.onnx.ml": 3}
+ONNX_TOLERANCE = 1e-4
 RUN_SEED = SEEDS / "query_run_landing.csv"
 MODELS_FILE = STATE / "models.json"
 PREDICTIONS_FILE = STATE / "predictions.json"
@@ -212,6 +226,67 @@ def model_card(metrics: dict, importances: list[dict], calibration_table: list[d
     return "\n".join(lines)
 
 
+def export_onnx(model: HistGradientBoostingRegressor, features: np.ndarray,
+                metrics: dict) -> None:
+    """Ship the deployed model to the page as ONNX, plus what a caller needs to use it.
+
+    The page runs this file in the visitor's browser through onnxruntime-web. So
+    the export carries the feature order, the transforms, the training envelope
+    and the published error: everything needed to turn seven knobs into a number
+    and to say how much to trust it. The conversion is checked against sklearn on
+    every training row before it is written; a mismatch fails the run.
+    """
+    onnx_model = to_onnx(model, features[:1].astype(np.float32), target_opset=ONNX_OPSET)
+    payload = onnx_model.SerializeToString()
+
+    session = onnxruntime.InferenceSession(payload, providers=["CPUExecutionProvider"])
+    input_name = session.get_inputs()[0].name
+    onnx_log = session.run(None, {input_name: features.astype(np.float32)})[0].ravel()
+    max_diff = float(np.max(np.abs(onnx_log - model.predict(features))))
+    if not max_diff < ONNX_TOLERANCE:
+        raise SystemExit(f"[train] ONNX export disagrees with sklearn by {max_diff:.3g} "
+                         f"(tolerance {ONNX_TOLERANCE}); not publishing")
+
+    DOCS_DATA.mkdir(parents=True, exist_ok=True)
+    ONNX_FILE.write_bytes(payload)
+    joins = [{"dim": dim, "rows": DIM_ROWS[dim], "row_bytes": DIM_ROW_BYTES[dim]}
+             for dim, _, _ in JOIN_DIMS]
+    meta = {
+        "model_version": metrics["model_version"],
+        "trained_at": metrics["trained_at"],
+        "input_name": input_name,
+        "output_name": session.get_outputs()[0].name,
+        "features": FEATURES,
+        "feature_ranges": {name: {"min": round(float(features[:, i].min()), 6),
+                                  "max": round(float(features[:, i].max()), 6)}
+                           for i, name in enumerate(FEATURES)},
+        "target": "log(seconds)",
+        "target_inverse": "exp",
+        "calibration_scale": 1.0,
+        "onnx_vs_sklearn_max_diff": float(f"{max_diff:.3g}"),
+        "onnx_bytes": len(payload),
+        "n_rows": int(features.shape[0]),
+        "holdout_mape_pct": metrics["holdout_mape_pct"],
+        "mape_ci_low_pct": metrics["mape_ci_low_pct"],
+        "mape_ci_high_pct": metrics["mape_ci_high_pct"],
+        "holdout_r2": metrics["holdout_r2"],
+        "passes_gate": metrics["passes_gate"],
+        "gate_rule": metrics["gate_rule"],
+        # The catalogue geometry, so the page derives rows_in and bytes_est the
+        # same way make_workload.py does instead of guessing them.
+        "catalogue": {
+            "fact_tables": [{"name": name, "rows": rows} for name, rows in FACT_TABLES.items()],
+            "fact_row_bytes": FACT_ROW_BYTES,
+            "joins": joins,
+            "selectivities": SELECTIVITIES,
+            "limits": LIMITS,
+        },
+    }
+    ONNX_META_FILE.write_text(json.dumps(meta, indent=1) + "\n")
+    print(f"[train] onnx {ONNX_FILE.relative_to(ROOT)} · {len(payload) / 1024:.0f} KB "
+          f"· max |onnx - sklearn| {max_diff:.2g}")
+
+
 def write_seed(name: str, columns: list[str], rows: list[dict]) -> None:
     with open(SEEDS / f"{name}.csv", "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns, lineterminator="\n",
@@ -319,6 +394,7 @@ def main() -> None:
     with open(ARTIFACTS / "model.pkl", "wb") as handle:
         pickle.dump({"model": deployed, "features": FEATURES, "target": "log(seconds)",
                      "model_version": version}, handle)
+    export_onnx(deployed, features, metrics)
     (ARTIFACTS / "metrics.json").write_text(json.dumps(metrics, indent=1) + "\n")
     (ARTIFACTS / "model_card.md").write_text(
         model_card(metrics, importances, metrics["calibration"]))

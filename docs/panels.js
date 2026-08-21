@@ -93,15 +93,27 @@ function modelCardPanel() {
     ${S.codePanel('model_card.md', 'markdown', text, 'yml', 620)}</div>`;
 }
 
+/* The published model, run in the visitor's browser. Same widget as the "Try it"
+   slide; the mount happens after this HTML is in the DOM. */
+function tryItPanel() {
+  setTimeout(() => window.TRYIT.mount(), 0);
+  return `<div class="card"><div class="cardhead">
+      <h2>try it</h2>
+      <span class="hint">docs/data/model.onnx · scored in your browser, no server and no token</span></div>
+    <div style="padding:20px">${window.TRYIT.html()}</div></div>`;
+}
+
 window.PANELS = {
   tabs: [
     {key: 'incoming', label: 'incoming batch', count: () => S.D.next?.name ? S.D.next.rows.length : 0},
+    {key: 'try_it', label: 'try it', count: () => ''},
     {key: 'dm_prediction_detail', label: 'dm_prediction_detail', count: () => predictionRows().length},
     {key: 'dim_model_version', label: 'dim_model_version', count: () => (S.D.tables.dim_model_version || []).length},
     {key: 'dm_runtime_sla', label: 'dm_runtime_sla', count: () => (S.D.tables.dm_runtime_sla || []).length},
     {key: 'model_card', label: 'model card', count: () => ''},
   ],
   render: {
+    try_it: () => tryItPanel(),
     incoming: () => incomingPanel(),
     dm_prediction_detail: () => predictionPanel(),
     dim_model_version: () => modelVersionPanel(),
