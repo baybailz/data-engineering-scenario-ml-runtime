@@ -20,12 +20,16 @@ function gateBadge() {
 
 /* Predicted against actual, both on log axes, with the 45 degree line.
    Drawn here from dm_prediction_detail rather than shipped as an image, so it
-   cannot disagree with the table two tabs away. */
-function scatterSvg() {
+   cannot disagree with the table two tabs away.
+   `mark` is a predicted runtime from the try-it widget: it has no measured
+   counterpart, so it is drawn on the diagonal, which is where a prediction sits
+   before the query has been run. */
+function scatterSvg(mark) {
   const rows = latestPredictions().filter(r => r.actual_seconds > 0 && r.predicted_seconds > 0);
   if (!rows.length) return '<div class="empty">No predictions published yet.</div>';
   const W = 860, H = 400, L = 66, R = 20, T = 20, B = 44;
   const values = rows.flatMap(r => [r.actual_seconds, r.predicted_seconds]);
+  if (mark > 0) values.push(mark);
   const lo = Math.log10(Math.min(...values)) - 0.08, hi = Math.log10(Math.max(...values)) + 0.08;
   const x = v => L + (Math.log10(v) - lo) / (hi - lo) * (W - L - R);
   const y = v => H - B - (Math.log10(v) - lo) / (hi - lo) * (H - T - B);
@@ -46,11 +50,19 @@ actual ${Number(r.actual_seconds).toFixed(3)}s · predicted ${Number(r.predicted
     <text x="${x(t)}" y="${H - B + 18}" text-anchor="middle" font-size="11" fill="var(--ink3)">${t}s</text>
     <text x="${L - 10}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--ink3)">${t}s</text>`).join('');
   const corner = Math.pow(10, lo), far = Math.pow(10, hi);
+  const left = mark > 0 && x(mark) > W * 0.66;
+  const marker = mark > 0 ? `
+    <line x1="${L}" y1="${y(mark)}" x2="${W - R}" y2="${y(mark)}" stroke="var(--accent-deep)"
+      stroke-width="1.3" stroke-dasharray="4 4" opacity="0.75"/>
+    <circle cx="${x(mark)}" cy="${y(mark)}" r="9" fill="none" stroke="var(--accent-deep)" stroke-width="2.4"/>
+    <circle cx="${x(mark)}" cy="${y(mark)}" r="3.4" fill="var(--accent-deep)"/>
+    <text x="${x(mark) + (left ? -15 : 15)}" y="${y(mark) - 12}" font-size="12" font-weight="700"
+      text-anchor="${left ? 'end' : 'start'}" fill="var(--accent-deep)">your query · ${mark.toFixed(3)}s</text>` : '';
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted against actual runtime">
     ${grid}
     <line x1="${x(corner)}" y1="${y(corner)}" x2="${x(far)}" y2="${y(far)}"
       stroke="var(--ink3)" stroke-width="1.4" stroke-dasharray="6 5"/>
-    ${dots}
+    ${dots}${marker}
     <text x="${L + 8}" y="${T + 12}" font-size="11" fill="var(--ink3)">dashed line: a perfect prediction</text>
     <text x="${W - R}" y="${H - 6}" text-anchor="end" font-size="11.5" fill="var(--ink2)">measured seconds (log)</text>
     <text x="14" y="${T + 4}" font-size="11.5" fill="var(--ink2)" transform="rotate(-90 14 ${T + 4})" text-anchor="end">predicted seconds (log)</text>
@@ -103,6 +115,226 @@ function learningSvg() {
     <text x="${L}" y="${T - 4}" font-size="11" fill="var(--ink3)">holdout MAPE · dashed grey: OLS baseline</text>
   </svg>`;
 }
+
+/* ---------- try it ----------
+   The model that the pipeline published, run in the visitor's browser through
+   onnxruntime-web. docs/data/model.onnx and model_meta.json are written by
+   scripts/train.py on the runner, so this widget and the scatter above it are
+   the same model. Nothing is sent anywhere: no server, no token.
+   The slide and the console tab share this one object. */
+const ORT_VERSION = '1.27.0';
+const ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
+
+const TRY = {
+  status: 'idle',            // idle | loading | ready | error
+  message: '',
+  meta: null, session: null, seconds: null, outside: [],
+  input: {table: 2, joins: 1, groupby: 1, orderby: 0, window: 0, selectivity: 0.45, limit: 0},
+};
+const fmtRows = v => v >= 1e6 ? `${(v / 1e6).toFixed(2)}M` : v >= 1e3 ? `${Math.round(v / 1e3)}k` : String(v);
+
+/* ?try=rows_in=8000000;joins=3;window=1 — a deterministic starting shape, so a
+   screenshot or a link can show a query other than the default one. */
+function tryQueryOverride() {
+  const raw = new URLSearchParams(location.search).get('try');
+  if (!raw) return;
+  for (const pair of raw.split(/[;,&]/)) {
+    const [key, value] = pair.split('=');
+    const number = Number(value);
+    if (!key || !isFinite(number)) continue;
+    if (key === 'rows_in' || key === 'fact_rows' || key === 'table') TRY.pendingRows = number;
+    else if (key in TRY.input) TRY.input[key] = number;
+  }
+}
+tryQueryOverride();
+
+/* The feature vector, derived exactly as make_workload.py derives the catalogue:
+   rows_in and bytes_est come from the table size plus the dimensions each join
+   pulls in. Same order, same transforms as scripts/train.py. */
+function tryFeatures() {
+  const cat = TRY.meta.catalogue;
+  const fact = cat.fact_tables[Math.min(TRY.input.table, cat.fact_tables.length - 1)];
+  const joins = cat.joins.slice(0, TRY.input.joins);
+  const rowsIn = fact.rows + joins.reduce((a, j) => a + j.rows, 0);
+  const bytes = fact.rows * cat.fact_row_bytes + joins.reduce((a, j) => a + j.rows * j.row_bytes, 0);
+  const sel = TRY.input.selectivity, afterFilter = Math.max(fact.rows * sel, 1);
+  const vector = [
+    Math.log10(rowsIn), Math.log10(bytes), Math.log10(afterFilter), TRY.input.joins,
+    TRY.input.groupby, sel, TRY.input.orderby, TRY.input.window,
+    Math.log10(TRY.input.limit + 1),
+  ];
+  return {vector, rowsIn, bytes, afterFilter, fact};
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = src; el.onload = resolve;
+    el.onerror = () => reject(new Error('could not load onnxruntime-web from the CDN'));
+    document.head.appendChild(el);
+  });
+}
+
+/* Lazy: nothing is fetched until the widget is on screen for the first time. */
+async function tryLoad() {
+  if (TRY.status === 'loading' || TRY.status === 'ready') return;
+  TRY.status = 'loading'; paintTry();
+  try {
+    const response = await fetch(`data/model_meta.json?t=${Date.now()}`, {cache: 'no-store'});
+    if (!response.ok) throw new Error('no model is published yet — run the pipeline once');
+    const meta = await response.json();
+    if (!window.ort) await loadScript(`${ORT_BASE}ort.min.js`);
+    ort.env.wasm.wasmPaths = ORT_BASE;
+    ort.env.wasm.numThreads = 1;
+    ort.env.logLevel = 'error';
+    const bytes = await (await fetch(`data/model.onnx?v=${encodeURIComponent(meta.model_version)}`)).arrayBuffer();
+    TRY.session = await ort.InferenceSession.create(bytes, {executionProviders: ['wasm']});
+    TRY.meta = meta;
+    if (TRY.pendingRows) {
+      const sizes = meta.catalogue.fact_tables.map(t => Math.abs(t.rows - TRY.pendingRows));
+      TRY.input.table = sizes.indexOf(Math.min(...sizes));
+      TRY.pendingRows = null;
+    }
+    TRY.input.joins = Math.max(0, Math.min(meta.catalogue.joins.length, TRY.input.joins));
+    TRY.status = 'ready';
+    await tryPredict();
+  } catch (error) {
+    TRY.status = 'error';
+    TRY.message = error && error.message ? error.message : String(error);
+    paintTry();
+  }
+}
+
+async function tryPredict() {
+  if (TRY.status !== 'ready') return;
+  const f = tryFeatures();
+  try {
+    const tensor = new ort.Tensor('float32', Float32Array.from(f.vector), [1, f.vector.length]);
+    const out = await TRY.session.run({[TRY.meta.input_name]: tensor});
+    const logSeconds = Number(out[TRY.meta.output_name].data[0]);
+    TRY.seconds = Math.exp(logSeconds) * (TRY.meta.calibration_scale ?? 1);
+    // The published ranges are rounded, so compare with a slack wider than that.
+    TRY.outside = TRY.meta.features.filter((name, i) => {
+      const range = TRY.meta.feature_ranges[name];
+      return f.vector[i] < range.min - 1e-5 || f.vector[i] > range.max + 1e-5;
+    });
+  } catch (error) {
+    TRY.status = 'error';
+    TRY.message = error && error.message ? error.message : String(error);
+  }
+  paintTry();
+}
+
+function tryNotice() {
+  if (TRY.status === 'error') {
+    return `<div class="card"><div class="empty"><div class="big">⚠</div>
+      <b>The in-browser model did not start.</b><br>${S.esc(TRY.message)}.<br>
+      <span class="dim">The numbers on the rest of the page are unaffected: they come from
+      the pipeline, not from this widget.</span></div></div>`;
+  }
+  return `<div class="card"><div class="empty"><span class="spin"></span>
+    Loading the model into your browser…</div></div>`;
+}
+
+const tryToggle = (key, label) => `<label style="display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border:1px solid var(--border);border-radius:11px;background:var(--surface);
+  cursor:pointer;font-size:13px;font-weight:600">
+  <input type="checkbox" data-try="${key}" ${TRY.input[key] ? 'checked' : ''}>${label}</label>`;
+
+const trySlider = (key, label, value, min, max, step) => `<label style="display:block">
+  <span style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--ink2)">
+    <span>${label}</span><span class="mono" id="try_v_${key}"><b>${value}</b></span></span>
+  <input type="range" data-try="${key}" min="${min}" max="${max}" step="${step}"
+    value="${TRY.input[key]}" style="width:100%;margin:4px 0 0;accent-color:var(--accent)"></label>`;
+
+function tryFormHtml() {
+  const cat = TRY.meta.catalogue;
+  const sizes = cat.fact_tables.map((t, i) =>
+    `<option value="${i}" ${i === TRY.input.table ? 'selected' : ''}>${fmtRows(t.rows)} rows · ${S.esc(t.name)}</option>`).join('');
+  const limits = cat.limits.map(v =>
+    `<option value="${v}" ${v === TRY.input.limit ? 'selected' : ''}>${v ? `limit ${v}` : 'no limit'}</option>`).join('');
+  const select = (key, options, label) => `<label style="display:block">
+    <span style="font-size:12px;color:var(--ink2)">${label}</span>
+    <select data-try="${key}" style="width:100%;margin-top:4px;font:inherit;font-size:13px;
+      padding:9px 11px;border-radius:11px;border:1px solid var(--border);
+      background:var(--surface);color:var(--ink)">${options}</select></label>`;
+  const range = TRY.meta.feature_ranges.selectivity;
+  return `<div style="display:grid;grid-template-columns:${S.isNarrow() ? '1fr' : 'minmax(0,1.15fr) minmax(280px,.85fr)'};
+      gap:22px;align-items:start">
+    <div id="try_form">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px 20px">
+        ${select('table', sizes, 'table scanned')}
+        ${select('limit', limits, 'limit')}
+        ${trySlider('joins', 'joins', TRY.input.joins, 0, cat.joins.length, 1)}
+        ${trySlider('selectivity', 'filter selectivity', TRY.input.selectivity, 0.01, 1, 0.01)}
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        ${tryToggle('groupby', 'group by')}${tryToggle('orderby', 'order by')}${tryToggle('window', 'window')}
+      </div>
+      <div class="dim" style="font-size:12px;margin-top:14px" id="try_derived"></div>
+      <div class="dim" style="font-size:11.5px;margin-top:6px">
+        trained on selectivity ${range.min}–${range.max} and ${TRY.meta.n_rows} measured queries.</div>
+    </div>
+    <div id="try_out"></div>
+  </div>
+  <div class="diagram" id="try_plot" style="margin-top:22px"></div>`;
+}
+
+function tryOutHtml() {
+  const meta = TRY.meta, seconds = TRY.seconds;
+  const sla = Number(S.D.summary?.sla_seconds || 0);
+  const verdict = !sla ? '' : seconds > sla
+    ? S.badge(`breaches the ${sla}s SLA`, 'b-dup')
+    : S.badge(`inside the ${sla}s SLA`, 'b-new', S.ICO.check);
+  const note = TRY.outside.length ? `<div style="font-size:12px;color:var(--warn);margin-top:10px">
+    outside training range: ${TRY.outside.map(f => S.esc(f)).join(', ')}. The number is an
+    extrapolation.</div>` : '';
+  return `<div style="border:1px solid var(--border);border-radius:16px;padding:18px 20px;
+      background:var(--surface2)">
+    <div class="ptsec" style="margin:0 0 6px;border:0;padding:0">predicted runtime</div>
+    <div style="font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1.05;
+      font-variant-numeric:tabular-nums">${seconds == null ? '—' : seconds.toFixed(3)}<span
+      style="font-size:20px;color:var(--ink3);font-weight:650">s</span></div>
+    <div style="margin:12px 0 10px">${verdict}</div>
+    <div class="dim" style="font-size:11.8px">model <span class="mono">${S.esc(meta.model_version)}</span>
+      · holdout MAPE ${n1(meta.holdout_mape_pct)}% · runs in your browser, model trained on the
+      CI runner.</div>${note}</div>`;
+}
+
+function paintTry() {
+  const root = document.getElementById('try_root');
+  if (!root) return;
+  if (TRY.status !== 'ready') { root.innerHTML = tryNotice(); return; }
+  if (!root.querySelector('#try_form')) {
+    root.innerHTML = tryFormHtml();
+    root.addEventListener('input', event => {
+      const el = event.target.closest('[data-try]');
+      if (!el) return;
+      const key = el.dataset.try;
+      TRY.input[key] = el.type === 'checkbox' ? (el.checked ? 1 : 0) : Number(el.value);
+      tryPredict();
+    });
+  }
+  const f = tryFeatures();
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('try_v_joins', `<b>${TRY.input.joins}</b>`);
+  set('try_v_selectivity', `<b>${TRY.input.selectivity.toFixed(2)}</b>`);
+  set('try_derived', `rows in <b>${fmtRows(f.rowsIn)}</b> · bytes read
+    <b>${(f.bytes / 1e6).toFixed(0)} MB</b> · rows after the filter <b>${fmtRows(Math.round(f.afterFilter))}</b>`);
+  set('try_out', tryOutHtml());
+  set('try_plot', scatterSvg(TRY.seconds));
+}
+
+window.TRYIT = {
+  /* The slide and the tab both drop this in and then call mount(). */
+  html() {
+    return `<div id="try_root"></div>`;
+  },
+  mount() {
+    if (!document.getElementById('try_root')) return;
+    if (TRY.status === 'idle') tryLoad(); else paintTry();
+  },
+};
 
 window.SLIDES = [
   {id: 'title', kicker: 'ML · DATA ENGINEERING SCENARIO', render() {
@@ -207,6 +439,16 @@ window.SLIDES = [
         <span><span style="width:9px;height:9px;border-radius:50%;display:inline-block;
           border:2px solid var(--bad)"></span>30% error or worse</span>
       </div>`;}},
+
+  {id: 'tryit', kicker: 'TRY IT', render() {
+    const s = S.D.summary || {};
+    return `<h2>Try it</h2>
+      <p class="lead">Set the shape of a query. The model published by the last run scores it in
+        your browser, before anything is executed. Same model as the scatter above: the pipeline
+        exports it to ONNX on the runner and the page downloads it. Ringed point on the diagonal
+        is your query.</p>
+      ${window.TRYIT.html()}`;},
+    after() { window.TRYIT.mount(); }},
 
   {id: 'signal', kicker: 'WHY IT WORKS', render() {
     const s = S.D.summary || {};

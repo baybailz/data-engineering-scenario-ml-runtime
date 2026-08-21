@@ -43,6 +43,7 @@ INCOMING = ROOT / "incoming"
 STATE = ROOT / "state"
 SEEDS = ROOT / "seeds"
 ARTIFACTS = ROOT / "artifacts"
+DOCS_DATA = ROOT / "docs" / "data"
 STATE_FILE = STATE / "loaded_files.json"
 MEASUREMENTS_FILE = STATE / "measurements.json"
 MACHINE_FILE = STATE / "machine.json"
@@ -180,6 +181,8 @@ def reset() -> None:
     write_seed("query_run_landing", RUN_COLUMNS, [])
     write_seed("query_prediction_landing", PREDICTION_COLUMNS, [])
     write_seed("model_version_landing", MODEL_COLUMNS, [])
+    for path in (DOCS_DATA / "model.onnx", DOCS_DATA / "model_meta.json"):
+        path.unlink(missing_ok=True)
     shutil.rmtree(ARTIFACTS, ignore_errors=True)
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     (ARTIFACTS / ".gitkeep").write_text("")
