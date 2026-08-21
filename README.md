@@ -1,12 +1,9 @@
-# data-engineering-scenario-ml-runtime
-
-Predict how long a query will run before it runs.
+# Predict how long a query will run before it runs.
 
 Warehouse work is queued, sized and priced on a guess. This pipeline measures real
-queries on the runner, trains a model on features that are known *before* the query
-starts — table sizes, joins, group by, filter selectivity, sort, window, limit — and
-publishes the error with a confidence interval and a pass/fail gate. The measurements
-are real: nothing here is simulated.
+queries on the runner and trains a model on features known before the query starts:
+table sizes, joins, group by, filter selectivity, sort, window, limit. It publishes the
+error with a confidence interval and a pass/fail gate. Nothing here is simulated.
 
 **[Live demo →](https://baybailz.github.io/data-engineering-scenario-ml-runtime/)**
 
@@ -18,9 +15,9 @@ Not the model. The model is 40 lines of scikit-learn and the signal is physics.
   mostly scheduler noise. Every query is warmed once, then repeated until 0.6 s of timed
   work has accumulated, and the median is taken.
 - **Drift between batches.** A batch measured while the runner was busy looks like a batch
-  of slower queries, and a time-ordered holdout reads that as model error. A fixed
-  calibration query runs before and after every batch; every reading is divided by that
-  factor.
+  of slower queries, and a time-ordered holdout reads that as model error. The same
+  calibration query is re-timed every ten queries, and each reading is divided by the
+  calibration value interpolated to its position.
 - **Saying how wrong it is.** Holdout MAPE alone is a number without a spread. The
   pipeline reports a bootstrap 95% CI, R², an OLS baseline to beat, permutation
   importances and a calibration table, and it publishes a model that misses the gate with
