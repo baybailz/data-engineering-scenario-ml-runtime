@@ -5,7 +5,9 @@ queries on the runner and trains a model on features known before the query star
 table sizes, joins, group by, filter selectivity, sort, window, limit. It publishes the
 error with a confidence interval and a pass/fail gate. Nothing here is simulated.
 
-**[Live demo →](https://baybailz.github.io/data-engineering-scenario-ml-runtime/)**
+**[Live demo →](https://baybailz.github.io/data-engineering-scenario-ml-runtime/)** — a
+presentation and a working console. The Run button dispatches a GitHub Actions workflow
+that measures the next batch, retrains, and publishes the result back to the page.
 
 ## The hard part
 
