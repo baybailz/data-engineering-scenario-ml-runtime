@@ -1,6 +1,48 @@
 [
  {
   "model_name": "dm_runtime_sla",
+  "row_count": 53,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:22.578000"
+ },
+ {
+  "model_name": "dm_prediction_detail",
+  "row_count": 120,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:22.575000"
+ },
+ {
+  "model_name": "fact_query_prediction",
+  "row_count": 240,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:22.224000"
+ },
+ {
+  "model_name": "dm_model_scorecard",
+  "row_count": 3,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:21.534000"
+ },
+ {
+  "model_name": "fact_query_run",
+  "row_count": 120,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:21.468000"
+ },
+ {
+  "model_name": "dim_query_template",
+  "row_count": 53,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:21.445000"
+ },
+ {
+  "model_name": "dim_model_version",
+  "row_count": 3,
+  "invocation_id": "f99369d8-d8f9-4f45-96c8-988199d38668",
+  "loaded_at": "2026-08-21 20:04:20.955000"
+ },
+ {
+  "model_name": "dm_runtime_sla",
   "row_count": 47,
   "invocation_id": "c13f518b-aaec-4590-97e5-2d89db37dcfd",
   "loaded_at": "2026-08-21 20:01:47.754000"
@@ -84,13 +126,13 @@
   "loaded_at": "2026-08-21 19:58:59.539000"
  },
  {
-  "model_name": "dm_runtime_sla",
+  "model_name": "dm_prediction_detail",
   "row_count": 0,
   "invocation_id": "be30f5d3-d4e7-44c6-9b11-602422b80fa9",
   "loaded_at": "2026-08-21 19:56:06.561000"
  },
  {
-  "model_name": "dm_prediction_detail",
+  "model_name": "dm_runtime_sla",
   "row_count": 0,
   "invocation_id": "be30f5d3-d4e7-44c6-9b11-602422b80fa9",
   "loaded_at": "2026-08-21 19:56:06.561000"
@@ -210,14 +252,14 @@
   "loaded_at": "2026-08-21 15:52:15.201000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 59,
+  "model_name": "dm_prediction_detail",
+  "row_count": 160,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:08.082000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 160,
+  "model_name": "dm_runtime_sla",
+  "row_count": 59,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:08.082000"
  },
@@ -228,14 +270,14 @@
   "loaded_at": "2026-08-21 15:52:07.864000"
  },
  {
-  "model_name": "fact_query_run",
-  "row_count": 160,
+  "model_name": "dim_query_template",
+  "row_count": 59,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:07.493000"
  },
  {
-  "model_name": "dim_query_template",
-  "row_count": 59,
+  "model_name": "fact_query_run",
+  "row_count": 160,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:07.493000"
  },
@@ -252,14 +294,14 @@
   "loaded_at": "2026-08-21 15:52:07.128000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 120,
+  "model_name": "dm_runtime_sla",
+  "row_count": 53,
   "invocation_id": "b613a5d0-8cef-4105-ad26-6de7b76d8b4f",
   "loaded_at": "2026-08-21 15:52:00.283000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 53,
+  "model_name": "dm_prediction_detail",
+  "row_count": 120,
   "invocation_id": "b613a5d0-8cef-4105-ad26-6de7b76d8b4f",
   "loaded_at": "2026-08-21 15:52:00.283000"
  },
@@ -630,14 +672,14 @@
   "loaded_at": "2026-08-21 15:46:01.253000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 40,
+  "model_name": "dm_runtime_sla",
+  "row_count": 31,
   "invocation_id": "fe5d5671-1459-4030-9a76-78f26016c556",
   "loaded_at": "2026-08-21 15:45:56.117000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 31,
+  "model_name": "dm_prediction_detail",
+  "row_count": 40,
   "invocation_id": "fe5d5671-1459-4030-9a76-78f26016c556",
   "loaded_at": "2026-08-21 15:45:56.117000"
  },
@@ -768,14 +810,14 @@
   "loaded_at": "2026-08-21 15:43:55.273000"
  },
  {
-  "model_name": "fact_query_run",
-  "row_count": 240,
+  "model_name": "dim_query_template",
+  "row_count": 60,
   "invocation_id": "07c581b6-de8a-4f27-92ae-fe781c4cb6be",
   "loaded_at": "2026-08-21 15:43:54.929000"
  },
  {
-  "model_name": "dim_query_template",
-  "row_count": 60,
+  "model_name": "fact_query_run",
+  "row_count": 240,
   "invocation_id": "07c581b6-de8a-4f27-92ae-fe781c4cb6be",
   "loaded_at": "2026-08-21 15:43:54.929000"
  },
@@ -912,14 +954,14 @@
   "loaded_at": "2026-08-21 15:40:05.765000"
  },
  {
-  "model_name": "fact_query_run",
-  "row_count": 240,
+  "model_name": "dim_query_template",
+  "row_count": 60,
   "invocation_id": "13fa7f49-f6c4-4032-9f28-01a90ebc6d9c",
   "loaded_at": "2026-08-21 15:40:05.413000"
  },
  {
-  "model_name": "dim_query_template",
-  "row_count": 60,
+  "model_name": "fact_query_run",
+  "row_count": 240,
   "invocation_id": "13fa7f49-f6c4-4032-9f28-01a90ebc6d9c",
   "loaded_at": "2026-08-21 15:40:05.413000"
  },
@@ -1062,14 +1104,14 @@
   "loaded_at": "2026-08-21 15:36:06.483000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 120,
+  "model_name": "dm_runtime_sla",
+  "row_count": 53,
   "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
   "loaded_at": "2026-08-21 15:35:16.436000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 53,
+  "model_name": "dm_prediction_detail",
+  "row_count": 120,
   "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
   "loaded_at": "2026-08-21 15:35:16.436000"
  },
@@ -1104,14 +1146,14 @@
   "loaded_at": "2026-08-21 15:35:15.442000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 47,
+  "model_name": "dm_prediction_detail",
+  "row_count": 80,
   "invocation_id": "5d46c25e-4b35-4314-9864-0ddfc130f7cc",
   "loaded_at": "2026-08-21 15:34:22.603000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 80,
+  "model_name": "dm_runtime_sla",
+  "row_count": 47,
   "invocation_id": "5d46c25e-4b35-4314-9864-0ddfc130f7cc",
   "loaded_at": "2026-08-21 15:34:22.603000"
  },
@@ -1156,47 +1198,5 @@
   "row_count": 40,
   "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
   "loaded_at": "2026-08-21 15:33:26.758000"
- },
- {
-  "model_name": "fact_query_prediction",
-  "row_count": 40,
-  "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
-  "loaded_at": "2026-08-21 15:33:26.539000"
- },
- {
-  "model_name": "fact_query_run",
-  "row_count": 40,
-  "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
-  "loaded_at": "2026-08-21 15:33:26.172000"
- },
- {
-  "model_name": "dim_query_template",
-  "row_count": 31,
-  "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
-  "loaded_at": "2026-08-21 15:33:26.163000"
- },
- {
-  "model_name": "dm_model_scorecard",
-  "row_count": 1,
-  "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
-  "loaded_at": "2026-08-21 15:33:26.117000"
- },
- {
-  "model_name": "dim_model_version",
-  "row_count": 1,
-  "invocation_id": "01f4d545-46f9-4a03-8cb5-755fa33ae690",
-  "loaded_at": "2026-08-21 15:33:25.765000"
- },
- {
-  "model_name": "dm_runtime_sla",
-  "row_count": 0,
-  "invocation_id": "24baf495-3092-478e-b0b9-d593906913ee",
-  "loaded_at": "2026-08-21 15:32:18.971000"
- },
- {
-  "model_name": "dm_prediction_detail",
-  "row_count": 0,
-  "invocation_id": "24baf495-3092-478e-b0b9-d593906913ee",
-  "loaded_at": "2026-08-21 15:32:18.971000"
  }
 ]
