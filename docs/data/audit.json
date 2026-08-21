@@ -2,6 +2,48 @@
  {
   "model_name": "dm_runtime_sla",
   "row_count": 59,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:48.197000"
+ },
+ {
+  "model_name": "dm_prediction_detail",
+  "row_count": 200,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:48.196000"
+ },
+ {
+  "model_name": "fact_query_prediction",
+  "row_count": 600,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:47.913000"
+ },
+ {
+  "model_name": "dm_model_scorecard",
+  "row_count": 5,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:47.389000"
+ },
+ {
+  "model_name": "fact_query_run",
+  "row_count": 200,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:47.366000"
+ },
+ {
+  "model_name": "dim_query_template",
+  "row_count": 59,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:47.340000"
+ },
+ {
+  "model_name": "dim_model_version",
+  "row_count": 5,
+  "invocation_id": "088f444b-df80-4c98-b430-d78210f4de0a",
+  "loaded_at": "2026-08-21 20:08:46.932000"
+ },
+ {
+  "model_name": "dm_runtime_sla",
+  "row_count": 59,
   "invocation_id": "7b37bebe-e41d-4ff9-a559-d94445e780b5",
   "loaded_at": "2026-08-21 20:06:23.048000"
  },
@@ -294,14 +336,14 @@
   "loaded_at": "2026-08-21 15:52:15.201000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 59,
+  "model_name": "dm_prediction_detail",
+  "row_count": 160,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:08.082000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 160,
+  "model_name": "dm_runtime_sla",
+  "row_count": 59,
   "invocation_id": "cce01824-8aa8-4c5e-8b48-d27e6ce1f137",
   "loaded_at": "2026-08-21 15:52:08.082000"
  },
@@ -336,14 +378,14 @@
   "loaded_at": "2026-08-21 15:52:07.128000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 120,
+  "model_name": "dm_runtime_sla",
+  "row_count": 53,
   "invocation_id": "b613a5d0-8cef-4105-ad26-6de7b76d8b4f",
   "loaded_at": "2026-08-21 15:52:00.283000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 53,
+  "model_name": "dm_prediction_detail",
+  "row_count": 120,
   "invocation_id": "b613a5d0-8cef-4105-ad26-6de7b76d8b4f",
   "loaded_at": "2026-08-21 15:52:00.283000"
  },
@@ -378,14 +420,14 @@
   "loaded_at": "2026-08-21 15:51:59.365000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 80,
+  "model_name": "dm_runtime_sla",
+  "row_count": 47,
   "invocation_id": "b1602519-384d-4c4e-aa26-0a340fed813b",
   "loaded_at": "2026-08-21 15:51:51.638000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 47,
+  "model_name": "dm_prediction_detail",
+  "row_count": 80,
   "invocation_id": "b1602519-384d-4c4e-aa26-0a340fed813b",
   "loaded_at": "2026-08-21 15:51:51.638000"
  },
@@ -438,14 +480,14 @@
   "loaded_at": "2026-08-21 15:51:45.163000"
  },
  {
-  "model_name": "dm_model_scorecard",
-  "row_count": 1,
+  "model_name": "fact_query_run",
+  "row_count": 40,
   "invocation_id": "9d2d969a-abf4-4c0d-a214-a632614e5f23",
   "loaded_at": "2026-08-21 15:51:44.798000"
  },
  {
-  "model_name": "fact_query_run",
-  "row_count": 40,
+  "model_name": "dm_model_scorecard",
+  "row_count": 1,
   "invocation_id": "9d2d969a-abf4-4c0d-a214-a632614e5f23",
   "loaded_at": "2026-08-21 15:51:44.798000"
  },
@@ -588,14 +630,14 @@
   "loaded_at": "2026-08-21 15:46:25.426000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 160,
+  "model_name": "dm_runtime_sla",
+  "row_count": 59,
   "invocation_id": "67c55e6f-5751-479d-8745-d0c9409dcf4c",
   "loaded_at": "2026-08-21 15:46:16.957000"
  },
  {
-  "model_name": "dm_runtime_sla",
-  "row_count": 59,
+  "model_name": "dm_prediction_detail",
+  "row_count": 160,
   "invocation_id": "67c55e6f-5751-479d-8745-d0c9409dcf4c",
   "loaded_at": "2026-08-21 15:46:16.957000"
  },
@@ -816,14 +858,14 @@
   "loaded_at": "2026-08-21 15:44:46.003000"
  },
  {
-  "model_name": "fact_query_run",
-  "row_count": 240,
+  "model_name": "dim_query_template",
+  "row_count": 60,
   "invocation_id": "b6249b46-206f-4254-9a43-d6cace03f856",
   "loaded_at": "2026-08-21 15:44:45.597000"
  },
  {
-  "model_name": "dim_query_template",
-  "row_count": 60,
+  "model_name": "fact_query_run",
+  "row_count": 240,
   "invocation_id": "b6249b46-206f-4254-9a43-d6cace03f856",
   "loaded_at": "2026-08-21 15:44:45.597000"
  },
@@ -1146,57 +1188,15 @@
   "loaded_at": "2026-08-21 15:36:06.483000"
  },
  {
-  "model_name": "dm_prediction_detail",
-  "row_count": 120,
-  "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:16.436000"
- },
- {
   "model_name": "dm_runtime_sla",
   "row_count": 53,
   "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
   "loaded_at": "2026-08-21 15:35:16.436000"
  },
  {
-  "model_name": "fact_query_prediction",
-  "row_count": 240,
-  "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:16.220000"
- },
- {
-  "model_name": "dim_query_template",
-  "row_count": 53,
-  "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:15.829000"
- },
- {
-  "model_name": "fact_query_run",
+  "model_name": "dm_prediction_detail",
   "row_count": 120,
   "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:15.826000"
- },
- {
-  "model_name": "dm_model_scorecard",
-  "row_count": 3,
-  "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:15.765000"
- },
- {
-  "model_name": "dim_model_version",
-  "row_count": 3,
-  "invocation_id": "7260cc57-a25a-4e9e-ab6c-a08805bcdc6a",
-  "loaded_at": "2026-08-21 15:35:15.442000"
- },
- {
-  "model_name": "dm_runtime_sla",
-  "row_count": 47,
-  "invocation_id": "5d46c25e-4b35-4314-9864-0ddfc130f7cc",
-  "loaded_at": "2026-08-21 15:34:22.603000"
- },
- {
-  "model_name": "dm_prediction_detail",
-  "row_count": 80,
-  "invocation_id": "5d46c25e-4b35-4314-9864-0ddfc130f7cc",
-  "loaded_at": "2026-08-21 15:34:22.603000"
+  "loaded_at": "2026-08-21 15:35:16.436000"
  }
 ]

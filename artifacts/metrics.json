@@ -1,24 +1,25 @@
 {
- "model_version": "v4-f3d6bdea",
- "trained_at": "2026-08-21T20:06:15+00:00",
- "batches_measured": 4,
+ "model_version": "v5-d0ae27ac",
+ "trained_at": "2026-08-21T20:08:41+00:00",
+ "batches_measured": 5,
  "batches": [
   "batch_01",
   "batch_02",
   "batch_03",
-  "batch_04"
+  "batch_04",
+  "batch_05"
  ],
- "n_train_rows": 120,
+ "n_train_rows": 160,
  "n_holdout_rows": 40,
  "model_kind": "HistGradientBoostingRegressor(log seconds)",
- "holdout_mae_seconds": 0.03415,
- "holdout_mape_pct": 15.858,
- "mape_ci_low_pct": 12.595,
- "mape_ci_high_pct": 19.379,
- "holdout_r2": 0.9525,
- "cv_mape_pct": 17.448,
- "baseline_mape_pct": 29.689,
- "passes_gate": false,
+ "holdout_mae_seconds": 0.04518,
+ "holdout_mape_pct": 9.366,
+ "mape_ci_low_pct": 7.0,
+ "mape_ci_high_pct": 11.947,
+ "holdout_r2": 0.981,
+ "cv_mape_pct": 13.255,
+ "baseline_mape_pct": 25.689,
+ "passes_gate": true,
  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
  "gate_mape_pct": 15.0,
  "gate_r2": 0.9,
@@ -27,37 +28,37 @@
  "reps_median": 5,
  "runtime_min_seconds": 0.036441,
  "runtime_max_seconds": 2.803544,
- "runtime_median_seconds": 0.182524,
+ "runtime_median_seconds": 0.187311,
  "machine_factor_min": 0.740818,
  "machine_factor_max": 1.045177,
  "importances": [
   {
    "feature": "log_rows_after_filter",
-   "importance": 0.5395
+   "importance": 0.6376
   },
   {
    "feature": "has_groupby",
-   "importance": 0.3155
-  },
-  {
-   "feature": "has_window",
-   "importance": 0.122
+   "importance": 0.3229
   },
   {
    "feature": "log_rows_in",
-   "importance": 0.1084
+   "importance": 0.1604
+  },
+  {
+   "feature": "has_window",
+   "importance": 0.1363
   },
   {
    "feature": "n_joins",
-   "importance": 0.0467
+   "importance": 0.1097
   },
   {
    "feature": "log_limit_rows",
-   "importance": 0.0108
+   "importance": 0.0189
   },
   {
    "feature": "has_orderby",
-   "importance": 0.0107
+   "importance": 0.0027
   },
   {
    "feature": "log_bytes_est",
@@ -65,79 +66,79 @@
   },
   {
    "feature": "selectivity",
-   "importance": -0.0036
+   "importance": -0.0029
   }
  ],
  "calibration": [
   {
    "decile": 1,
    "queries": 4,
-   "predicted_seconds": 0.0538,
-   "actual_seconds": 0.0463,
-   "abs_pct_error": 17.67
+   "predicted_seconds": 0.0606,
+   "actual_seconds": 0.0647,
+   "abs_pct_error": 5.91
   },
   {
    "decile": 2,
    "queries": 4,
-   "predicted_seconds": 0.0745,
-   "actual_seconds": 0.0595,
-   "abs_pct_error": 25.86
+   "predicted_seconds": 0.0718,
+   "actual_seconds": 0.0749,
+   "abs_pct_error": 6.88
   },
   {
    "decile": 3,
    "queries": 4,
-   "predicted_seconds": 0.0971,
-   "actual_seconds": 0.1018,
-   "abs_pct_error": 15.57
+   "predicted_seconds": 0.0928,
+   "actual_seconds": 0.0983,
+   "abs_pct_error": 7.33
   },
   {
    "decile": 4,
    "queries": 4,
-   "predicted_seconds": 0.1302,
-   "actual_seconds": 0.1288,
-   "abs_pct_error": 11.91
+   "predicted_seconds": 0.1249,
+   "actual_seconds": 0.1384,
+   "abs_pct_error": 11.31
   },
   {
    "decile": 5,
    "queries": 4,
-   "predicted_seconds": 0.1795,
-   "actual_seconds": 0.1947,
-   "abs_pct_error": 13.94
+   "predicted_seconds": 0.167,
+   "actual_seconds": 0.1778,
+   "abs_pct_error": 5.93
   },
   {
    "decile": 6,
    "queries": 4,
-   "predicted_seconds": 0.2166,
-   "actual_seconds": 0.201,
-   "abs_pct_error": 11.16
+   "predicted_seconds": 0.1912,
+   "actual_seconds": 0.2108,
+   "abs_pct_error": 8.9
   },
   {
    "decile": 7,
    "queries": 4,
-   "predicted_seconds": 0.2447,
-   "actual_seconds": 0.2116,
-   "abs_pct_error": 16.84
+   "predicted_seconds": 0.2315,
+   "actual_seconds": 0.2266,
+   "abs_pct_error": 7.96
   },
   {
    "decile": 8,
    "queries": 4,
-   "predicted_seconds": 0.2831,
-   "actual_seconds": 0.2612,
-   "abs_pct_error": 17.91
+   "predicted_seconds": 0.4635,
+   "actual_seconds": 0.4602,
+   "abs_pct_error": 14.36
   },
   {
    "decile": 9,
    "queries": 4,
-   "predicted_seconds": 0.4347,
-   "actual_seconds": 0.4738,
-   "abs_pct_error": 7.75
+   "predicted_seconds": 0.7402,
+   "actual_seconds": 0.803,
+   "abs_pct_error": 14.63
   },
   {
    "decile": 10,
    "queries": 4,
-   "predicted_seconds": 0.7206,
-   "actual_seconds": 0.6815,
-   "abs_pct_error": 19.96
+   "predicted_seconds": 1.269,
+   "actual_seconds": 1.4088,
+   "abs_pct_error": 10.45
   }
  ]
 }
