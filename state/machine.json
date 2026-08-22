@@ -1,0 +1,7 @@
+{
+ "cpu_count": 4,
+ "duckdb_threads": 4,
+ "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+ "python": "3.12.14",
+ "calibration_baseline_seconds": 0.249105
+}

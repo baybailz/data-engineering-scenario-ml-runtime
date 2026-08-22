@@ -1,0 +1,116 @@
+{
+ "model_version": "v1-241c4b6f",
+ "trained_at": "2026-08-22T00:20:30+00:00",
+ "input_name": "X",
+ "output_name": "variable",
+ "features": [
+  "log_rows_in",
+  "log_bytes_est",
+  "log_rows_after_filter",
+  "n_joins",
+  "has_groupby",
+  "selectivity",
+  "has_orderby",
+  "has_window",
+  "log_limit_rows"
+ ],
+ "feature_ranges": {
+  "log_rows_in": {
+   "min": 6.30103,
+   "max": 6.906076
+  },
+  "log_bytes_est": {
+   "min": 8.158362,
+   "max": 8.762052
+  },
+  "log_rows_after_filter": {
+   "min": 4.60206,
+   "max": 6.857332
+  },
+  "n_joins": {
+   "min": 0.0,
+   "max": 3.0
+  },
+  "has_groupby": {
+   "min": 0.0,
+   "max": 1.0
+  },
+  "selectivity": {
+   "min": 0.02,
+   "max": 0.9
+  },
+  "has_orderby": {
+   "min": 0.0,
+   "max": 1.0
+  },
+  "has_window": {
+   "min": 0.0,
+   "max": 1.0
+  },
+  "log_limit_rows": {
+   "min": 0.0,
+   "max": 3.000434
+  }
+ },
+ "target": "log(seconds)",
+ "target_inverse": "exp",
+ "calibration_scale": 1.0,
+ "onnx_vs_sklearn_max_diff": 1.18e-06,
+ "onnx_bytes": 278772,
+ "n_rows": 40,
+ "holdout_mape_pct": 32.343,
+ "mape_ci_low_pct": 21.357,
+ "mape_ci_high_pct": 45.307,
+ "holdout_r2": 0.8793,
+ "passes_gate": false,
+ "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
+ "catalogue": {
+  "fact_tables": [
+   {
+    "name": "fact_event_s",
+    "rows": 2000000
+   },
+   {
+    "name": "fact_event_m",
+    "rows": 3000000
+   },
+   {
+    "name": "fact_event_l",
+    "rows": 5000000
+   },
+   {
+    "name": "fact_event_x",
+    "rows": 8000000
+   }
+  ],
+  "fact_row_bytes": 72,
+  "joins": [
+   {
+    "dim": "dim_customer_wl",
+    "rows": 50000,
+    "row_bytes": 40
+   },
+   {
+    "dim": "dim_product_wl",
+    "rows": 5000,
+    "row_bytes": 32
+   },
+   {
+    "dim": "dim_region_wl",
+    "rows": 200,
+    "row_bytes": 24
+   }
+  ],
+  "selectivities": [
+   0.02,
+   0.15,
+   0.45,
+   0.9
+  ],
+  "limits": [
+   0,
+   100,
+   1000
+  ]
+ }
+}
