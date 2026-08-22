@@ -1,6 +1,6 @@
 {
- "model_version": "v2-97ec9ebd",
- "trained_at": "2026-08-22T01:53:19+00:00",
+ "model_version": "v3-019f7483",
+ "trained_at": "2026-08-22T01:56:51+00:00",
  "input_name": "X",
  "output_name": "variable",
  "features": [
@@ -25,7 +25,7 @@
   },
   "log_table_bytes": {
    "min": 7.455966,
-   "max": 8.058026
+   "max": 8.057029
   },
   "n_tables": {
    "min": 1.0,
@@ -75,14 +75,14 @@
  "target": "log(EXECUTION_TIME in ms, runner drift divided out)",
  "target_inverse": "exp",
  "calibration_scale": 1.0,
- "onnx_vs_sklearn_max_diff": 1.5e-06,
+ "onnx_vs_sklearn_max_diff": 1.16e-06,
  "onnx_bytes": 445342,
- "n_rows": 80,
- "holdout_mape_pct": 40.348,
- "mape_ci_low_pct": 28.871,
- "mape_ci_high_pct": 52.788,
- "holdout_r2": 0.7863,
- "passes_gate": false,
+ "n_rows": 120,
+ "holdout_mape_pct": 12.352,
+ "mape_ci_low_pct": 9.424,
+ "mape_ci_high_pct": 15.68,
+ "holdout_r2": 0.9752,
+ "passes_gate": true,
  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms",
  "warehouse": {
   "sizes": [
@@ -115,13 +115,13 @@
    {
     "name": "FACT_EVENT_L",
     "rows": 5000000,
-    "bytes": 70516736,
+    "bytes": 70778880,
     "comment": "event fact, large"
    },
    {
     "name": "FACT_EVENT_X",
     "rows": 8000000,
-    "bytes": 113246208,
+    "bytes": 112984064,
     "comment": "event fact, extra large"
    },
    {
