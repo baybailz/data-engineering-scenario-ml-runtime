@@ -1,41 +1,81 @@
 model_version,query_id,template_id,template_label,batch_name,n_joins,has_groupby,has_orderby,has_window,selectivity,rows_in,actual_seconds,predicted_seconds,error_seconds,abs_pct_error,prediction_scope
-v1-241c4b6f,t36_s3,t36,2M rows · 3 joins · no group by · window · order by · no limit,batch_01,3.0,0.0,1.0,1.0,0.45,2055200.0,0.128885,0.573963,0.445078,345.33,cross_validated
-v1-241c4b6f,t28_s1,t28,2M rows · 3 joins · group by · limit 100,batch_01,3.0,1.0,0.0,0.0,0.02,2055200.0,0.054884,0.179659,0.124775,227.342,cross_validated
-v1-241c4b6f,t54_s1,t54,8M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.02,8000000.0,0.170691,0.49155,0.320859,187.976,cross_validated
-v1-241c4b6f,t36_s1,t36,2M rows · 3 joins · no group by · window · order by · no limit,batch_01,3.0,0.0,1.0,1.0,0.02,2055200.0,0.051226,0.142104,0.090878,177.406,cross_validated
-v1-241c4b6f,t45_s1,t45,2M rows · 1 join · group by · window · order by · no limit,batch_01,1.0,1.0,1.0,1.0,0.02,2050000.0,0.060602,0.162762,0.10216,168.575,cross_validated
-v1-241c4b6f,t15_s2,t15,8M rows · 0 joins · group by · no limit,batch_01,0.0,1.0,0.0,0.0,0.15,8000000.0,0.302677,0.774341,0.471664,155.831,cross_validated
-v1-241c4b6f,t37_s4,t37,5M rows · 0 joins · no group by · limit 100,batch_01,0.0,0.0,0.0,0.0,0.9,5000000.0,0.152911,0.358314,0.205403,134.328,cross_validated
-v1-241c4b6f,t33_s3,t33,2M rows · 1 join · group by · no limit,batch_01,1.0,1.0,0.0,0.0,0.45,2050000.0,0.168746,0.321537,0.152791,90.545,cross_validated
-v1-241c4b6f,t32_s3,t32,8M rows · 0 joins · group by · order by · limit 1000,batch_01,0.0,1.0,1.0,0.0,0.45,8000000.0,0.553166,0.994148,0.440982,79.72,holdout
-v1-241c4b6f,t56_s4,t56,8M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.9,8055000.0,0.254615,0.425122,0.170507,66.967,holdout
-v1-241c4b6f,t24_s4,t24,5M rows · 3 joins · group by · window · order by · no limit,batch_01,3.0,1.0,1.0,1.0,0.9,5055200.0,2.340172,0.828952,-1.51122,64.577,cross_validated
-v1-241c4b6f,t21_s2,t21,2M rows · 3 joins · group by · order by · no limit,batch_01,3.0,1.0,1.0,0.0,0.15,2055200.0,0.19265,0.072931,-0.119719,62.143,cross_validated
-v1-241c4b6f,t23_s4,t23,5M rows · 1 join · no group by · order by · limit 1000,batch_01,1.0,0.0,1.0,0.0,0.9,5050000.0,0.168473,0.264245,0.095772,56.847,cross_validated
-v1-241c4b6f,t35_s4,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,batch_01,0.0,0.0,1.0,1.0,0.9,5000000.0,0.459224,0.223194,-0.23603,51.398,cross_validated
-v1-241c4b6f,t54_s3,t54,8M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.45,8000000.0,0.207767,0.304174,0.096407,46.401,holdout
-v1-241c4b6f,t16_s4,t16,8M rows · 3 joins · group by · order by · limit 100,batch_01,3.0,1.0,1.0,0.0,0.9,8055200.0,1.646598,0.923548,-0.72305,43.912,cross_validated
-v1-241c4b6f,t50_s2,t50,2M rows · 3 joins · no group by · limit 1000,batch_01,3.0,0.0,0.0,0.0,0.15,2055200.0,0.054142,0.075648,0.021506,39.721,cross_validated
-v1-241c4b6f,t15_s4,t15,8M rows · 0 joins · group by · no limit,batch_01,0.0,1.0,0.0,0.0,0.9,8000000.0,0.76651,0.46776,-0.29875,38.975,cross_validated
-v1-241c4b6f,t55_s4,t55,5M rows · 2 joins · group by · window · limit 100,batch_01,2.0,1.0,0.0,1.0,0.9,5055000.0,1.080118,0.666203,-0.413915,38.321,holdout
-v1-241c4b6f,t16_s2,t16,8M rows · 3 joins · group by · order by · limit 100,batch_01,3.0,1.0,1.0,0.0,0.15,8055200.0,0.459948,0.612656,0.152708,33.201,holdout
-v1-241c4b6f,t29_s3,t29,5M rows · 0 joins · group by · order by · limit 1000,batch_01,0.0,1.0,1.0,0.0,0.45,5000000.0,0.34058,0.451779,0.111199,32.65,cross_validated
-v1-241c4b6f,t30_s2,t30,5M rows · 1 join · group by · window · no limit,batch_01,1.0,1.0,0.0,1.0,0.15,5050000.0,0.253442,0.171218,-0.082224,32.443,cross_validated
-v1-241c4b6f,t39_s3,t39,2M rows · 3 joins · group by · window · no limit,batch_01,3.0,1.0,0.0,1.0,0.45,2055200.0,0.384973,0.264358,-0.120615,31.331,cross_validated
-v1-241c4b6f,t12_s1,t12,2M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.02,2000000.0,0.043786,0.057154,0.013368,30.53,holdout
-v1-241c4b6f,t49_s2,t49,3M rows · 0 joins · group by · window · limit 100,batch_01,0.0,1.0,0.0,1.0,0.15,3000000.0,0.128015,0.090827,-0.037188,29.049,holdout
-v1-241c4b6f,t59_s3,t59,3M rows · 1 join · group by · window · order by · limit 1000,batch_01,1.0,1.0,1.0,1.0,0.45,3050000.0,0.328858,0.419809,0.090951,27.657,holdout
-v1-241c4b6f,t23_s3,t23,5M rows · 1 join · no group by · order by · limit 1000,batch_01,1.0,0.0,1.0,0.0,0.45,5050000.0,0.138007,0.102177,-0.03583,25.963,cross_validated
-v1-241c4b6f,t47_s3,t47,8M rows · 1 join · no group by · window · order by · limit 1000,batch_01,1.0,0.0,1.0,1.0,0.45,8050000.0,0.460745,0.57514,0.114395,24.828,cross_validated
-v1-241c4b6f,t55_s2,t55,5M rows · 2 joins · group by · window · limit 100,batch_01,2.0,1.0,0.0,1.0,0.15,5055000.0,0.286444,0.2164,-0.070044,24.453,cross_validated
-v1-241c4b6f,t14_s2,t14,5M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.15,5055000.0,0.121964,0.142435,0.020471,16.784,cross_validated
-v1-241c4b6f,t06_s4,t06,2M rows · 1 join · no group by · window · order by · no limit,batch_01,1.0,0.0,1.0,1.0,0.9,2050000.0,0.196449,0.169821,-0.026628,13.555,holdout
-v1-241c4b6f,t47_s4,t47,8M rows · 1 join · no group by · window · order by · limit 1000,batch_01,1.0,0.0,1.0,1.0,0.9,8050000.0,0.726436,0.641927,-0.084509,11.633,cross_validated
-v1-241c4b6f,t34_s4,t34,2M rows · 0 joins · no group by · window · limit 100,batch_01,0.0,0.0,0.0,1.0,0.9,2000000.0,0.195889,0.175859,-0.02003,10.225,cross_validated
-v1-241c4b6f,t18_s1,t18,2M rows · 2 joins · group by · no limit,batch_01,2.0,1.0,0.0,0.0,0.02,2055000.0,0.05936,0.065086,0.005726,9.645,holdout
-v1-241c4b6f,t05_s4,t05,3M rows · 3 joins · no group by · order by · limit 1000,batch_01,3.0,0.0,1.0,0.0,0.9,3055200.0,0.111638,0.12229,0.010652,9.541,holdout
-v1-241c4b6f,t19_s3,t19,8M rows · 3 joins · group by · window · order by · limit 100,batch_01,3.0,1.0,1.0,1.0,0.45,8055200.0,1.381775,1.314595,-0.06718,4.862,cross_validated
-v1-241c4b6f,t50_s1,t50,2M rows · 3 joins · no group by · limit 1000,batch_01,3.0,0.0,0.0,0.0,0.02,2055200.0,0.047036,0.045377,-0.001659,3.526,holdout
-v1-241c4b6f,t20_s2,t20,2M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.15,2055000.0,0.053211,0.054429,0.001218,2.29,cross_validated
-v1-241c4b6f,t34_s2,t34,2M rows · 0 joins · no group by · window · limit 100,batch_01,0.0,0.0,0.0,1.0,0.15,2000000.0,0.067008,0.066644,-0.000364,0.544,cross_validated
-v1-241c4b6f,t41_s4,t41,3M rows · 1 join · no group by · limit 1000,batch_01,1.0,0.0,0.0,0.0,0.9,3050000.0,0.104706,0.104503,-0.000203,0.194,cross_validated
+v2-df244983,t05_s4,t05,3M rows · 3 joins · no group by · order by · limit 1000,batch_01,3.0,0.0,1.0,0.0,0.9,3055200.0,0.111638,0.327026,0.215388,192.934,cross_validated
+v2-df244983,t36_s3,t36,2M rows · 3 joins · no group by · window · order by · no limit,batch_01,3.0,0.0,1.0,1.0,0.45,2055200.0,0.128885,0.305883,0.176998,137.33,cross_validated
+v2-df244983,t28_s1,t28,2M rows · 3 joins · group by · limit 100,batch_01,3.0,1.0,0.0,0.0,0.02,2055200.0,0.054884,0.127519,0.072635,132.343,cross_validated
+v2-df244983,t12_s4,t12,2M rows · 0 joins · no group by · no limit,batch_02,0.0,0.0,0.0,0.0,0.9,2000000.0,0.051545,0.117548,0.066003,128.049,holdout
+v2-df244983,t43_s4,t43,8M rows · 1 join · no group by · order by · limit 100,batch_02,1.0,0.0,1.0,0.0,0.9,8050000.0,0.195973,0.402234,0.206261,105.249,holdout
+v2-df244983,t21_s2,t21,2M rows · 3 joins · group by · order by · no limit,batch_01,3.0,1.0,1.0,0.0,0.15,2055200.0,0.19265,0.066037,-0.126613,65.722,cross_validated
+v2-df244983,t45_s1,t45,2M rows · 1 join · group by · window · order by · no limit,batch_01,1.0,1.0,1.0,1.0,0.02,2050000.0,0.060602,0.098138,0.037536,61.938,cross_validated
+v2-df244983,t55_s1,t55,5M rows · 2 joins · group by · window · limit 100,batch_02,2.0,1.0,0.0,1.0,0.02,5055000.0,0.118371,0.191283,0.072912,61.597,holdout
+v2-df244983,t22_s3,t22,5M rows · 2 joins · no group by · order by · limit 100,batch_02,2.0,0.0,1.0,0.0,0.45,5055000.0,0.11707,0.187301,0.070231,59.991,holdout
+v2-df244983,t24_s4,t24,5M rows · 3 joins · group by · window · order by · no limit,batch_01,3.0,1.0,1.0,1.0,0.9,5055200.0,2.340172,0.98654,-1.353632,57.843,cross_validated
+v2-df244983,t33_s3,t33,2M rows · 1 join · group by · no limit,batch_01,1.0,1.0,0.0,0.0,0.45,2050000.0,0.168746,0.258902,0.090156,53.427,cross_validated
+v2-df244983,t47_s4,t47,8M rows · 1 join · no group by · window · order by · limit 1000,batch_01,1.0,0.0,1.0,1.0,0.9,8050000.0,0.726436,0.339287,-0.387149,53.294,cross_validated
+v2-df244983,t16_s2,t16,8M rows · 3 joins · group by · order by · limit 100,batch_01,3.0,1.0,1.0,0.0,0.15,8055200.0,0.459948,0.693559,0.233611,50.791,cross_validated
+v2-df244983,t40_s4,t40,3M rows · 3 joins · group by · window · limit 100,batch_02,3.0,1.0,0.0,1.0,0.9,3055200.0,0.817465,0.4084,-0.409065,50.041,holdout
+v2-df244983,t47_s3,t47,8M rows · 1 join · no group by · window · order by · limit 1000,batch_01,1.0,0.0,1.0,1.0,0.45,8050000.0,0.460745,0.231269,-0.229476,49.805,cross_validated
+v2-df244983,t53_s4,t53,5M rows · 1 join · group by · limit 1000,batch_02,1.0,1.0,0.0,0.0,0.9,5050000.0,0.629835,0.325233,-0.304602,48.362,holdout
+v2-df244983,t48_s4,t48,2M rows · 3 joins · group by · window · order by · no limit,batch_02,3.0,1.0,1.0,1.0,0.9,2055200.0,0.981486,0.533273,-0.448213,45.667,holdout
+v2-df244983,t55_s4,t55,5M rows · 2 joins · group by · window · limit 100,batch_01,2.0,1.0,0.0,1.0,0.9,5055000.0,1.080118,0.617006,-0.463112,42.876,cross_validated
+v2-df244983,t12_s1,t12,2M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.02,2000000.0,0.043786,0.061344,0.017558,40.099,cross_validated
+v2-df244983,t51_s3,t51,2M rows · 0 joins · group by · no limit,batch_02,0.0,1.0,0.0,0.0,0.45,2000000.0,0.122602,0.171221,0.048619,39.656,holdout
+v2-df244983,t53_s3,t53,5M rows · 1 join · group by · limit 1000,batch_02,1.0,1.0,0.0,0.0,0.45,5050000.0,0.366008,0.226581,-0.139427,38.094,holdout
+v2-df244983,t25_s4,t25,8M rows · 1 join · no group by · limit 100,batch_02,1.0,0.0,0.0,0.0,0.9,8050000.0,0.197917,0.272803,0.074886,37.837,holdout
+v2-df244983,t59_s4,t59,3M rows · 1 join · group by · window · order by · limit 1000,batch_02,1.0,1.0,1.0,1.0,0.9,3050000.0,0.566087,0.353484,-0.212603,37.557,holdout
+v2-df244983,t30_s3,t30,5M rows · 1 join · group by · window · no limit,batch_02,1.0,1.0,0.0,1.0,0.45,5050000.0,0.52683,0.329949,-0.196881,37.371,holdout
+v2-df244983,t29_s3,t29,5M rows · 0 joins · group by · order by · limit 1000,batch_01,0.0,1.0,1.0,0.0,0.45,5000000.0,0.34058,0.213352,-0.127228,37.356,cross_validated
+v2-df244983,t16_s4,t16,8M rows · 3 joins · group by · order by · limit 100,batch_01,3.0,1.0,1.0,0.0,0.9,8055200.0,1.646598,1.050589,-0.596009,36.196,cross_validated
+v2-df244983,t51_s2,t51,2M rows · 0 joins · group by · no limit,batch_02,0.0,1.0,0.0,0.0,0.15,2000000.0,0.07141,0.097075,0.025665,35.94,holdout
+v2-df244983,t54_s3,t54,8M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.45,8000000.0,0.207767,0.281743,0.073976,35.605,cross_validated
+v2-df244983,t44_s2,t44,5M rows · 3 joins · group by · window · limit 1000,batch_02,3.0,1.0,0.0,1.0,0.15,5055200.0,0.310667,0.42018,0.109513,35.251,holdout
+v2-df244983,t18_s3,t18,2M rows · 2 joins · group by · no limit,batch_02,2.0,1.0,0.0,0.0,0.45,2055000.0,0.302495,0.20233,-0.100165,33.113,holdout
+v2-df244983,t35_s4,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,batch_01,0.0,0.0,1.0,1.0,0.9,5000000.0,0.459224,0.317573,-0.141651,30.846,cross_validated
+v2-df244983,t35_s2,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,batch_02,0.0,0.0,1.0,1.0,0.15,5000000.0,0.147497,0.19211,0.044613,30.247,holdout
+v2-df244983,t14_s2,t14,5M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.15,5055000.0,0.121964,0.157763,0.035799,29.352,cross_validated
+v2-df244983,t42_s2,t42,3M rows · 0 joins · group by · window · order by · no limit,batch_02,0.0,1.0,1.0,1.0,0.15,3000000.0,0.120437,0.155161,0.034724,28.832,holdout
+v2-df244983,t39_s3,t39,2M rows · 3 joins · group by · window · no limit,batch_01,3.0,1.0,0.0,1.0,0.45,2055200.0,0.384973,0.274115,-0.110858,28.796,cross_validated
+v2-df244983,t37_s2,t37,5M rows · 0 joins · no group by · limit 100,batch_02,0.0,0.0,0.0,0.0,0.15,5000000.0,0.090178,0.115684,0.025506,28.284,holdout
+v2-df244983,t41_s2,t41,3M rows · 1 join · no group by · limit 1000,batch_02,1.0,0.0,0.0,0.0,0.15,3050000.0,0.062363,0.078874,0.016511,26.475,holdout
+v2-df244983,t03_s3,t03,8M rows · 2 joins · no group by · window · no limit,batch_02,2.0,0.0,0.0,1.0,0.45,8055000.0,0.427448,0.320336,-0.107112,25.058,holdout
+v2-df244983,t23_s3,t23,5M rows · 1 join · no group by · order by · limit 1000,batch_01,1.0,0.0,1.0,0.0,0.45,5050000.0,0.138007,0.103676,-0.034331,24.876,cross_validated
+v2-df244983,t07_s4,t07,2M rows · 2 joins · group by · window · limit 100,batch_02,2.0,1.0,0.0,1.0,0.9,2055000.0,0.439482,0.331494,-0.107988,24.572,holdout
+v2-df244983,t19_s3,t19,8M rows · 3 joins · group by · window · order by · limit 100,batch_01,3.0,1.0,1.0,1.0,0.45,8055200.0,1.381775,1.04233,-0.339445,24.566,cross_validated
+v2-df244983,t46_s1,t46,8M rows · 1 join · group by · window · order by · limit 100,batch_02,1.0,1.0,1.0,1.0,0.02,8050000.0,0.172436,0.214074,0.041638,24.147,holdout
+v2-df244983,t42_s4,t42,3M rows · 0 joins · group by · window · order by · no limit,batch_02,0.0,1.0,1.0,1.0,0.9,3000000.0,0.459272,0.350685,-0.108587,23.643,holdout
+v2-df244983,t19_s4,t19,8M rows · 3 joins · group by · window · order by · limit 100,batch_02,3.0,1.0,1.0,1.0,0.9,8055200.0,2.766524,2.135412,-0.631112,22.812,holdout
+v2-df244983,t32_s4,t32,8M rows · 0 joins · group by · order by · limit 1000,batch_02,0.0,1.0,1.0,0.0,0.9,8000000.0,0.746183,0.912014,0.165831,22.224,holdout
+v2-df244983,t54_s2,t54,8M rows · 0 joins · no group by · no limit,batch_02,0.0,0.0,0.0,0.0,0.15,8000000.0,0.149214,0.181153,0.031939,21.405,holdout
+v2-df244983,t60_s1,t60,3M rows · 2 joins · group by · window · order by · no limit,batch_02,2.0,1.0,1.0,1.0,0.02,3055000.0,0.090858,0.071451,-0.019407,21.36,holdout
+v2-df244983,t06_s3,t06,2M rows · 1 join · no group by · window · order by · no limit,batch_02,1.0,0.0,1.0,1.0,0.45,2050000.0,0.109374,0.132572,0.023198,21.209,holdout
+v2-df244983,t23_s4,t23,5M rows · 1 join · no group by · order by · limit 1000,batch_01,1.0,0.0,1.0,0.0,0.9,5050000.0,0.168473,0.20313,0.034657,20.572,cross_validated
+v2-df244983,t11_s2,t11,3M rows · 0 joins · group by · limit 1000,batch_02,0.0,1.0,0.0,0.0,0.15,3000000.0,0.094461,0.11345,0.018989,20.102,holdout
+v2-df244983,t30_s2,t30,5M rows · 1 join · group by · window · no limit,batch_01,1.0,1.0,0.0,1.0,0.15,5050000.0,0.253442,0.298614,0.045172,17.824,cross_validated
+v2-df244983,t50_s1,t50,2M rows · 3 joins · no group by · limit 1000,batch_01,3.0,0.0,0.0,0.0,0.02,2055200.0,0.047036,0.055192,0.008156,17.339,cross_validated
+v2-df244983,t35_s1,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,batch_02,0.0,0.0,1.0,1.0,0.02,5000000.0,0.09525,0.109827,0.014577,15.304,holdout
+v2-df244983,t15_s4,t15,8M rows · 0 joins · group by · no limit,batch_01,0.0,1.0,0.0,0.0,0.9,8000000.0,0.76651,0.64959,-0.11692,15.254,cross_validated
+v2-df244983,t56_s2,t56,8M rows · 2 joins · no group by · limit 1000,batch_02,2.0,0.0,0.0,0.0,0.15,8055000.0,0.158424,0.134741,-0.023683,14.949,holdout
+v2-df244983,t37_s4,t37,5M rows · 0 joins · no group by · limit 100,batch_01,0.0,0.0,0.0,0.0,0.9,5000000.0,0.152911,0.175063,0.022152,14.487,cross_validated
+v2-df244983,t59_s3,t59,3M rows · 1 join · group by · window · order by · limit 1000,batch_01,1.0,1.0,1.0,1.0,0.45,3050000.0,0.328858,0.282186,-0.046672,14.192,cross_validated
+v2-df244983,t36_s1,t36,2M rows · 3 joins · no group by · window · order by · no limit,batch_01,3.0,0.0,1.0,1.0,0.02,2055200.0,0.051226,0.058444,0.007218,14.091,cross_validated
+v2-df244983,t34_s1,t34,2M rows · 0 joins · no group by · window · limit 100,batch_02,0.0,0.0,0.0,1.0,0.02,2000000.0,0.040274,0.045907,0.005633,13.988,holdout
+v2-df244983,t18_s1,t18,2M rows · 2 joins · group by · no limit,batch_01,2.0,1.0,0.0,0.0,0.02,2055000.0,0.05936,0.052207,-0.007153,12.05,cross_validated
+v2-df244983,t14_s3,t14,5M rows · 2 joins · no group by · limit 1000,batch_02,2.0,0.0,0.0,0.0,0.45,5055000.0,0.119225,0.13331,0.014085,11.813,holdout
+v2-df244983,t32_s3,t32,8M rows · 0 joins · group by · order by · limit 1000,batch_01,0.0,1.0,1.0,0.0,0.45,8000000.0,0.553166,0.615075,0.061909,11.192,cross_validated
+v2-df244983,t49_s1,t49,3M rows · 0 joins · group by · window · limit 100,batch_02,0.0,1.0,0.0,1.0,0.02,3000000.0,0.063609,0.056555,-0.007054,11.09,holdout
+v2-df244983,t54_s1,t54,8M rows · 0 joins · no group by · no limit,batch_01,0.0,0.0,0.0,0.0,0.02,8000000.0,0.170691,0.152894,-0.017797,10.427,cross_validated
+v2-df244983,t41_s4,t41,3M rows · 1 join · no group by · limit 1000,batch_01,1.0,0.0,0.0,0.0,0.9,3050000.0,0.104706,0.114717,0.010011,9.561,cross_validated
+v2-df244983,t34_s4,t34,2M rows · 0 joins · no group by · window · limit 100,batch_01,0.0,0.0,0.0,1.0,0.9,2000000.0,0.195889,0.179334,-0.016555,8.451,cross_validated
+v2-df244983,t31_s2,t31,2M rows · 1 join · no group by · window · limit 100,batch_02,1.0,0.0,0.0,1.0,0.15,2050000.0,0.059247,0.06418,0.004933,8.325,holdout
+v2-df244983,t46_s3,t46,8M rows · 1 join · group by · window · order by · limit 100,batch_02,1.0,1.0,1.0,1.0,0.45,8050000.0,0.812949,0.878876,0.065927,8.11,holdout
+v2-df244983,t15_s2,t15,8M rows · 0 joins · group by · no limit,batch_01,0.0,1.0,0.0,0.0,0.15,8000000.0,0.302677,0.32612,0.023443,7.745,cross_validated
+v2-df244983,t52_s1,t52,2M rows · 2 joins · no group by · window · limit 100,batch_02,2.0,0.0,0.0,1.0,0.02,2055000.0,0.041059,0.044236,0.003177,7.739,holdout
+v2-df244983,t20_s2,t20,2M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.15,2055000.0,0.053211,0.057138,0.003927,7.38,cross_validated
+v2-df244983,t49_s2,t49,3M rows · 0 joins · group by · window · limit 100,batch_01,0.0,1.0,0.0,1.0,0.15,3000000.0,0.128015,0.118765,-0.00925,7.226,cross_validated
+v2-df244983,t56_s4,t56,8M rows · 2 joins · no group by · limit 1000,batch_01,2.0,0.0,0.0,0.0,0.9,8055000.0,0.254615,0.236245,-0.01837,7.215,cross_validated
+v2-df244983,t50_s2,t50,2M rows · 3 joins · no group by · limit 1000,batch_01,3.0,0.0,0.0,0.0,0.15,2055200.0,0.054142,0.057181,0.003039,5.614,cross_validated
+v2-df244983,t06_s4,t06,2M rows · 1 join · no group by · window · order by · no limit,batch_01,1.0,0.0,1.0,1.0,0.9,2050000.0,0.196449,0.207199,0.01075,5.472,cross_validated
+v2-df244983,t34_s2,t34,2M rows · 0 joins · no group by · window · limit 100,batch_01,0.0,0.0,0.0,1.0,0.15,2000000.0,0.067008,0.069655,0.002647,3.951,cross_validated
+v2-df244983,t37_s1,t37,5M rows · 0 joins · no group by · limit 100,batch_02,0.0,0.0,0.0,0.0,0.02,5000000.0,0.087699,0.084299,-0.0034,3.877,holdout
+v2-df244983,t47_s2,t47,8M rows · 1 join · no group by · window · order by · limit 1000,batch_02,1.0,0.0,1.0,1.0,0.15,8050000.0,0.238729,0.24798,0.009251,3.875,holdout
+v2-df244983,t55_s2,t55,5M rows · 2 joins · group by · window · limit 100,batch_01,2.0,1.0,0.0,1.0,0.15,5055000.0,0.286444,0.294196,0.007752,2.706,cross_validated
+v2-df244983,t35_s3,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,batch_02,0.0,0.0,1.0,1.0,0.45,5000000.0,0.262702,0.256893,-0.005809,2.211,holdout
