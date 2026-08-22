@@ -1,4 +1,4 @@
-model_sequence,model_version,trained_at,batches_measured,n_train_rows,n_holdout_rows,holdout_mape_pct,mape_ci_low_pct,mape_ci_high_pct,holdout_r2,holdout_mae_seconds,cv_mape_pct,baseline_mape_pct,mape_gain_over_baseline,mape_change,gate_status
-1,v1-241c4b6f,2026-08-22T00:20:30+00:00,1,28,12,32.343,21.357,45.307,0.8793,0.12172,73.682,40.611,8.268,,fail
-2,v2-df244983,2026-08-22T00:23:03+00:00,2,40,40,30.886,23.972,38.76,0.8669,0.10049,34.969,39.66,8.774,-1.457,fail
-3,v3-f2f82ba4,2026-08-22T00:25:35+00:00,3,80,40,11.719,9.158,14.69,0.9713,0.03307,21.392,26.371,14.652,-19.167,pass
+model_sequence,model_version,trained_at,batches_measured,n_train_rows,n_holdout_rows,holdout_mape_pct,mape_ci_low_pct,mape_ci_high_pct,holdout_r2,holdout_mae_ms,cv_mape_pct,baseline_mape_pct,mape_gain_over_baseline,mape_change,gate_status
+1,v1-6f9690ee,2026-08-22T01:35:41+00:00,1,28,12,28.142,17.371,38.994,0.8383,60.783,78.117,41.399,13.257,,fail
+2,v2-9cff632d,2026-08-22T01:36:58+00:00,2,40,40,51.545,38.264,65.299,0.7785,85.263,58.82,44.319,-7.226,23.403,fail
+3,v3-c193ca11,2026-08-22T01:38:12+00:00,3,80,40,17.17,13.452,21.12,0.968,37.1,29.194,51.759,34.589,-34.375,fail

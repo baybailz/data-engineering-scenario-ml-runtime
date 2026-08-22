@@ -2,7 +2,7 @@
 """Publish docs/data/*.json: everything the page reads, and nothing it invents.
 
     summary.json     queue state, row counts, the headline numbers
-    tables.json      the published tables: predictions, model versions, SLA
+    tables.json      the input (query_history, tables) and what the model made of it
     next_file.json   the queue -- the next batch, scored before it is measured
     logs.json        run history (one entry per run) plus the raw run log
     models.json      the project source, for the code browser
@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from runtime_model import predict, report  # noqa: E402
+from runtime_model import features, parse, predict, report, snowflake  # noqa: E402
 
 OUT = ROOT / "docs" / "data"
 DATA = ROOT / "data"
@@ -39,7 +39,12 @@ SAMPLE_ROWS = 120
 
 # src/ first, so the code browser opens on the package overview.
 SOURCE_GLOBS = ["src/runtime_model/*.py", "scripts/*.py", "tests/*.py",
-                ".github/workflows/*.yml", "data/*.csv"]
+                ".github/workflows/*.yml"]
+
+# The tables the run publishes. query_history and tables are the input in
+# Snowflake's shape; the rest is what the model made of it.
+TABLE_NAMES = ("query_history", "tables", "calibration", "predictions",
+               "model_versions", "sla")
 
 
 def coerce(value: str):
@@ -75,20 +80,50 @@ def read_log(path: str | None) -> str:
     return file.read_text(errors="replace").rstrip() if file and file.exists() else ""
 
 
-def forecast(rows: list[dict]) -> list[dict]:
+def measured_history(tables: dict) -> list[dict]:
+    """QUERY_HISTORY joined to the calibration table, as training sees it."""
+    drift = {row["query_id"]: row for row in tables["calibration"]}
+    rows = []
+    for row in tables["query_history"]:
+        beside = drift.get(row["QUERY_ID"])
+        if beside is not None:
+            rows.append({**row, "TARGET_MS": float(beside["calibrated_execution_ms"])})
+    return rows
+
+
+def forecast(queue: list[dict], tables: dict, catalog: dict) -> list[dict]:
     """Score the queued queries with the published model, before they are run.
 
     This is the product, shown where it is most obvious: the incoming batch
     arrives with a predicted runtime already attached, and the next run
-    measures the same queries so the claim can be checked.
+    measures the same queries so the claim can be checked. Every column here is
+    parsed out of the queued SQL text; nothing is carried over from a run.
     """
+    index = features.history_index(measured_history(tables))
+    scored = predict.queue_rows(queue, index)
+    rows = []
+    for source, pre_run in zip(queue, scored, strict=True):
+        shape = parse.shape(source["query_text"], source["warehouse_size"], catalog)
+        rows.append({"query_id": source["query_id"], "template_id": source["template_id"],
+                     "template_label": source["template_label"],
+                     "warehouse_size": source["warehouse_size"],
+                     "n_tables": shape["n_tables"], "n_joins": shape["n_joins"],
+                     "table_rows": shape["table_rows"],
+                     "has_group_by": shape["has_group_by"],
+                     "has_order_by": shape["has_order_by"],
+                     "has_window": shape["has_window"],
+                     "limit_rows": shape["limit_rows"],
+                     "predicate_literal": shape["predicate_literal"],
+                     "seen_before": pre_run["HAS_PRIOR"],
+                     "query_text": source["query_text"]})
+
     model_file = ARTIFACTS / "model.pkl"
     if not rows or not model_file.exists():
         return rows
     bundle = predict.load_model(model_file)
-    seconds = predict.predict_rows(bundle["model"], rows)
-    for row, value in zip(rows, seconds, strict=True):
-        row["predicted_seconds"] = round(value, 4)
+    for row, value in zip(rows, predict.predict_rows(bundle["model"], scored, catalog),
+                          strict=True):
+        row["predicted_ms"] = round(value, 2)
         row["predicted_by"] = bundle["model_version"]
     return rows
 
@@ -99,9 +134,9 @@ def counts(rows: list[dict], key: str, value: str) -> int:
 
 def build_summary(now: str, loaded: list[str], queue: list[str], tables: dict,
                   metrics: dict, checks: list[dict]) -> dict:
-    measurements = tables["measurements"]
+    measurements = tables["query_history"]
     sla = tables["sla"]
-    runtimes = [row["normalized_seconds"] for row in measurements]
+    runtimes = [row["calibrated_execution_ms"] for row in tables["calibration"]]
     return {
         "generated_at": now,
         "files_loaded": loaded,
@@ -109,14 +144,21 @@ def build_summary(now: str, loaded: list[str], queue: list[str], tables: dict,
         "next_file": queue[0] if queue else None,
         "row_counts": {name: len(rows) for name, rows in tables.items()},
         "queries_measured": len(measurements),
-        "templates": len({row["template_id"] for row in measurements}),
+        "templates": len({row["template_id"] for row in tables["calibration"]}),
+        "warehouse_tables": len(tables["tables"]),
+        "query_history_columns": snowflake.QUERY_HISTORY_COLUMNS,
+        "tables_columns": snowflake.TABLES_COLUMNS,
+        "feature_map": snowflake.FEATURE_MAP,
+        "pre_run_columns": sorted(snowflake.PRE_RUN_COLUMNS),
+        "after_the_fact_columns": snowflake.AFTER_THE_FACT_COLUMNS,
+        "model_features": features.FEATURES,
         "models_trained": len(tables["model_versions"]),
         "model_version": metrics.get("model_version"),
         "holdout_mape_pct": metrics.get("holdout_mape_pct"),
         "mape_ci_low_pct": metrics.get("mape_ci_low_pct"),
         "mape_ci_high_pct": metrics.get("mape_ci_high_pct"),
         "holdout_r2": metrics.get("holdout_r2"),
-        "holdout_mae_seconds": metrics.get("holdout_mae_seconds"),
+        "holdout_mae_ms": metrics.get("holdout_mae_ms"),
         "baseline_mape_pct": metrics.get("baseline_mape_pct"),
         "cv_mape_pct": metrics.get("cv_mape_pct"),
         "passes_gate": metrics.get("passes_gate"),
@@ -125,14 +167,15 @@ def build_summary(now: str, loaded: list[str], queue: list[str], tables: dict,
         "gate_r2": metrics.get("gate_r2"),
         "n_train_rows": metrics.get("n_train_rows"),
         "n_holdout_rows": metrics.get("n_holdout_rows"),
-        "cpu_count": metrics.get("cpu_count"),
-        "duckdb_threads": metrics.get("duckdb_threads"),
+        "engine": metrics.get("engine"),
+        "warehouse_sizes": metrics.get("warehouse_sizes", []),
+        "seen_before_share": metrics.get("seen_before_share"),
         "reps_median": metrics.get("reps_median"),
         "importances": metrics.get("importances", []),
         "calibration": metrics.get("calibration", []),
-        "runtime_fastest_seconds": round(min(runtimes), 4) if runtimes else 0.0,
-        "runtime_slowest_seconds": round(max(runtimes), 4) if runtimes else 0.0,
-        "sla_seconds": sla[0]["sla_seconds"] if sla else report.SLA_SECONDS,
+        "runtime_fastest_ms": round(min(runtimes), 2) if runtimes else 0.0,
+        "runtime_slowest_ms": round(max(runtimes), 2) if runtimes else 0.0,
+        "sla_ms": sla[0]["sla_ms"] if sla else report.SLA_MS,
         "sla_breaches_called": counts(sla, "sla_verdict", "breach_called"),
         "sla_missed_breaches": counts(sla, "sla_verdict", "missed_breach"),
         "checks_passed": sum(1 for check in checks if check["ok"]),
@@ -151,7 +194,7 @@ def build_history_entry(now: str, action: str, loaded: list[str], tables: dict,
         return {"at": now, "action": action, "passed": 0, "failed": 0, "batch": None,
                 "measure": "reset · queue cleared", "train": "no model",
                 "publish": "published tables emptied"}
-    measured = [row for row in tables["measurements"] if row["batch_name"] == batch]
+    measured = [row for row in tables["calibration"] if row["batch_name"] == batch]
     if batch and measured:
         reps = sorted(row["reps"] for row in measured)
         measure = (f"{batch} · {len(measured)} queries measured "
@@ -194,11 +237,11 @@ def main() -> None:
 
     loaded = read_json(STATE / "loaded_files.json", [])
     queue = [path.stem for path in sorted(INCOMING.glob("*.csv")) if path.stem not in loaded]
-    tables = {name: read_csv(DATA / f"{name}.csv")
-              for name in ("measurements", "predictions", "model_versions", "sla")}
+    tables = {name: read_csv(DATA / f"{name}.csv") for name in TABLE_NAMES}
+    catalog = parse.table_index(tables["tables"])
     metrics = read_json(ARTIFACTS / "metrics.json", {})
 
-    check_results = report.checks(tables["measurements"], tables["predictions"],
+    check_results = report.checks(tables["query_history"], tables["predictions"],
                                   tables["model_versions"]) if tables["predictions"] else []
     summary = build_summary(now, loaded, queue, tables, metrics, check_results)
     entry = build_history_entry(now, args.action, loaded, tables, metrics, check_results)
@@ -215,7 +258,8 @@ def main() -> None:
             "python": read_log(args.log)}
 
     next_name = queue[0] if queue else None
-    next_rows = forecast(read_csv(INCOMING / f"{next_name}.csv")) if next_name else []
+    next_rows = (forecast(read_csv(INCOMING / f"{next_name}.csv"), tables, catalog)
+                 if next_name else [])
 
     published = {name: tables[name] for name in CFG["export"]["tables"]}
     for name, payload in [
@@ -225,7 +269,8 @@ def main() -> None:
         ("logs.json", logs),
         ("models.json", build_models()),
         ("model_data.json", {name: read_csv(DATA / f"{name}.csv", SAMPLE_ROWS)
-                             for name in tables}),
+                             for name in ("predictions", "model_versions", "sla",
+                                          "calibration")}),
     ]:
         (OUT / name).write_text(json.dumps(payload, indent=1, default=str) + "\n")
         print(f"wrote docs/data/{name}")

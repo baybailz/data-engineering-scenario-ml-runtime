@@ -1,0 +1,3250 @@
+QUERY_ID,QUERY_TEXT,DATABASE_NAME,SCHEMA_NAME,QUERY_TYPE,SESSION_ID,USER_NAME,ROLE_NAME,WAREHOUSE_NAME,WAREHOUSE_SIZE,WAREHOUSE_TYPE,CLUSTER_NUMBER,QUERY_TAG,EXECUTION_STATUS,ERROR_CODE,ERROR_MESSAGE,START_TIME,END_TIME,TOTAL_ELAPSED_TIME,BYTES_SCANNED,PERCENTAGE_SCANNED_FROM_CACHE,BYTES_WRITTEN,BYTES_WRITTEN_TO_RESULT,BYTES_READ_FROM_RESULT,ROWS_PRODUCED,ROWS_INSERTED,ROWS_UPDATED,ROWS_DELETED,ROWS_UNLOADED,BYTES_DELETED,PARTITIONS_SCANNED,PARTITIONS_TOTAL,BYTES_SPILLED_TO_LOCAL_STORAGE,BYTES_SPILLED_TO_REMOTE_STORAGE,BYTES_SENT_OVER_THE_NETWORK,COMPILATION_TIME,EXECUTION_TIME,QUEUED_PROVISIONING_TIME,QUEUED_REPAIR_TIME,QUEUED_OVERLOAD_TIME,TRANSACTION_BLOCKED_TIME,OUTBOUND_DATA_TRANSFER_CLOUD,OUTBOUND_DATA_TRANSFER_REGION,OUTBOUND_DATA_TRANSFER_BYTES,INBOUND_DATA_TRANSFER_CLOUD,INBOUND_DATA_TRANSFER_REGION,INBOUND_DATA_TRANSFER_BYTES,LIST_EXTERNAL_FILES_TIME,CREDITS_USED_CLOUD_SERVICES,RELEASE_VERSION,EXTERNAL_FUNCTION_TOTAL_INVOCATIONS,EXTERNAL_FUNCTION_TOTAL_SENT_ROWS,EXTERNAL_FUNCTION_TOTAL_RECEIVED_ROWS,EXTERNAL_FUNCTION_TOTAL_SENT_BYTES,EXTERNAL_FUNCTION_TOTAL_RECEIVED_BYTES,QUERY_LOAD_PERCENT,IS_CLIENT_GENERATED_STATEMENT,QUERY_ACCELERATION_BYTES_SCANNED,QUERY_ACCELERATION_PARTITIONS_SCANNED,QUERY_ACCELERATION_UPPER_LIMIT_SCALE_FACTOR,TRANSACTION_ID,CHILD_QUERIES_WAIT_TIME,ROLE_TYPE,QUERY_HASH,QUERY_HASH_VERSION,QUERY_PARAMETERIZED_HASH,QUERY_PARAMETERIZED_HASH_VERSION,SECONDARY_ROLE_STATS,ROWS_WRITTEN_TO_RESULT,QUERY_RETRY_TIME,QUERY_RETRY_CAUSE,FAULT_HANDLING_TIME,USER_TYPE,USER_DATABASE_NAME,USER_SCHEMA_NAME
+51f38f41-3a69-4a89-8f1e-cabb604a32fa,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:14.694+00:00,2026-08-22T01:34:14.724+00:00,30.282,29360128,,,,,1,,,,,,20,20,,,,0.916,29.366,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,6792ba64bd923debe1077e3782bde120,1,c515d84e543a5f81f13e583edf3d9b18,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c67911c2-4d95-4f3c-a0e4-82862f006de0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:15.355+00:00,2026-08-22T01:34:15.503+00:00,148.653,71303168,,,,,1,,,,,,42,42,,,,0.463,148.19,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,949a25d975e528063c143de80b4c5d67,1,7d3065c73c105f91f49ac652142327e5,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9aaae152-9d4c-4f76-bab0-5c611212e136,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:16.282+00:00,2026-08-22T01:34:18.471+00:00,2189.41,71827456,,,,,4415766,,,,,,44,44,,,,1.318,2188.093,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,8d0c93a7694737a6fdea82cd4a939eb9,1,11a3bd73ee6547ac331951f210a4e08d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+ed56ddb1-1ae0-485c-baba-43b0c0ae9773,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:31.524+00:00,2026-08-22T01:34:31.626+00:00,102.126,112721920,,,,,1,,,,,,66,66,,,,0.388,101.739,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,91d3635f76fdb068420a5972d1faa697,1,1edf678609c6611cff970bab5e1a43ef,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+331f86bd-72fa-413b-b851-3e71dd7f01ef,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:32.323+00:00,2026-08-22T01:34:32.900+00:00,576.87,29360128,,,,,895769,,,,,,20,20,,,,1.137,575.732,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,65e916ffd65bbeb634b57e415320afdb,1,ce2ed48e50988546a44605e0946ab5fe,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c8ceadd2-c20a-4c86-8bfe-8f5bd02f435d,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:35.842+00:00,2026-08-22T01:34:35.959+00:00,116.362,70778880,,,,,1000,,,,,,41,41,,,,0.57,115.792,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,15b72e797dd875a2051abfe1f34f3ac5,1,ec9fca816f4e6ec42bd6ca47c2fe13a4,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+8e65fe5d-1c95-4e88-ba4a-9a50eb9a9151,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:36.687+00:00,2026-08-22T01:34:36.716+00:00,28.981,29360128,,,,,1,,,,,,20,20,,,,0.755,28.226,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,32fa464d9892609b00690bd3b24a583d,1,116eb7f764bbf34a96c4ba7671ddc69d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+14d7458e-58a2-4fcb-9621-5bb7d589cefc,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:37.345+00:00,2026-08-22T01:34:37.412+00:00,66.288,28311552,,,,,1,,,,,,17,17,,,,0.635,65.653,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,799a6201c34efc4e3e94bb4101de8007,1,35b7b474f2434a1800734e0bc3909a4b,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+73b8e8ea-de6d-4995-82fe-64f90de58527,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:38.082+00:00,2026-08-22T01:34:38.237+00:00,155.181,28835840,,,,,50000,,,,,,18,18,,,,0.617,154.563,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,8e9568f98245527dbf7a3b959df703d6,1,daf088afe67e31ccdcd4d0dfe3e7124e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+75db26d8-d670-4655-8bc3-fba918bc0dc1,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:39.023+00:00,2026-08-22T01:34:39.044+00:00,20.819,29360128,,,,,100,,,,,,20,20,,,,1.144,19.675,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,dcde9c42a56d20dbc4cce74e7c4d8a5e,1,ecfb71fe2f4b56d2f8a2fce3b315e0bf,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+fa2b87f9-7b4a-4ded-87cf-2eaf19f6c665,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:40.353+00:00,2026-08-22T01:34:40.391+00:00,37.863,28835840,,,,,27609,,,,,,18,18,,,,0.907,36.957,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,a65eb5cd56b10f7ef58614fd9497199a,1,c838deeb25f46c1d43e4e367aa35de12,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+d647274d-e215-4c0e-b5c9-134bd6e315be,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:41.032+00:00,2026-08-22T01:34:41.200+00:00,168.284,113246208,,,,,1,,,,,,67,67,,,,0.789,167.495,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,e68b9d53633cad6f2084fb223fa7a9fb,1,bfebcf69601a746f211c94e9d0db5610,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c4329b69-94b5-4082-bbcc-45614e3777fb,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:42.064+00:00,2026-08-22T01:34:43.409+00:00,1344.746,113770496,,,,,100,,,,,,69,69,,,,1.331,1343.416,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,a3b2b512722992370f20d41419f1bc31,1,2e623d57c5db1de7d290bf0d9befbe40,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9afc6ee3-b3b5-4979-8467-04ccf30c1dd7,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:50.212+00:00,2026-08-22T01:34:50.303+00:00,91.347,42991616,,,,,1,,,,,,26,26,,,,0.54,90.807,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c5f1de7c4e4993523f2b2f5a11f9011d,1,2ec7f5686bdbe4da0afeedb14128be82,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+87ac62a6-98b6-4c63-b354-a845a5b41274,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:50.950+00:00,2026-08-22T01:34:51.045+00:00,95.372,71303168,,,,,50000,,,,,,42,42,,,,0.887,94.485,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ac2eb4b07412c6ee0ea9477a87d36747,1,1b9afa38501f9c10fc4f1eec81820e9c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+f1a36e3a-ccd4-4b7e-b558-5c96e2173e86,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:51.736+00:00,2026-08-22T01:34:51.784+00:00,48.184,70778880,,,,,1,,,,,,41,41,,,,0.57,47.614,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,dd30645752ad1a2a1e5a520ed5f6d482,1,e8cbb327ebf950cdb7fac02c09d04866,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c6ffd14c-5df4-4d0e-880b-852f1e4fc197,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:52.417+00:00,2026-08-22T01:34:52.907+00:00,489.7,70778880,,,,,1,,,,,,41,41,,,,0.648,489.051,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,d377e625f787fa5d90c258a8fba7c616,1,8ae6b0db35e5dba91067516cb906a17e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+2cae0907-9ad4-4e97-99d9-7d78b793b51e,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:34:55.486+00:00,2026-08-22T01:34:56.246+00:00,760.589,113770496,,,,,100,,,,,,69,69,,,,1.174,759.415,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1882a804f7afec9592863ad1ca399c01,1,a9bdaa87dd5a162aef4822f449481c9a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+32f8b8b4-0296-4ef3-aa1a-48e61fe8bdb6,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:02.023+00:00,2026-08-22T01:35:02.644+00:00,620.893,112721920,,,,,50000,,,,,,66,66,,,,0.536,620.358,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c254ebf75967923c2d12c95f9290a4df,1,968f59b9f63272027e7db4f6dbde8355,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+d7fbeef0-20d2-4d47-81df-2ee6796783d1,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:05.834+00:00,2026-08-22T01:35:05.864+00:00,29.401,29097984,,,,,1,,,,,,19,19,,,,0.687,28.713,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,03d78401aec939f94e0ce11c51517894,1,9e5574ac2f2997a5ce086598c3beca79,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c2674430-3455-4e84-92ad-f127f2b87dfc,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:07.258+00:00,2026-08-22T01:35:08.084+00:00,826.66,113246208,,,,,1,,,,,,67,67,,,,0.702,825.958,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1a035c812a1f4588e23ca292a1b5abf0,1,bfebcf69601a746f211c94e9d0db5610,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+5943df56-d514-41db-ae65-76ffe240c818,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:12.320+00:00,2026-08-22T01:35:12.404+00:00,84.753,29360128,,,,,298899,,,,,,20,20,,,,1.224,83.529,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,a5a74cf8e2b17ff39e0f4225153a5c6b,1,239cfefdbc2f7dc8ada517a77772675e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+bed2637c-6f60-421d-a247-e3dc33580a9f,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:13.096+00:00,2026-08-22T01:35:13.171+00:00,74.857,28311552,,,,,1,,,,,,17,17,,,,0.482,74.375,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,990837f652d2c15b51ed72b061e912be,1,35b7b474f2434a1800734e0bc3909a4b,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+a9a4891b-c8c6-41fc-8912-d326d40d7333,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:13.843+00:00,2026-08-22T01:35:13.887+00:00,44.757,71303168,,,,,1,,,,,,42,42,,,,0.614,44.143,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,2b11a0e768128531d7a0596ec88d31b8,1,7d3065c73c105f91f49ac652142327e5,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+543015a8-2524-4a2f-9435-8cccfe56899d,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:14.515+00:00,2026-08-22T01:35:14.882+00:00,366.541,71565312,,,,,100,,,,,,43,43,,,,0.931,365.61,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,8accc8a018c9afc7c23b214ed122ce36,1,6e8081acd3e48689f6dd15fa3680fa68,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+aa387dc2-4f64-495e-890c-6619ffc91362,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:16.743+00:00,2026-08-22T01:35:16.810+00:00,67.281,71565312,,,,,1,,,,,,43,43,,,,0.683,66.598,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,6a871657a8aab49354216d10f26b9dd5,1,d15ea13fc23ec566c3bc2c50a29910ab,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+04b8d56d-f7b8-4f54-b7ca-abf6a3ecf4c7,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:17.425+00:00,2026-08-22T01:35:17.525+00:00,100.218,112721920,,,,,50000,,,,,,66,66,,,,0.546,99.672,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,77b158fdf3c87f478f76062a35d347d0,1,968f59b9f63272027e7db4f6dbde8355,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+2b900eac-1e89-4382-9091-1dab22260ead,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:18.244+00:00,2026-08-22T01:35:18.388+00:00,144.478,29360128,,,,,1,,,,,,20,20,,,,1.057,143.421,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,f8f05c4cf3e70f3861df7a1a1f51e473,1,c515d84e543a5f81f13e583edf3d9b18,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+151987e8-293f-4885-bcea-b80b5d13c898,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:19.113+00:00,2026-08-22T01:35:19.214+00:00,100.279,43515904,,,,,1,,,,,,28,28,,,,0.804,99.475,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,3732ada15b5de97fca006cea00471827,1,66512f502ffd8a1f173c74329efd3d95,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+21e014bd-01ac-4d6e-9645-e3c89520bfa8,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:19.821+00:00,2026-08-22T01:35:20.074+00:00,252.523,113508352,,,,,1,,,,,,68,68,,,,0.618,251.904,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ab94488695c8e25a32b5054fcfc92391,1,7c5abdac6da22366230bb36eff2bb86a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+17e15112-56a0-4186-96fa-ef13ffec37e4,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, customer_id",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:22.132+00:00,2026-08-22T01:35:22.169+00:00,36.417,29097984,,,,,38750,,,,,,19,19,,,,0.802,35.614,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1ec1fa056f2ecbf8c06c01a16e24eee9,1,0c15f5e8983fa88757b7629a16b03f34,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+191fcd4b-4244-44b3-a57c-7121672a5828,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:22.792+00:00,2026-08-22T01:35:23.252+00:00,460.225,71565312,,,,,100,,,,,,43,43,,,,1.083,459.143,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,48bfef6761344b4d20e89f651baeba52,1,6e8081acd3e48689f6dd15fa3680fa68,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+5c28ef65-ef9c-4a27-8e23-cc5a758cded2,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:25.601+00:00,2026-08-22T01:35:25.817+00:00,215.744,112721920,,,,,1,,,,,,66,66,,,,0.384,215.36,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,87bf8cc3a174e647ecf21f210cd1bf7f,1,1edf678609c6611cff970bab5e1a43ef,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+173922fd-b153-4841-922a-eced97164ef5,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:26.886+00:00,2026-08-22T01:35:27.001+00:00,115.284,28835840,,,,,1,,,,,,18,18,,,,0.733,114.551,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,726b0d743f69e5a203e70799b79eeb6c,1,cc8221a37cd4a242b9ef5e794c5f82fa,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+b6ac31c5-8629-4b46-bf1e-9163d9afcbe5,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:27.701+00:00,2026-08-22T01:35:27.833+00:00,131.469,42991616,,,,,1000,,,,,,26,26,,,,0.918,130.551,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,2ff8579475832d08a6490dc7d4ae8f2c,1,7e9e569ce6b8ffff215f288dd57557d7,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e52d8d3f-145b-40b5-9d82-59ef1ca8be9e,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:28.505+00:00,2026-08-22T01:35:29.192+00:00,686.625,113770496,,,,,100,,,,,,69,69,,,,1.04,685.585,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,62b64cc81568e902d582f02c97ccb337,1,a9bdaa87dd5a162aef4822f449481c9a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e94ecc1a-6825-47b1-b114-79fc5f91e989,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:34.559+00:00,2026-08-22T01:35:34.773+00:00,213.87,112721920,,,,,1000,,,,,,66,66,,,,0.62,213.25,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,d2773e1dbb49ba8b9d2c350c5bbaa8c0,1,1fcd4c3ea4281576f8b0e1bd2bdd39c7,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+144ed514-8bad-4596-b297-05fe5c1951da,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:35.880+00:00,2026-08-22T01:35:35.936+00:00,55.88,29360128,,,,,1,,,,,,20,20,,,,0.825,55.055,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,65f3e2fb4369353c369343ba7fbb22a4,1,116eb7f764bbf34a96c4ba7671ddc69d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+fb4791fc-8179-4134-ad94-f6347ff8e035,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:36.543+00:00,2026-08-22T01:35:36.691+00:00,147.787,42467328,,,,,100,,,,,,25,25,,,,0.606,147.181,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,22e5ec776be2c2a70f153d27e6f8bf68,1,487cc69b7f8f17a19bc844d43da2da0d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+b83b90c0-f558-4aa4-8343-263b11579a59,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered",ANALYTICS,PUBLIC,SELECT,1787362453,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_01,SUCCESS,,,2026-08-22T01:35:37.440+00:00,2026-08-22T01:35:37.467+00:00,26.978,28311552,,,,,1,,,,,,17,17,,,,0.428,26.55,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,46fc3e50612a587646f67c6623389354,1,85b98f256ff61b776d1fee245a69545d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+23a89919-72cf-49cc-b0e1-bb9e68a2fe09,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:44.430+00:00,2026-08-22T01:35:44.555+00:00,124.43,70778880,,,,,1,,,,,,41,41,,,,0.407,124.023,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,17561c55b8d39da6cf4c963e42e265d9,1,e8cbb327ebf950cdb7fac02c09d04866,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+113adb35-d0d5-44f1-8173-ce75f69fb31b,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:45.200+00:00,2026-08-22T01:35:45.318+00:00,117.89,28311552,,,,,50000,,,,,,17,17,,,,0.461,117.43,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,4f1cdd8a6d42ce26b936cb1e9acfdb8e,1,1d8119c951ffb482a25cfe9842086199,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9916fd60-2d12-4a5a-b1c6-10b910d7832c,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:46.046+00:00,2026-08-22T01:35:46.120+00:00,74.131,28835840,,,,,1,,,,,,18,18,,,,0.609,73.522,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1a9522efac8119e79fb2d6b833b3a3d7,1,9d97dad528fe5533931b1c13eaeb06ce,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+d1d450ba-308a-487d-9cb9-58463e700ff3,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:46.798+00:00,2026-08-22T01:35:46.816+00:00,17.371,29097984,,,,,1,,,,,,19,19,,,,0.871,16.5,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,10db08a24c9bac0dc68709f74dc915f0,1,bb9966d1a22d6e5b74da4eaf275a064c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+2511ab34-a9fe-49a1-8dff-f3c8d4857a29,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:47.239+00:00,2026-08-22T01:35:47.430+00:00,191.154,29097984,,,,,100,,,,,,19,19,,,,1.434,189.72,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,b2e06e0bac3d3693699e8d3d16c2ea75,1,40e00f24697dcdd529b12b25d133b28f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+64de2321-78f5-4cf6-955e-268eca558b63,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:48.393+00:00,2026-08-22T01:35:48.969+00:00,576.047,42991616,,,,,1000,,,,,,26,26,,,,0.789,575.258,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,96272b3b3d102b53edab249de07df106,1,7e9e569ce6b8ffff215f288dd57557d7,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+549d85e1-10e2-406f-9cbd-7c78eac07d8f,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:51.928+00:00,2026-08-22T01:35:51.976+00:00,47.634,71565312,,,,,100,,,,,,43,43,,,,1.028,46.606,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,58c05d3e8ba5b5eeb44cff590580a1f9,1,6e8081acd3e48689f6dd15fa3680fa68,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+717c31d7-89fb-4e99-98b5-c80fc20a70da,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:52.596+00:00,2026-08-22T01:35:52.730+00:00,133.564,71303168,,,,,1000,,,,,,42,42,,,,0.755,132.81,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,e8125e8ef65fa6331f0c41520691cb35,1,a1db02b4b4b8a6620a198b07dfc87b25,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+1381173c-55e0-4d91-af7c-0af32e9f97ac,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:53.423+00:00,2026-08-22T01:35:53.524+00:00,100.764,70778880,,,,,1,,,,,,41,41,,,,0.658,100.106,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1308646496310e3670d842ef11d797a1,1,8ae6b0db35e5dba91067516cb906a17e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+78674349-e520-4ab3-936c-8b8904578303,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:54.135+00:00,2026-08-22T01:35:54.165+00:00,29.334,28311552,,,,,1,,,,,,17,17,,,,0.409,28.925,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,9119f103952b38a53207aa356209c284,1,85b98f256ff61b776d1fee245a69545d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+cd73bbaf-f64a-408b-9ce9-44ca67d516dd,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:55.533+00:00,2026-08-22T01:35:55.642+00:00,109.606,70778880,,,,,1,,,,,,41,41,,,,0.707,108.899,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,cb286113ba4af886971363ff5ccd5548,1,8ae6b0db35e5dba91067516cb906a17e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+937f3f66-0c5e-4a6c-ae29-d676a7a08aff,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:56.283+00:00,2026-08-22T01:35:56.445+00:00,162.115,113246208,,,,,1,,,,,,67,67,,,,0.768,161.346,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,2d60f78107419385a6c86d5c204a688e,1,bfebcf69601a746f211c94e9d0db5610,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+bf6b1a08-4718-4ab8-a2ba-fc02c05b389c,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:57.290+00:00,2026-08-22T01:35:57.364+00:00,74.368,71565312,,,,,1,,,,,,43,43,,,,0.723,73.645,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,4a41652607cf5fc4770b1ac0be876b2c,1,444b6971f62f23e21db88b4954198a68,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+46af6795-5ee4-4b10-b460-167d097da971,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:58.035+00:00,2026-08-22T01:35:58.168+00:00,132.86,70778880,,,,,1,,,,,,41,41,,,,0.487,132.374,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1f889f7f630e1d9736f27b593acab55a,1,8ae6b0db35e5dba91067516cb906a17e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+20d78272-a212-4d49-964f-3f8353c9c43b,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:35:58.841+00:00,2026-08-22T01:35:59.711+00:00,870.042,29360128,,,,,1786518,,,,,,20,20,,,,1.219,868.822,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,56ba2e9cde0179bcffaf0f56f668edcb,1,5fb50274758e3421b922393362f02822,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+bcb701ba-a29c-472e-a939-f65b3af21e79,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:04.144+00:00,2026-08-22T01:36:04.210+00:00,66.41,43253760,,,,,57030,,,,,,27,27,,,,1.219,65.192,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,3b009f0ff4c0c69b448965e9f09674f0,1,5b4ae193a869f0c317a18809fcf5506f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+2d319138-1446-40a9-99e3-fdbdb76a45c6,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:04.881+00:00,2026-08-22T01:36:04.900+00:00,19.223,28311552,,,,,1,,,,,,17,17,,,,0.807,18.416,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,aba1ba93e90e150f481e4d4c2ddeb378,1,35b7b474f2434a1800734e0bc3909a4b,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+008be7ec-bea7-42dd-8c4f-8141ea74a2ca,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:05.366+00:00,2026-08-22T01:36:05.398+00:00,31.89,28311552,,,,,49848,,,,,,17,17,,,,0.706,31.184,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,530cc517bd0a66624b03d88c4e1f369c,1,1d8119c951ffb482a25cfe9842086199,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+fd7828c1-8d4b-4445-8ca5-b98ce9415bce,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:06.032+00:00,2026-08-22T01:36:06.173+00:00,140.427,28835840,,,,,1,,,,,,18,18,,,,0.705,139.722,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,e257b10bfd1c1c3d522cdff6182d59d7,1,cc8221a37cd4a242b9ef5e794c5f82fa,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+93d3f112-b166-4f1d-8c60-70a7984da4b2,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:08.709+00:00,2026-08-22T01:36:08.798+00:00,89.773,113246208,,,,,1,,,,,,67,67,,,,0.792,88.981,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,32ff356b07f5da87351839140f765942,1,f3c630e00bcb4a8ba9fb467d71a100e2,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+abd15547-d617-43fe-ad41-15852152b8c9,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:10.193+00:00,2026-08-22T01:36:10.258+00:00,65.024,112721920,,,,,1,,,,,,66,66,,,,0.53,64.494,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,84a565d9798482612d11a8211258aecc,1,1edf678609c6611cff970bab5e1a43ef,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+30f8f8d6-1c30-4f82-8a89-bb6473e6ef60,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:10.912+00:00,2026-08-22T01:36:10.965+00:00,52.754,42467328,,,,,49989,,,,,,25,25,,,,0.826,51.928,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,b7c5e57d245376848cc85416d068dba5,1,43fabcf1e7e3861e3187499c32b939a6,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+b389b610-5795-4c4d-8a23-9bf55cbd347b,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:11.599+00:00,2026-08-22T01:36:11.862+00:00,263.107,71827456,,,,,1000,,,,,,44,44,,,,1.276,261.832,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,a8c06c14f37bece27086b2517e264c1d,1,aa92faafdf43132578b70e64c01a22e9,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+b617e71b-23f0-4f0e-893a-12e86ab4fb12,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:13.199+00:00,2026-08-22T01:36:13.885+00:00,686.305,71303168,,,,,1000,,,,,,42,42,,,,0.67,685.636,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,6bca32c74dcb859e5747cdb445c60535,1,a1db02b4b4b8a6620a198b07dfc87b25,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+6ce9e0ef-b225-4d48-9340-1239ce5b377a,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:17.376+00:00,2026-08-22T01:36:17.410+00:00,33.796,70778880,,,,,1,,,,,,41,41,,,,0.613,33.182,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ac74a582d753e3b23ce627088c086cfd,1,e8cbb327ebf950cdb7fac02c09d04866,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+f6998b2d-b7ab-4e9e-a429-502508ea7dc9,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:18.048+00:00,2026-08-22T01:36:18.380+00:00,332.267,43515904,,,,,100,,,,,,28,28,,,,1.291,330.977,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,9668bbaf2785b7f568bd9ba42500b530,1,f51818775ca86205f17ab41fd570d966,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+f835c0d0-3cca-4fb2-ad46-c071e91265a2,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:20.125+00:00,2026-08-22T01:36:20.168+00:00,43.195,42991616,,,,,1,,,,,,26,26,,,,0.674,42.521,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,dae7d3890a63d80ab01b2787583cd46e,1,2ec7f5686bdbe4da0afeedb14128be82,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e3bf4613-57f7-43e1-a06b-a2952d90b34e,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:20.809+00:00,2026-08-22T01:36:21.792+00:00,982.724,112721920,,,,,1000,,,,,,66,66,,,,0.5,982.225,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,631cb445ffc6f94c889ad8ec39e3609e,1,1fcd4c3ea4281576f8b0e1bd2bdd39c7,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9537d50e-53e6-4927-965b-5eb9191e899a,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:26.933+00:00,2026-08-22T01:36:26.977+00:00,44.095,71565312,,,,,1,,,,,,43,43,,,,0.824,43.271,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,e0c23c51cbdc20c98fb32cb8a1463e3e,1,d15ea13fc23ec566c3bc2c50a29910ab,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+1eb54cbd-3ba1-40aa-9cb7-061b3e70a37f,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:27.593+00:00,2026-08-22T01:36:27.617+00:00,24.215,42467328,,,,,100,,,,,,25,25,,,,0.731,23.484,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,3e335785d0531f1cb16f7f68fd3a7379,1,487cc69b7f8f17a19bc844d43da2da0d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+1d22c7f2-4d01-4700-a7f2-8a6981f35ab7,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:28.972+00:00,2026-08-22T01:36:29.248+00:00,275.933,42467328,,,,,50000,,,,,,25,25,,,,0.696,275.237,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,cc1ede8dd272b555290e2ad7151759ee,1,43fabcf1e7e3861e3187499c32b939a6,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+8a2af207-bcb3-4a8e-b540-3dc346a40889,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, customer_id",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:30.639+00:00,2026-08-22T01:36:30.934+00:00,295.528,29097984,,,,,465811,,,,,,19,19,,,,0.87,294.658,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,f76d082d49b7a2a0c20be0df6892f333,1,0c15f5e8983fa88757b7629a16b03f34,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+7327119f-31e3-4295-a41c-7f39642e5ba8,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:32.433+00:00,2026-08-22T01:36:32.939+00:00,506.096,113508352,,,,,1,,,,,,68,68,,,,0.798,505.298,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c36dfaa9dc307c1180daa41f9768bf67,1,e9c4f44051c60da2f5e013d58826e636,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+a12de855-1e54-4772-a16d-61a82c0b9c5d,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:35.504+00:00,2026-08-22T01:36:36.731+00:00,1227.558,113770496,,,,,100,,,,,,69,69,,,,1.453,1226.105,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,30e36b2e1258c6998a432af8a691fdfb,1,2e623d57c5db1de7d290bf0d9befbe40,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+5beec738-2408-4eec-a603-996ce1dd23bb,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:44.782+00:00,2026-08-22T01:36:45.385+00:00,603.8,71303168,,,,,50000,,,,,,42,42,,,,0.879,602.921,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,7f6ee4d6533d69a866b62b670ad610d1,1,1b9afa38501f9c10fc4f1eec81820e9c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+92abe017-58c1-4465-8162-f01b1ef44502,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:48.442+00:00,2026-08-22T01:36:48.988+00:00,546.394,113246208,,,,,100,,,,,,67,67,,,,0.861,545.533,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,a60976c0e45953deaa4d34330036daa0,1,0299de365a5f0ac79df07463cb04137f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+91db9d99-6b06-4d6a-85bb-6ef312d3f9ca,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:51.834+00:00,2026-08-22T01:36:51.894+00:00,60.049,42467328,,,,,1000,,,,,,25,25,,,,0.553,59.496,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,fc63eb0d0d0a6ace45846442a4c057fb,1,11aecc2ea25a62903eeca88c10512c58,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e491e684-c3a5-447d-9bcc-570bf529bb4f,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:52.563+00:00,2026-08-22T01:36:52.635+00:00,72.452,113246208,,,,,1,,,,,,67,67,,,,0.656,71.796,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,900ba7bf616f553569ca3c71f6c3b799,1,fa6978c6df3a20c57bebd785cede8ac2,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+52a9d50e-c913-46ea-9c9b-f7b2a7ed0002,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:53.292+00:00,2026-08-22T01:36:53.357+00:00,65.176,113246208,,,,,100,,,,,,67,67,,,,0.907,64.268,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1c988f5bfd5db3ed182bc94ab199ab7b,1,0299de365a5f0ac79df07463cb04137f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+f7076eb9-ab2c-4565-8f70-dcf18c2f3454,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362543,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_02,SUCCESS,,,2026-08-22T01:36:54.018+00:00,2026-08-22T01:36:54.124+00:00,106.048,113508352,,,,,1,,,,,,68,68,,,,0.718,105.331,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,4b9039ed1956079bd54f4dc67720cfd8,1,7c5abdac6da22366230bb36eff2bb86a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e30bd627-435a-4602-9441-6d58031a7441,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:01.680+00:00,2026-08-22T01:37:02.661+00:00,981.462,113770496,,,,,100,,,,,,69,69,,,,0.999,980.463,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,3f1957ca4d7c0a20708bac167feaa352,1,a9bdaa87dd5a162aef4822f449481c9a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9c9d58a4-6df1-495e-bc28-30529a14151c,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:07.668+00:00,2026-08-22T01:37:07.740+00:00,72.287,28835840,,,,,1,,,,,,18,18,,,,0.693,71.594,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1babef78de08d3b27a6f21ed4a9b5840,1,9d97dad528fe5533931b1c13eaeb06ce,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+a8b85246-3c33-490f-b576-07f3f27039fc,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:08.412+00:00,2026-08-22T01:37:08.970+00:00,558.121,112721920,,,,,50000,,,,,,66,66,,,,0.406,557.714,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,436e4cd599d7335344eccd6c3eaeeb5f,1,968f59b9f63272027e7db4f6dbde8355,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9340d49c-057c-4949-b57b-0d3213cdf6f0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:11.772+00:00,2026-08-22T01:37:12.438+00:00,665.737,43253760,,,,,536566,,,,,,27,27,,,,1.031,664.706,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,6ff48b9ff323b7636fae73015981a37c,1,5b4ae193a869f0c317a18809fcf5506f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+47b44e33-5867-4087-b3ef-45f9be32a69c,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:17.622+00:00,2026-08-22T01:37:17.723+00:00,101.111,29360128,,,,,298899,,,,,,20,20,,,,1.267,99.844,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,aafebce59f40afd8e9ddfa59ea1f8e35,1,5fb50274758e3421b922393362f02822,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+986d853e-f880-44a8-a6dc-c02ef0382d09,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:18.368+00:00,2026-08-22T01:37:18.496+00:00,128.407,71565312,,,,,1,,,,,,43,43,,,,0.675,127.732,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,35750698c38ee970bcbc334bfab42cc0,1,d15ea13fc23ec566c3bc2c50a29910ab,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+75c94289-a525-4742-a7b3-5512124e93c8,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:19.174+00:00,2026-08-22T01:37:19.199+00:00,24.933,43253760,,,,,1,,,,,,27,27,,,,0.892,24.041,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,d1e30e4da2e3a5a93f790167c7aa1fca,1,673ce58c89ad07dc71c5f7c1c330019b,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+465caf4a-c25e-44c0-8976-b56e693ea507,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:19.815+00:00,2026-08-22T01:37:19.869+00:00,54.275,113246208,,,,,1,,,,,,67,67,,,,0.637,53.637,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ad2824aea33f2029679980de359682c1,1,fa6978c6df3a20c57bebd785cede8ac2,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+cd7e5691-4bb5-4b94-8532-a68dd4f8783e,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:20.524+00:00,2026-08-22T01:37:20.947+00:00,422.971,113508352,,,,,1,,,,,,68,68,,,,0.786,422.186,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,e99b5ba2a3ea33f920ce292e3ec7bb65,1,e9c4f44051c60da2f5e013d58826e636,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9a5603ea-6f2b-4d43-9b1a-c210dd56bc64,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:23.132+00:00,2026-08-22T01:37:23.829+00:00,697.098,29360128,,,,,895769,,,,,,20,20,,,,1.147,695.951,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c5d719a295b334b1daba6dece3d66f90,1,5fb50274758e3421b922393362f02822,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+37a76695-c829-4486-9bf0-ee43717beaaa,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:28.090+00:00,2026-08-22T01:37:28.128+00:00,38.129,70778880,,,,,100,,,,,,41,41,,,,0.661,37.468,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,459d4360d1514f0de94e4e9ec9280693,1,a8381c776a2b33d8886a5ad9e94a211c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+890c8d04-4cb4-41af-a6a5-bda3d6e92be1,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:28.741+00:00,2026-08-22T01:37:29.229+00:00,487.99,70778880,,,,,1,,,,,,41,41,,,,0.571,487.419,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,98f738f6c8aeaf821b45c7d4952c065c,1,ba6216c6f51046a8d98b0ee93633fe45,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+6d38fa44-dd3a-4cd1-aa94-d25f2421075e,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:31.698+00:00,2026-08-22T01:37:31.821+00:00,123.625,112721920,,,,,50000,,,,,,66,66,,,,0.805,122.82,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,b05161d27cab6b3871b2a246a06561e8,1,cc6bff4c6d0a9904a989978bbfef7fe9,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+26c7b898-3c8a-4d06-94c1-fa8af0786d63,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:32.450+00:00,2026-08-22T01:37:32.929+00:00,479.44,71565312,,,,,100,,,,,,43,43,,,,1.053,478.387,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,5ba758776cee5ee01c5598791d5122d1,1,778d6fe48be54f17115dec282af11071,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+30631edc-3784-4367-8d77-c6ced3c1c73c,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:35.406+00:00,2026-08-22T01:37:35.653+00:00,246.793,28835840,,,,,50000,,,,,,18,18,,,,0.895,245.899,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,37762f8f8c8a85052f4ac3c80f9e0bf0,1,c838deeb25f46c1d43e4e367aa35de12,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+3b33079c-92cd-4dc8-8857-928c84c78828,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:36.902+00:00,2026-08-22T01:37:37.159+00:00,256.472,42467328,,,,,50000,,,,,,25,25,,,,0.614,255.858,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,7782608bfb86e9f4c55d5d2276f0c510,1,43fabcf1e7e3861e3187499c32b939a6,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+ad82f818-bf7d-4fd4-8127-02cb3e3776b1,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:38.491+00:00,2026-08-22T01:37:39.135+00:00,643.958,29360128,,,,,1786518,,,,,,20,20,,,,1.108,642.849,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1cbf61ace5d531fc257ade34de962df8,1,239cfefdbc2f7dc8ada517a77772675e,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+51f8a116-3362-4d5c-8425-fdbb567e5760,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:42.482+00:00,2026-08-22T01:37:42.644+00:00,161.626,71565312,,,,,1,,,,,,43,43,,,,0.663,160.962,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,0ed132ef2ba2e4384dd22821d4235c43,1,d15ea13fc23ec566c3bc2c50a29910ab,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+6a96447e-90d0-45cc-966d-20aa2e842ce8,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:43.460+00:00,2026-08-22T01:37:43.678+00:00,218.027,113246208,,,,,1,,,,,,67,67,,,,0.74,217.287,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ed69b259e093032ae47aad2dd0b9af9e,1,bfebcf69601a746f211c94e9d0db5610,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+dee3f20c-cfa6-4a1c-80ba-c68cf7526085,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:44.785+00:00,2026-08-22T01:37:44.832+00:00,47.082,29360128,,,,,40048,,,,,,20,20,,,,1.277,45.804,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,4ae12b257998b97a06efb7cf8ad45264,1,5fb50274758e3421b922393362f02822,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+9f9b4535-9d45-4349-be43-cc3334e6c7a3,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:46.219+00:00,2026-08-22T01:37:46.295+00:00,76.162,113508352,,,,,1,,,,,,68,68,,,,0.804,75.357,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,0a9d3763c131c11103c919da054ce820,1,7c5abdac6da22366230bb36eff2bb86a,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+85eaf1e2-6761-488a-8517-4358102b5058,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:46.909+00:00,2026-08-22T01:37:46.940+00:00,30.791,28311552,,,,,27609,,,,,,17,17,,,,0.536,30.255,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,1bd702cf5b81139052f08e430a879d8e,1,1d8119c951ffb482a25cfe9842086199,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+91f52ed2-7e94-4a7d-a148-d723b1aa2e44,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:47.555+00:00,2026-08-22T01:37:47.726+00:00,171.11,112721920,,,,,1000,,,,,,66,66,,,,0.603,170.507,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,afd28fb8adfce62961b1d2435ce3b3cb,1,1fcd4c3ea4281576f8b0e1bd2bdd39c7,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+df23799c-b48a-4828-9e3a-ce1649921c95,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:48.599+00:00,2026-08-22T01:37:48.704+00:00,105.55,70778880,,,,,1000,,,,,,41,41,,,,0.559,104.991,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,692c81246af5f50a1fc152161a98b4ff,1,ec9fca816f4e6ec42bd6ca47c2fe13a4,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+df89bc1c-81ce-405c-a7c8-f6b096b2f642,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:51.255+00:00,2026-08-22T01:37:51.272+00:00,17.376,28835840,,,,,1,,,,,,18,18,,,,0.75,16.626,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,7b0755cb556ab5f7707ebfce129f9b8a,1,9d97dad528fe5533931b1c13eaeb06ce,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+813da291-ead2-4299-92e0-7997331de568,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:51.698+00:00,2026-08-22T01:37:51.775+00:00,77.134,43253760,,,,,1,,,,,,27,27,,,,0.646,76.487,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,9fa002e08828f623bd0cfc3cf2b4772c,1,e787e6d5bdcbd31dba071657a24e21b5,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c199ba7f-169d-4f53-84ae-b9c51ffdc0df,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:52.393+00:00,2026-08-22T01:37:52.415+00:00,21.691,29097984,,,,,100,,,,,,19,19,,,,0.997,20.694,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,59a244c1071fa54fa0cf26be114a5d84,1,40e00f24697dcdd529b12b25d133b28f,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+35520452-325b-4e16-94af-0f5b736980a2,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:52.952+00:00,2026-08-22T01:37:53.078+00:00,126.671,71303168,,,,,1,,,,,,42,42,,,,0.559,126.112,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,4fd488f864494c53066b996888903aab,1,7d3065c73c105f91f49ac652142327e5,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+a5c9dec8-07a0-4735-bbd4-a79f70dda5dc,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_segment,
+        product_category,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, product_category, customer_id",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:53.717+00:00,2026-08-22T01:37:54.008+00:00,291.05,29097984,,,,,570146,,,,,,19,19,,,,0.83,290.219,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,077ee26665ba01a7f7a21e9ee7c46688,1,0c15f5e8983fa88757b7629a16b03f34,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+e33d0c81-70a7-4d16-ae8a-53c64e443664,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, customer_id",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:55.489+00:00,2026-08-22T01:37:56.078+00:00,589.447,71303168,,,,,50000,,,,,,42,42,,,,0.757,588.689,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,363680e00031723576e8d52bf8cd67e8,1,1b9afa38501f9c10fc4f1eec81820e9c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+5c87de31-8d7f-40c2-a2e9-be203ecb6957,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,X-Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:37:59.793+00:00,2026-08-22T01:38:00.069+00:00,275.807,42467328,,,,,1000,,,,,,25,25,,,,0.424,275.383,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,6eb4ad3e597ad0e62436af51c73b0890,1,11aecc2ea25a62903eeca88c10512c58,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c27dbb1e-1a0c-4e3d-ba2f-00a759a89dab,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    order by amount_total desc
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:01.475+00:00,2026-08-22T01:38:01.527+00:00,51.564,71565312,,,,,1,,,,,,43,43,,,,0.737,50.827,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,884465f384ff048e0463ead7ecdecb4c,1,444b6971f62f23e21db88b4954198a68,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+cde354b8-407a-4d3a-8303-e2d6ba073426,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_x as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:02.146+00:00,2026-08-22T01:38:02.257+00:00,111.562,112721920,,,,,47982,,,,,,66,66,,,,0.689,110.873,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,2befb53697360f63fe8c4aedae0da603,1,cc6bff4c6d0a9904a989978bbfef7fe9,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+99f69b18-4880-4680-98aa-8d16e8279cb7,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 150
+    )
+
+    select
+        customer_segment,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    group by customer_segment, customer_id
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:02.933+00:00,2026-08-22T01:38:03.047+00:00,114.768,71303168,,,,,1000,,,,,,42,42,,,,0.741,114.027,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,f532b62a564fccf9b18b2b9dc2f1b5c7,1,a1db02b4b4b8a6620a198b07dfc87b25,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+897fbb00-fb86-4364-a178-b2158ded8c2c,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 900
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:03.733+00:00,2026-08-22T01:38:03.907+00:00,173.872,42467328,,,,,100,,,,,,25,25,,,,0.73,173.142,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,ad326b00121cda5500874255bb7a36cd,1,487cc69b7f8f17a19bc844d43da2da0d,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+8cdf43ff-fb2c-40ad-8604-18666a7bf097,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_l as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:04.801+00:00,2026-08-22T01:38:04.868+00:00,67.643,70778880,,,,,1,,,,,,41,41,,,,0.495,67.148,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c76af64c00f0d47f204cc00fc61989e2,1,e8cbb327ebf950cdb7fac02c09d04866,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+3c67ea45-b24a-4229-9c19-83905a150761,"with
+    filtered as (
+        select
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_m as fact_event
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_id
+    order by amount_total desc",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:05.482+00:00,2026-08-22T01:38:05.529+00:00,47.355,42467328,,,,,34888,,,,,,25,25,,,,0.7,46.655,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,c4f12241d7331ce5381693304cbc9d36,1,43fabcf1e7e3861e3187499c32b939a6,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+d7c32e8d-74e7-49db-b72a-05665983f7ce,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            dim_region_wl.region_name,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        inner join dim_region_wl on fact_event.region_id = dim_region_wl.region_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 20
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        customer_segment,
+        product_category,
+        region_name,
+        customer_id,
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    group by customer_segment, product_category, region_name, customer_id",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:06.147+00:00,2026-08-22T01:38:06.189+00:00,42.608,29360128,,,,,40048,,,,,,20,20,,,,1.161,41.447,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,867a9ae0c10a770ceb0ea691be72d3d5,1,ce2ed48e50988546a44605e0946ab5fe,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+7e2eb086-4711-4cd8-813e-99c4de1aee7d,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    ),
+
+    ranked as (
+        select
+            filtered.*,
+            row_number() over (
+                partition by filtered.customer_id
+                order by filtered.amount desc
+            ) as amount_rank
+        from filtered
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products,
+        max(amount_rank) as deepest_rank
+    from ranked
+    limit 100",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Small,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:06.820+00:00,2026-08-22T01:38:06.892+00:00,72.065,29097984,,,,,1,,,,,,19,19,,,,0.878,71.187,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,57bfebea25cad2d7d65e66e5b11ee779,1,bb9966d1a22d6e5b74da4eaf275a064c,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC
+c4b2ee55-8934-4544-b5a9-22c0720125c0,"with
+    filtered as (
+        select
+            dim_customer_wl.customer_segment,
+            dim_product_wl.product_category,
+            fact_event.customer_id,
+            fact_event.product_id,
+            fact_event.amount
+        from fact_event_s as fact_event
+        inner join dim_customer_wl on fact_event.customer_id = dim_customer_wl.customer_id
+        inner join dim_product_wl on fact_event.product_id = dim_product_wl.product_id
+        where cast(substr(fact_event.event_code, 3, 3) as integer)
+            < 450
+    )
+
+    select
+        count(*) as query_rows,
+        sum(amount) as amount_total,
+        count(distinct product_id) as products
+    from filtered
+    limit 1000",ANALYTICS,PUBLIC,SELECT,1787362620,BAILEY,ANALYST,COMPUTE_WH,Medium,STANDARD,1,batch_03,SUCCESS,,,2026-08-22T01:38:07.551+00:00,2026-08-22T01:38:07.571+00:00,20.09,29097984,,,,,1,,,,,,19,19,,,,0.753,19.337,,,,,,,,,,,,,duckdb-1.3.2,,,,,,,FALSE,,,,,,ROLE,586dff5d6af9536962695784c89b3948,1,9e5574ac2f2997a5ce086598c3beca79,1,NONE,,,,,PERSON,ANALYTICS,PUBLIC

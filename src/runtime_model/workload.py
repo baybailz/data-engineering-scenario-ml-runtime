@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""Build the benchmark workload: base tables plus the query catalogue.
+"""Build the warehouse: base tables, the catalogue table, and the query queue.
 
 Everything here is deterministic. The tables are generated from row numbers
 through hash(), never from a random generator, so the same script produces the
 same bytes on any machine. The catalogue is the product of the shape knobs
-(table size, joins, group by, filter selectivity, order by, window, limit),
-shuffled with a fixed seed and cut into batches of 40.
+(table size, joins, group by, filter constant, order by, window, limit) crossed
+with a warehouse size, shuffled with a fixed seed and cut into batches of 40.
 
     python -m runtime_model.workload --rebuild     rebuild workload.duckdb
     python -m runtime_model.workload --catalogue   rewrite incoming/batch_*.csv
+    python -m runtime_model.workload --tables      rewrite data/tables.csv
+
+Two things leave this module. `write_catalogue` writes the queue: a query id, a
+warehouse size and the SQL text, and nothing else -- everything the model uses
+is parsed back out of that text, so the queue cannot smuggle a feature in.
+`table_rows` writes data/tables.csv in the shape of
+SNOWFLAKE.ACCOUNT_USAGE.TABLES, with ROW_COUNT and BYTES measured from DuckDB.
 
 workload.duckdb is not committed: it is large and this script rebuilds it in
-seconds, which is also the point. The catalogue csv files are committed, so the
-queue a visitor sees on the page is exactly the queue the runner measures.
+seconds, which is also the point.
 """
 
 import argparse
@@ -22,12 +28,15 @@ from pathlib import Path
 
 import duckdb
 
+from .snowflake import TABLES_COLUMNS, WAREHOUSE_ORDER, table_row
+
 ROOT = Path(__file__).resolve().parents[2]
 WORKLOAD_DB = ROOT / "workload.duckdb"
 INCOMING = ROOT / "incoming"
+TABLES_CSV = ROOT / "data" / "tables.csv"
 
 # Four fact tables. Sizes are chosen so the cheapest query in the catalogue
-# still takes tens of milliseconds on four vCPUs: below that, timer noise is
+# still takes tens of milliseconds on four threads: below that, timer noise is
 # larger than the effect being modelled.
 FACT_TABLES = {
     "fact_event_s": 2_000_000,
@@ -36,27 +45,38 @@ FACT_TABLES = {
     "fact_event_x": 8_000_000,
 }
 DIM_ROWS = {"dim_customer_wl": 50_000, "dim_product_wl": 5_000, "dim_region_wl": 200}
-# Bytes per row from the declared column widths: the estimate a planner has
-# before running anything. Not measured from the file.
-FACT_ROW_BYTES = 72
-DIM_ROW_BYTES = {"dim_customer_wl": 40, "dim_product_wl": 32, "dim_region_wl": 24}
 
 JOIN_DIMS = [
     ("dim_customer_wl", "customer_id", "customer_segment"),
     ("dim_product_wl", "product_id", "product_category"),
     ("dim_region_wl", "region_id", "region_name"),
 ]
-SELECTIVITIES = [0.02, 0.15, 0.45, 0.90]
+# The constant the filter compares against. The event code's middle three
+# digits are uniform over 0-999, so a larger constant keeps more rows -- but
+# nothing tells the model that, and nothing has to.
+FILTER_LITERALS = [20, 150, 450, 900]
 LIMITS = [0, 100, 1000]
 BATCH_SIZE = 40
 N_TEMPLATES = 60
 CATALOGUE_SEED = 20260821
 
-CATALOGUE_COLUMNS = [
-    "query_id", "template_id", "template_label", "fact_table", "fact_rows",
-    "rows_in", "bytes_est", "n_joins", "has_groupby", "selectivity",
-    "has_orderby", "has_window", "limit_rows", "query_sql",
-]
+# The tables are generated from a definition fixed on this date, so the
+# catalogue table carries that rather than a wall clock that would differ on
+# every machine that rebuilds the database.
+WORKLOAD_CREATED = "2026-08-21T00:00:00Z"
+
+CATALOGUE_COLUMNS = ["query_id", "template_id", "template_label", "warehouse_size",
+                     "query_text"]
+
+TABLE_COMMENTS = {
+    "fact_event_s": "event fact, small",
+    "fact_event_m": "event fact, medium",
+    "fact_event_l": "event fact, large",
+    "fact_event_x": "event fact, extra large",
+    "dim_customer_wl": "customer dimension",
+    "dim_product_wl": "product dimension",
+    "dim_region_wl": "region dimension",
+}
 
 
 def build_tables(con: duckdb.DuckDBPyConnection) -> None:
@@ -125,11 +145,10 @@ def sql_for(spec: dict) -> str:
     projected += ["            fact_event.customer_id",
                   "            fact_event.product_id",
                   "            fact_event.amount"]
-    threshold = int(round(spec["selectivity"] * 1000))
     filtered = ["        select", ",\n".join(projected),
                 f"        from {spec['fact_table']} as fact_event", *join_lines,
                 "        where cast(substr(fact_event.event_code, 3, 3) as integer)",
-                f"            < {threshold}"]
+                f"            < {spec['filter_literal']}"]
     ctes = [("filtered", "\n".join(filtered))]
 
     source = "filtered"
@@ -177,7 +196,12 @@ def label_for(spec: dict) -> str:
 
 
 def catalogue() -> list[dict]:
-    """60 shape templates x 4 filter selectivities = 240 measurable queries."""
+    """60 shape templates x 4 filter constants = 240 measurable queries.
+
+    Warehouse size rotates across the four variants of every template, so the
+    same shape is timed on one, two and four threads and the size is a real
+    feature rather than a constant column.
+    """
     shapes = []
     for fact_table, fact_rows in FACT_TABLES.items():
         for n_joins in range(4):
@@ -195,16 +219,12 @@ def catalogue() -> list[dict]:
     for index, shape in enumerate(shapes, start=1):
         shape = dict(shape, limit_rows=LIMITS[index % len(LIMITS)])
         template_id = f"t{index:02d}"
-        rows_in = shape["fact_rows"] + sum(
-            DIM_ROWS[dim] for dim, _, _ in JOIN_DIMS[: shape["n_joins"]])
-        bytes_est = shape["fact_rows"] * FACT_ROW_BYTES + sum(
-            DIM_ROWS[dim] * DIM_ROW_BYTES[dim] for dim, _, _ in JOIN_DIMS[: shape["n_joins"]])
-        for variant, selectivity in enumerate(SELECTIVITIES, start=1):
-            spec = dict(shape, selectivity=selectivity, template_id=template_id,
-                        rows_in=rows_in, bytes_est=bytes_est,
-                        query_id=f"{template_id}_s{variant}")
+        for variant, literal in enumerate(FILTER_LITERALS, start=1):
+            spec = dict(shape, filter_literal=literal, template_id=template_id,
+                        query_id=f"{template_id}_s{variant}",
+                        warehouse_size=WAREHOUSE_ORDER[(index + variant) % len(WAREHOUSE_ORDER)])
             spec["template_label"] = label_for(spec)
-            spec["query_sql"] = sql_for(spec)
+            spec["query_text"] = sql_for(spec)
             rows.append({column: spec[column] for column in CATALOGUE_COLUMNS})
     rng.shuffle(rows)
     return rows
@@ -226,14 +246,48 @@ def write_catalogue() -> int:
     return len(batches)
 
 
+def table_rows(con: duckdb.DuckDBPyConnection) -> list[dict]:
+    """data/tables.csv: ACCOUNT_USAGE.TABLES, measured off this database.
+
+    ROW_COUNT is a count. BYTES is the blocks the table occupies on disk times
+    the database's block size, which is what DuckDB can actually tell us -- the
+    nearest honest thing to the compressed micro-partition bytes Snowflake
+    reports for the same column.
+    """
+    block_size = con.execute("select block_size from pragma_database_size()").fetchone()[0]
+    rows = []
+    for name in list(FACT_TABLES) + list(DIM_ROWS):
+        count = con.execute(f"select count(*) from {name}").fetchone()[0]
+        blocks = con.execute(
+            "select count(distinct block_id) from pragma_storage_info(?) where block_id >= 0",
+            [name]).fetchone()[0]
+        rows.append(table_row(name, int(count), int(blocks) * int(block_size),
+                              WORKLOAD_CREATED, TABLE_COMMENTS[name]))
+    return rows
+
+
+def write_tables(con: duckdb.DuckDBPyConnection) -> int:
+    rows = table_rows(con)
+    TABLES_CSV.parent.mkdir(parents=True, exist_ok=True)
+    with open(TABLES_CSV, "w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=TABLES_COLUMNS, lineterminator="\n",
+                                extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows([{key: ("" if value is None else value) for key, value in row.items()}
+                          for row in rows])
+    print(f"[tables] data/tables.csv → {len(rows)} tables")
+    return len(rows)
+
+
 def ensure_workload(threads: int = 4) -> duckdb.DuckDBPyConnection:
     """Open workload.duckdb, building it first if this runner has not got one."""
     fresh = not WORKLOAD_DB.exists()
     con = duckdb.connect(str(WORKLOAD_DB))
-    con.execute(f"pragma threads={threads}")
+    con.execute(f"set threads={threads}")
     if fresh:
         print("[workload] building base tables")
         build_tables(con)
+        con.execute("checkpoint")
     return con
 
 
@@ -241,14 +295,20 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--rebuild", action="store_true")
     parser.add_argument("--catalogue", action="store_true")
+    parser.add_argument("--tables", action="store_true")
     args = parser.parse_args()
     if args.rebuild:
         WORKLOAD_DB.unlink(missing_ok=True)
         con = ensure_workload()
         for table_name, rows in FACT_TABLES.items():
             print(f"[workload] {table_name}: {rows:,} rows")
+        write_tables(con)
         con.close()
-    if args.catalogue or not args.rebuild:
+    elif args.tables:
+        con = ensure_workload()
+        write_tables(con)
+        con.close()
+    if args.catalogue or not (args.rebuild or args.tables):
         print(f"[catalogue] {write_catalogue()} batches")
 
 

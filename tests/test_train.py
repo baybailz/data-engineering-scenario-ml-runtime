@@ -36,23 +36,23 @@ def test_the_gate_is_both_conditions():
 
 def test_holdout_is_the_most_recent_batch(measurements):
     _, holdout = train.split(measurements)
-    assert {measurements[i]["batch_name"] for i in holdout} == {"batch_02"}
+    assert {measurements[i]["QUERY_TAG"] for i in holdout} == {"batch_02"}
 
 
 def test_holdout_is_the_tail_when_there_is_only_one_batch(measurements):
-    single = [row for row in measurements if row["batch_name"] == "batch_01"]
+    single = [row for row in measurements if row["QUERY_TAG"] == "batch_01"]
     trained, holdout = train.split(single)
     assert set(trained) & set(holdout) == set()
     assert holdout == list(range(len(trained), len(single)))
 
 
-def test_too_few_rows_refuses_to_train(measurements):
+def test_too_few_rows_refuses_to_train(measurements, tables):
     with pytest.raises(ValueError):
-        train.fit(measurements[:5])
+        train.fit(measurements[:5], tables)
 
 
-def test_fit_scores_out_of_sample_and_gates(measurements):
-    result = train.fit(measurements)
+def test_fit_scores_out_of_sample_and_gates(measurements, tables):
+    result = train.fit(measurements, tables)
     metrics = result["metrics"]
     assert metrics["n_train_rows"] + metrics["n_holdout_rows"] == len(measurements)
     assert metrics["mape_ci_low_pct"] <= metrics["holdout_mape_pct"] <= metrics["mape_ci_high_pct"]
@@ -60,7 +60,7 @@ def test_fit_scores_out_of_sample_and_gates(measurements):
                                                        metrics["holdout_r2"])
     assert {row["feature"] for row in metrics["importances"]} == set(FEATURES)
     assert len(result["predictions"]) == len(measurements)
-    assert all(row["predicted_seconds"] > 0 for row in result["predictions"])
+    assert all(row["predicted_ms"] > 0 for row in result["predictions"])
     assert sum(row["in_holdout"] for row in result["predictions"]) == metrics["n_holdout_rows"]
 
 
@@ -68,8 +68,12 @@ def test_version_number_increments_and_carries_a_digest(measurements):
     first = train.version_for(measurements, [])
     assert first.startswith("v1-")
     assert train.version_for(measurements, [{"model_version": first}]).startswith("v2-")
-    changed = [dict(measurements[0], median_seconds=99.0)] + measurements[1:]
+    changed = [dict(measurements[0], EXECUTION_TIME=99.0)] + measurements[1:]
     assert train.version_for(changed, []) != first
+
+
+def test_the_gate_rule_is_stated_in_milliseconds():
+    assert "ms" in train.GATE_RULE
 
 
 def test_calibration_table_covers_every_holdout_row():
@@ -79,12 +83,18 @@ def test_calibration_table_covers_every_holdout_row():
     assert [row["decile"] for row in table] == list(range(1, len(table) + 1))
 
 
-def test_onnx_export_agrees_with_sklearn(measurements, tmp_path):
+def test_onnx_export_agrees_with_sklearn(measurements, tables, tmp_path):
     """The page runs the ONNX copy. If it disagreed, the page would lie."""
-    result = train.fit(measurements)
+    import csv
+
+    from runtime_model.workload import ROOT
+
+    with open(ROOT / "data" / "tables.csv", newline="") as handle:
+        catalogue_rows = list(csv.DictReader(handle))
+    result = train.fit(measurements, tables)
     onnx_path, meta_path = tmp_path / "model.onnx", tmp_path / "model_meta.json"
     max_diff = train.export_onnx(result["model"], result["features"], result["metrics"],
-                                 onnx_path, meta_path)
+                                 catalogue_rows, onnx_path, meta_path)
     assert max_diff < train.ONNX_TOLERANCE
     assert onnx_path.stat().st_size > 0
 
@@ -94,4 +104,8 @@ def test_onnx_export_agrees_with_sklearn(measurements, tmp_path):
     assert meta["features"] == FEATURES
     assert meta["model_version"] == result["metrics"]["model_version"]
     assert set(meta["feature_ranges"]) == set(FEATURES)
-    assert [table["name"] for table in meta["catalogue"]["fact_tables"]]
+    assert [size["name"] for size in meta["warehouse"]["sizes"]] == [
+        "X-Small", "Small", "Medium"]
+    assert len(meta["warehouse"]["tables"]) == 7
+    assert all(table["rows"] > 0 and table["bytes"] > 0
+               for table in meta["warehouse"]["tables"])

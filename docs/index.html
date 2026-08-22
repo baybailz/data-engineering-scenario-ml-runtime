@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Edit these for each scenario. The rest of the page reads docs/scenario.json at runtime. -->
-<meta name="description" content="Predict how long a query will run before it runs. A standalone Python solution: time real queries on DuckDB, train a gradient booster on features known before the query starts, and publish the error with a confidence interval.">
+<meta name="description" content="Predict how long a query will run before it runs. A standalone Python solution: time real queries, write them in the shape of SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY, train only on the columns that exist at submit time, and publish the error with a confidence interval.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Predict how long a query will run before it runs.">
-<meta property="og:description" content="Measure 240 real queries on the runner, train on features known before the query starts, publish the holdout error with a 95% confidence interval and an explicit pass/fail gate. Try the published model in your browser.">
+<meta property="og:description" content="240 real queries measured on the runner and written as ACCOUNT_USAGE.QUERY_HISTORY rows. The model reads only the columns that exist before the query starts, and the holdout error ships with a 95% confidence interval and a pass/fail gate. Try it in your browser.">
 <meta name="twitter:card" content="summary">
 <title>Query Runtime Model</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%23016698"/><path d="M36 10 18 36h11l-3 18 20-28H34l2-16z" fill="white"/></svg>'>

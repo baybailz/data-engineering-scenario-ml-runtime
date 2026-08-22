@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-22T00:25:37+00:00",
+ "generated_at": "2026-08-22T01:38:13+00:00",
  "files_loaded": [
   "batch_01",
   "batch_02",
@@ -12,145 +12,454 @@
  ],
  "next_file": "batch_04",
  "row_counts": {
-  "measurements": 120,
+  "query_history": 120,
+  "tables": 7,
+  "calibration": 120,
   "predictions": 120,
   "model_versions": 3,
   "sla": 53
  },
  "queries_measured": 120,
  "templates": 53,
+ "warehouse_tables": 7,
+ "query_history_columns": [
+  "QUERY_ID",
+  "QUERY_TEXT",
+  "DATABASE_NAME",
+  "SCHEMA_NAME",
+  "QUERY_TYPE",
+  "SESSION_ID",
+  "USER_NAME",
+  "ROLE_NAME",
+  "WAREHOUSE_NAME",
+  "WAREHOUSE_SIZE",
+  "WAREHOUSE_TYPE",
+  "CLUSTER_NUMBER",
+  "QUERY_TAG",
+  "EXECUTION_STATUS",
+  "ERROR_CODE",
+  "ERROR_MESSAGE",
+  "START_TIME",
+  "END_TIME",
+  "TOTAL_ELAPSED_TIME",
+  "BYTES_SCANNED",
+  "PERCENTAGE_SCANNED_FROM_CACHE",
+  "BYTES_WRITTEN",
+  "BYTES_WRITTEN_TO_RESULT",
+  "BYTES_READ_FROM_RESULT",
+  "ROWS_PRODUCED",
+  "ROWS_INSERTED",
+  "ROWS_UPDATED",
+  "ROWS_DELETED",
+  "ROWS_UNLOADED",
+  "BYTES_DELETED",
+  "PARTITIONS_SCANNED",
+  "PARTITIONS_TOTAL",
+  "BYTES_SPILLED_TO_LOCAL_STORAGE",
+  "BYTES_SPILLED_TO_REMOTE_STORAGE",
+  "BYTES_SENT_OVER_THE_NETWORK",
+  "COMPILATION_TIME",
+  "EXECUTION_TIME",
+  "QUEUED_PROVISIONING_TIME",
+  "QUEUED_REPAIR_TIME",
+  "QUEUED_OVERLOAD_TIME",
+  "TRANSACTION_BLOCKED_TIME",
+  "OUTBOUND_DATA_TRANSFER_CLOUD",
+  "OUTBOUND_DATA_TRANSFER_REGION",
+  "OUTBOUND_DATA_TRANSFER_BYTES",
+  "INBOUND_DATA_TRANSFER_CLOUD",
+  "INBOUND_DATA_TRANSFER_REGION",
+  "INBOUND_DATA_TRANSFER_BYTES",
+  "LIST_EXTERNAL_FILES_TIME",
+  "CREDITS_USED_CLOUD_SERVICES",
+  "RELEASE_VERSION",
+  "EXTERNAL_FUNCTION_TOTAL_INVOCATIONS",
+  "EXTERNAL_FUNCTION_TOTAL_SENT_ROWS",
+  "EXTERNAL_FUNCTION_TOTAL_RECEIVED_ROWS",
+  "EXTERNAL_FUNCTION_TOTAL_SENT_BYTES",
+  "EXTERNAL_FUNCTION_TOTAL_RECEIVED_BYTES",
+  "QUERY_LOAD_PERCENT",
+  "IS_CLIENT_GENERATED_STATEMENT",
+  "QUERY_ACCELERATION_BYTES_SCANNED",
+  "QUERY_ACCELERATION_PARTITIONS_SCANNED",
+  "QUERY_ACCELERATION_UPPER_LIMIT_SCALE_FACTOR",
+  "TRANSACTION_ID",
+  "CHILD_QUERIES_WAIT_TIME",
+  "ROLE_TYPE",
+  "QUERY_HASH",
+  "QUERY_HASH_VERSION",
+  "QUERY_PARAMETERIZED_HASH",
+  "QUERY_PARAMETERIZED_HASH_VERSION",
+  "SECONDARY_ROLE_STATS",
+  "ROWS_WRITTEN_TO_RESULT",
+  "QUERY_RETRY_TIME",
+  "QUERY_RETRY_CAUSE",
+  "FAULT_HANDLING_TIME",
+  "USER_TYPE",
+  "USER_DATABASE_NAME",
+  "USER_SCHEMA_NAME"
+ ],
+ "tables_columns": [
+  "TABLE_CATALOG",
+  "TABLE_SCHEMA",
+  "TABLE_NAME",
+  "TABLE_OWNER",
+  "TABLE_TYPE",
+  "IS_TRANSIENT",
+  "CLUSTERING_KEY",
+  "ROW_COUNT",
+  "BYTES",
+  "RETENTION_TIME",
+  "SELF_REFERENCING_COLUMN_NAME",
+  "REFERENCE_GENERATION",
+  "USER_DEFINED_TYPE_CATALOG",
+  "USER_DEFINED_TYPE_SCHEMA",
+  "USER_DEFINED_TYPE_NAME",
+  "IS_INSERTABLE_INTO",
+  "IS_TYPED",
+  "COMMIT_ACTION",
+  "CREATED",
+  "LAST_ALTERED",
+  "LAST_DDL",
+  "LAST_DDL_BY",
+  "AUTO_CLUSTERING_ON",
+  "COMMENT",
+  "OWNER_ROLE_TYPE",
+  "IS_TEMPORARY",
+  "IS_ICEBERG",
+  "IS_DYNAMIC",
+  "IS_IMMUTABLE",
+  "IS_HYBRID"
+ ],
+ "feature_map": [
+  {
+   "column": "QUERY_TEXT",
+   "used": "yes",
+   "why": "parsed: tables, joins, group by, order by, window, limit, predicates"
+  },
+  {
+   "column": "WAREHOUSE_SIZE",
+   "used": "yes",
+   "why": "X-Small / Small / Medium, applied as 1 / 2 / 4 engine threads"
+  },
+  {
+   "column": "QUERY_PARAMETERIZED_HASH",
+   "used": "yes",
+   "why": "joins this query to the same shape measured in earlier batches"
+  },
+  {
+   "column": "TABLES.ROW_COUNT, TABLES.BYTES",
+   "used": "yes",
+   "why": "size of every table the parser found, from the catalogue table"
+  },
+  {
+   "column": "QUERY_TYPE",
+   "used": "no",
+   "why": "every measured query is a SELECT here, so the column has no variance"
+  },
+  {
+   "column": "START_TIME",
+   "used": "no",
+   "why": "batches are measured back to back, so the hour only names the batch"
+  },
+  {
+   "column": "EXECUTION_TIME",
+   "used": "target",
+   "why": "what is being predicted"
+  },
+  {
+   "column": "TOTAL_ELAPSED_TIME",
+   "used": "no",
+   "why": "contains the target"
+  },
+  {
+   "column": "COMPILATION_TIME",
+   "used": "no",
+   "why": "written after the plan is built, not at submit time"
+  },
+  {
+   "column": "BYTES_SCANNED",
+   "used": "no",
+   "why": "the engine reports it once the scan is over"
+  },
+  {
+   "column": "PARTITIONS_SCANNED, PARTITIONS_TOTAL",
+   "used": "no",
+   "why": "pruning is decided during the run"
+  },
+  {
+   "column": "ROWS_PRODUCED",
+   "used": "no",
+   "why": "the answer to the query. Knowing it means the query already ran"
+  },
+  {
+   "column": "PERCENTAGE_SCANNED_FROM_CACHE",
+   "used": "no",
+   "why": "a property of the run, not of the query"
+  },
+  {
+   "column": "BYTES_SPILLED_TO_LOCAL_STORAGE",
+   "used": "no",
+   "why": "a spill is a symptom of the runtime being predicted"
+  },
+  {
+   "column": "QUEUED_OVERLOAD_TIME",
+   "used": "no",
+   "why": "queueing happens after submit"
+  },
+  {
+   "column": "QUERY_LOAD_PERCENT",
+   "used": "no",
+   "why": "measured across the life of the query"
+  }
+ ],
+ "pre_run_columns": [
+  "CLUSTER_NUMBER",
+  "DATABASE_NAME",
+  "INBOUND_DATA_TRANSFER_CLOUD",
+  "INBOUND_DATA_TRANSFER_REGION",
+  "IS_CLIENT_GENERATED_STATEMENT",
+  "OUTBOUND_DATA_TRANSFER_CLOUD",
+  "OUTBOUND_DATA_TRANSFER_REGION",
+  "QUERY_HASH",
+  "QUERY_HASH_VERSION",
+  "QUERY_ID",
+  "QUERY_PARAMETERIZED_HASH",
+  "QUERY_PARAMETERIZED_HASH_VERSION",
+  "QUERY_TAG",
+  "QUERY_TEXT",
+  "QUERY_TYPE",
+  "RELEASE_VERSION",
+  "ROLE_NAME",
+  "ROLE_TYPE",
+  "SCHEMA_NAME",
+  "SECONDARY_ROLE_STATS",
+  "SESSION_ID",
+  "START_TIME",
+  "TRANSACTION_ID",
+  "USER_DATABASE_NAME",
+  "USER_NAME",
+  "USER_SCHEMA_NAME",
+  "USER_TYPE",
+  "WAREHOUSE_NAME",
+  "WAREHOUSE_SIZE",
+  "WAREHOUSE_TYPE"
+ ],
+ "after_the_fact_columns": [
+  "EXECUTION_STATUS",
+  "ERROR_CODE",
+  "ERROR_MESSAGE",
+  "END_TIME",
+  "TOTAL_ELAPSED_TIME",
+  "BYTES_SCANNED",
+  "PERCENTAGE_SCANNED_FROM_CACHE",
+  "BYTES_WRITTEN",
+  "BYTES_WRITTEN_TO_RESULT",
+  "BYTES_READ_FROM_RESULT",
+  "ROWS_PRODUCED",
+  "ROWS_INSERTED",
+  "ROWS_UPDATED",
+  "ROWS_DELETED",
+  "ROWS_UNLOADED",
+  "BYTES_DELETED",
+  "PARTITIONS_SCANNED",
+  "PARTITIONS_TOTAL",
+  "BYTES_SPILLED_TO_LOCAL_STORAGE",
+  "BYTES_SPILLED_TO_REMOTE_STORAGE",
+  "BYTES_SENT_OVER_THE_NETWORK",
+  "COMPILATION_TIME",
+  "EXECUTION_TIME",
+  "QUEUED_PROVISIONING_TIME",
+  "QUEUED_REPAIR_TIME",
+  "QUEUED_OVERLOAD_TIME",
+  "TRANSACTION_BLOCKED_TIME",
+  "OUTBOUND_DATA_TRANSFER_BYTES",
+  "INBOUND_DATA_TRANSFER_BYTES",
+  "LIST_EXTERNAL_FILES_TIME",
+  "CREDITS_USED_CLOUD_SERVICES",
+  "EXTERNAL_FUNCTION_TOTAL_INVOCATIONS",
+  "EXTERNAL_FUNCTION_TOTAL_SENT_ROWS",
+  "EXTERNAL_FUNCTION_TOTAL_RECEIVED_ROWS",
+  "EXTERNAL_FUNCTION_TOTAL_SENT_BYTES",
+  "EXTERNAL_FUNCTION_TOTAL_RECEIVED_BYTES",
+  "QUERY_LOAD_PERCENT",
+  "QUERY_ACCELERATION_BYTES_SCANNED",
+  "QUERY_ACCELERATION_PARTITIONS_SCANNED",
+  "QUERY_ACCELERATION_UPPER_LIMIT_SCALE_FACTOR",
+  "CHILD_QUERIES_WAIT_TIME",
+  "ROWS_WRITTEN_TO_RESULT",
+  "QUERY_RETRY_TIME",
+  "QUERY_RETRY_CAUSE",
+  "FAULT_HANDLING_TIME"
+ ],
+ "model_features": [
+  "log_table_rows",
+  "log_table_bytes",
+  "n_tables",
+  "n_joins",
+  "has_group_by",
+  "has_order_by",
+  "has_window",
+  "log_limit_rows",
+  "n_predicates",
+  "predicate_literal",
+  "warehouse_threads",
+  "has_prior",
+  "log_prior_ms"
+ ],
  "models_trained": 3,
- "model_version": "v3-f2f82ba4",
- "holdout_mape_pct": 11.719,
- "mape_ci_low_pct": 9.158,
- "mape_ci_high_pct": 14.69,
- "holdout_r2": 0.9713,
- "holdout_mae_seconds": 0.03307,
- "baseline_mape_pct": 26.371,
- "cv_mape_pct": 21.392,
- "passes_gate": true,
- "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
+ "model_version": "v3-c193ca11",
+ "holdout_mape_pct": 17.17,
+ "mape_ci_low_pct": 13.452,
+ "mape_ci_high_pct": 21.12,
+ "holdout_r2": 0.968,
+ "holdout_mae_ms": 37.1,
+ "baseline_mape_pct": 51.759,
+ "cv_mape_pct": 29.194,
+ "passes_gate": false,
+ "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms",
  "gate_mape_pct": 15.0,
  "gate_r2": 0.9,
  "n_train_rows": 80,
  "n_holdout_rows": 40,
- "cpu_count": 4,
- "duckdb_threads": 4,
- "reps_median": 5,
+ "engine": "duckdb-1.3.2",
+ "warehouse_sizes": [
+  "X-Small",
+  "Small",
+  "Medium"
+ ],
+ "seen_before_share": 0.4417,
+ "reps_median": 6,
  "importances": [
   {
-   "feature": "log_rows_after_filter",
-   "importance": 0.6695
+   "feature": "predicate_literal",
+   "importance": 0.5342
   },
   {
-   "feature": "has_groupby",
-   "importance": 0.2869
+   "feature": "log_table_rows",
+   "importance": 0.3998
   },
   {
-   "feature": "log_rows_in",
-   "importance": 0.1448
+   "feature": "warehouse_threads",
+   "importance": 0.3449
+  },
+  {
+   "feature": "has_group_by",
+   "importance": 0.3344
   },
   {
    "feature": "has_window",
-   "importance": 0.107
+   "importance": 0.1019
   },
   {
-   "feature": "n_joins",
-   "importance": 0.087
+   "feature": "n_tables",
+   "importance": 0.0691
   },
   {
    "feature": "log_limit_rows",
-   "importance": 0.0165
+   "importance": 0.0096
   },
   {
-   "feature": "has_orderby",
-   "importance": 0.0064
+   "feature": "has_order_by",
+   "importance": 0.003
   },
   {
-   "feature": "log_bytes_est",
+   "feature": "log_table_bytes",
    "importance": 0.0
   },
   {
-   "feature": "selectivity",
-   "importance": -0.0015
+   "feature": "n_joins",
+   "importance": 0.0
+  },
+  {
+   "feature": "n_predicates",
+   "importance": 0.0
+  },
+  {
+   "feature": "log_prior_ms",
+   "importance": -0.0019
+  },
+  {
+   "feature": "has_prior",
+   "importance": -0.0035
   }
  ],
  "calibration": [
   {
    "decile": 1,
    "queries": 4,
-   "predicted_seconds": 0.0505,
-   "actual_seconds": 0.0563,
-   "abs_pct_error": 10.68
+   "predicted_ms": 21.7,
+   "actual_ms": 22.0,
+   "abs_pct_error": 8.18
   },
   {
    "decile": 2,
    "queries": 4,
-   "predicted_seconds": 0.069,
-   "actual_seconds": 0.073,
-   "abs_pct_error": 5.44
+   "predicted_ms": 39.27,
+   "actual_ms": 42.19,
+   "abs_pct_error": 26.82
   },
   {
    "decile": 3,
    "queries": 4,
-   "predicted_seconds": 0.1016,
-   "actual_seconds": 0.1054,
-   "abs_pct_error": 20.17
+   "predicted_ms": 54.37,
+   "actual_ms": 46.9,
+   "abs_pct_error": 19.56
   },
   {
    "decile": 4,
    "queries": 4,
-   "predicted_seconds": 0.1252,
-   "actual_seconds": 0.1302,
-   "abs_pct_error": 10.28
+   "predicted_ms": 70.93,
+   "actual_ms": 77.65,
+   "abs_pct_error": 13.85
   },
   {
    "decile": 5,
    "queries": 4,
-   "predicted_seconds": 0.1534,
-   "actual_seconds": 0.1785,
-   "abs_pct_error": 14.07
+   "predicted_ms": 105.07,
+   "actual_ms": 103.48,
+   "abs_pct_error": 17.04
   },
   {
    "decile": 6,
    "queries": 4,
-   "predicted_seconds": 0.1837,
-   "actual_seconds": 0.2149,
-   "abs_pct_error": 14.33
+   "predicted_ms": 146.02,
+   "actual_ms": 125.71,
+   "abs_pct_error": 16.78
   },
   {
    "decile": 7,
    "queries": 4,
-   "predicted_seconds": 0.316,
-   "actual_seconds": 0.3458,
-   "abs_pct_error": 14.6
+   "predicted_ms": 215.88,
+   "actual_ms": 206.23,
+   "abs_pct_error": 13.4
   },
   {
    "decile": 8,
    "queries": 4,
-   "predicted_seconds": 0.3985,
-   "actual_seconds": 0.3834,
-   "abs_pct_error": 9.76
+   "predicted_ms": 313.05,
+   "actual_ms": 295.63,
+   "abs_pct_error": 21.81
   },
   {
    "decile": 9,
    "queries": 4,
-   "predicted_seconds": 0.5493,
-   "actual_seconds": 0.5382,
-   "abs_pct_error": 6.83
+   "predicted_ms": 476.9,
+   "actual_ms": 573.11,
+   "abs_pct_error": 16.41
   },
   {
    "decile": 10,
    "queries": 4,
-   "predicted_seconds": 0.9961,
-   "actual_seconds": 0.9646,
-   "abs_pct_error": 11.03
+   "predicted_ms": 788.64,
+   "actual_ms": 672.01,
+   "abs_pct_error": 17.85
   }
  ],
- "runtime_fastest_seconds": 0.0403,
- "runtime_slowest_seconds": 2.7665,
- "sla_seconds": 0.2,
- "sla_breaches_called": 31,
+ "runtime_fastest_ms": 15.67,
+ "runtime_slowest_ms": 2132.45,
+ "sla_ms": 200.0,
+ "sla_breaches_called": 26,
  "sla_missed_breaches": 0,
  "checks_passed": 6,
  "checks_failed": 0,
@@ -183,8 +492,8 @@
   {
    "check": "every model version is gated",
    "ok": true,
-   "detail": "3 version(s), verdicts ['fail', 'pass']"
+   "detail": "3 version(s), verdicts ['fail']"
   }
  ],
- "model_card": "# Query runtime model v3-f2f82ba4\n\nTrained 2026-08-22T00:25:35+00:00 on 80 measured queries from 3 batch(es).\n\n## What it predicts\n\nWall-clock seconds for a DuckDB query, from features that are known before the\nquery runs: rows in the scanned tables, estimated bytes, join count, group by,\nfilter selectivity, order by, window function, limit.\n\n## Data\n\n- 120 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Measured on 4 vCPU, DuckDB threads pinned to 4.\n- Runtimes range 0.040s to 2.767s (median 0.184s).\n- Calibration factors ranged 0.901 to 1.037. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(calibrated seconds). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 0.0331 s |\n| holdout MAPE | 11.72% (95% CI 9.16-14.69) |\n| holdout R2 (log10 s) | 0.9713 |\n| 5-fold CV MAPE | 21.39% |\n| OLS baseline MAPE | 26.37% |\n| gate | PASS (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds) |\n\n## Permutation importance (holdout, log seconds)\n\n| feature | importance |\n|---|---|\n| log_rows_after_filter | 0.6695 |\n| has_groupby | 0.2869 |\n| log_rows_in | 0.1448 |\n| has_window | 0.1070 |\n| n_joins | 0.0870 |\n| log_limit_rows | 0.0165 |\n| has_orderby | 0.0064 |\n| log_bytes_est | 0.0000 |\n| selectivity | -0.0015 |\n\n## Calibration\n\n| decile | queries | predicted s | actual s | error |\n|---|---|---|---|---|\n| 1 | 4 | 0.0505 | 0.0563 | 10.7% |\n| 2 | 4 | 0.0690 | 0.0730 | 5.4% |\n| 3 | 4 | 0.1016 | 0.1054 | 20.2% |\n| 4 | 4 | 0.1252 | 0.1302 | 10.3% |\n| 5 | 4 | 0.1534 | 0.1785 | 14.1% |\n| 6 | 4 | 0.1837 | 0.2149 | 14.3% |\n| 7 | 4 | 0.3160 | 0.3458 | 14.6% |\n| 8 | 4 | 0.3985 | 0.3834 | 9.8% |\n| 9 | 4 | 0.5493 | 0.5382 | 6.8% |\n| 10 | 4 | 0.9961 | 0.9646 | 11.0% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit. It does not cover spills to disk, concurrency, or user-defined\n  functions, and the model should not be trusted outside that envelope.\n"
+ "model_card": "# Query runtime model v3-c193ca11\n\nTrained 2026-08-22T01:38:12+00:00 on 80 measured queries from 3 batch(es).\n\n## What it predicts\n\nEXECUTION_TIME in milliseconds, from the QUERY_HISTORY columns that exist at\nsubmit time: the parsed QUERY_TEXT, WAREHOUSE_SIZE, the ROW_COUNT and BYTES of\nthe tables it names, and what the same QUERY_PARAMETERIZED_HASH cost before.\n\n## Data\n\n- 120 measured queries, median of 6 timed repetitions each after a warm-up run.\n- Engine duckdb-1.3.2, warehouse sizes X-Small, Small, Medium applied as thread counts.\n- Runtimes range 15.7 ms to 2132.5 ms (median 110.0 ms).\n- Calibration factors ranged 0.986 to 1.252. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(EXECUTION_TIME in ms, runner drift divided out). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 37.10 ms |\n| holdout MAPE | 17.17% (95% CI 13.45-21.12) |\n| holdout R2 (log10 ms) | 0.9680 |\n| 5-fold CV MAPE | 29.19% |\n| OLS baseline MAPE | 51.76% |\n| gate | FAIL (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms) |\n\n## Permutation importance (holdout, log ms)\n\n| feature | importance |\n|---|---|\n| predicate_literal | 0.5342 |\n| log_table_rows | 0.3998 |\n| warehouse_threads | 0.3449 |\n| has_group_by | 0.3344 |\n| has_window | 0.1019 |\n| n_tables | 0.0691 |\n| log_limit_rows | 0.0096 |\n| has_order_by | 0.0030 |\n| log_table_bytes | 0.0000 |\n| n_joins | 0.0000 |\n| n_predicates | 0.0000 |\n| log_prior_ms | -0.0019 |\n| has_prior | -0.0035 |\n\n## Calibration\n\n| decile | queries | predicted ms | actual ms | error |\n|---|---|---|---|---|\n| 1 | 4 | 21.7 | 22.0 | 8.2% |\n| 2 | 4 | 39.3 | 42.2 | 26.8% |\n| 3 | 4 | 54.4 | 46.9 | 19.6% |\n| 4 | 4 | 70.9 | 77.7 | 13.8% |\n| 5 | 4 | 105.1 | 103.5 | 17.0% |\n| 6 | 4 | 146.0 | 125.7 | 16.8% |\n| 7 | 4 | 215.9 | 206.2 | 13.4% |\n| 8 | 4 | 313.1 | 295.6 | 21.8% |\n| 9 | 4 | 476.9 | 573.1 | 16.4% |\n| 10 | 4 | 788.6 | 672.0 | 17.9% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit, on three warehouse sizes. It does not cover spills to disk,\n  concurrency, or user-defined functions, and the model should not be trusted\n  outside that envelope.\n"
 }
