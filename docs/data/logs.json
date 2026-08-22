@@ -1,11 +1,11 @@
 {
- "generated_at": "2026-08-22T00:02:49+00:00",
- "action": "measure_batch",
- "passed": 6,
+ "generated_at": "2026-08-22T00:17:18+00:00",
+ "action": "reset",
+ "passed": 0,
  "failed": 0,
  "history": [
   {
-   "at": "2026-08-22T00:00:38+00:00",
+   "at": "2026-08-22T00:17:18+00:00",
    "action": "reset",
    "passed": 0,
    "failed": 0,
@@ -13,27 +13,7 @@
    "measure": "reset \u00b7 queue cleared",
    "train": "no model",
    "publish": "published tables emptied"
-  },
-  {
-   "at": "2026-08-22T00:01:45+00:00",
-   "action": "measure_batch",
-   "passed": 6,
-   "failed": 0,
-   "batch": "batch_01",
-   "measure": "batch_01 \u00b7 40 queries measured (10 reps median)",
-   "train": "model v1-e4dc6e27 \u00b7 holdout MAPE 35.6% [23.3, 49.6] \u00b7 R\u00b2 0.89 \u00b7 FAIL",
-   "publish": "40 predictions \u00b7 checks PASS=6"
-  },
-  {
-   "at": "2026-08-22T00:02:49+00:00",
-   "action": "measure_batch",
-   "passed": 6,
-   "failed": 0,
-   "batch": "batch_02",
-   "measure": "batch_02 \u00b7 40 queries measured (10 reps median)",
-   "train": "model v2-8cc5fcc0 \u00b7 holdout MAPE 25.3% [19.3, 31.5] \u00b7 R\u00b2 0.88 \u00b7 FAIL",
-   "publish": "80 predictions \u00b7 checks PASS=6"
   }
  ],
- "python": "[machine] 28 cpu \u00b7 duckdb threads=4 \u00b7 Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39\n[pickup] batch_02.csv\n[measure]  1/40 t37_s2 0.038s (16 reps) 5M rows \u00b7 0 joins \u00b7 no group by \u00b7 limit 100\n[measure]  2/40 t51_s3 0.051s (12 reps) 2M rows \u00b7 0 joins \u00b7 group by \u00b7 no limit\n[measure]  3/40 t31_s2 0.025s (24 reps) 2M rows \u00b7 1 join \u00b7 no group by \u00b7 window \u00b7 limit 100\n[measure]  4/40 t52_s1 0.018s (25 reps) 2M rows \u00b7 2 joins \u00b7 no group by \u00b7 window \u00b7 limit 100\n[measure]  5/40 t07_s4 0.190s (5 reps) 2M rows \u00b7 2 joins \u00b7 group by \u00b7 window \u00b7 limit 100\n[measure]  6/40 t59_s4 0.225s (5 reps) 3M rows \u00b7 1 join \u00b7 group by \u00b7 window \u00b7 order by \u00b7 limit 1000\n[measure]  7/40 t55_s1 0.046s (13 reps) 5M rows \u00b7 2 joins \u00b7 group by \u00b7 window \u00b7 limit 100\n[measure]  8/40 t53_s3 0.135s (5 reps) 5M rows \u00b7 1 join \u00b7 group by \u00b7 limit 1000\n[measure]  9/40 t35_s2 0.056s (11 reps) 5M rows \u00b7 0 joins \u00b7 no group by \u00b7 window \u00b7 order by \u00b7 limit 1000\n[measure] 10/40 t12_s4 0.020s (25 reps) 2M rows \u00b7 0 joins \u00b7 no group by \u00b7 no limit\n[measure] 11/40 t35_s3 0.099s (6 reps) 5M rows \u00b7 0 joins \u00b7 no group by \u00b7 window \u00b7 order by \u00b7 limit 1000\n[measure] 12/40 t47_s2 0.092s (7 reps) 8M rows \u00b7 1 join \u00b7 no group by \u00b7 window \u00b7 order by \u00b7 limit 1000\n[measure] 13/40 t22_s3 0.045s (14 reps) 5M rows \u00b7 2 joins \u00b7 no group by \u00b7 order by \u00b7 limit 100\n[measure] 14/40 t35_s1 0.040s (16 reps) 5M rows \u00b7 0 joins \u00b7 no group by \u00b7 window \u00b7 order by \u00b7 limit 1000\n[measure] 15/40 t48_s4 0.439s (5 reps) 2M rows \u00b7 3 joins \u00b7 group by \u00b7 window \u00b7 order by \u00b7 no limit\n[measure] 16/40 t60_s1 0.040s (15 reps) 3M rows \u00b7 2 joins \u00b7 group by \u00b7 window \u00b7 order by \u00b7 no limit\n[measure] 17/40 t34_s1 0.017s (25 reps) 2M rows \u00b7 0 joins \u00b7 no group by \u00b7 window \u00b7 limit 100\n[measure] 18/40 t51_s2 0.029s (21 reps) 2M rows \u00b7 0 joins \u00b7 group by \u00b7 no limit\n[measure] 19/40 t06_s3 0.046s (13 reps) 2M rows \u00b7 1 join \u00b7 no group by \u00b7 window \u00b7 order by \u00b7 no limit\n[measure] 20/40 t43_s4 0.081s (8 reps) 8M rows \u00b7 1 join \u00b7 no group by \u00b7 order by \u00b7 limit 100\n[measure] 21/40 t54_s2 0.062s (10 reps) 8M rows \u00b7 0 joins \u00b7 no group by \u00b7 no limit\n[measure] 22/40 t42_s2 0.051s (12 reps) 3M rows \u00b7 0 joins \u00b7 group by \u00b7 window \u00b7 order by \u00b7 no limit\n[measure] 23/40 t44_s2 0.134s (5 reps) 5M rows \u00b7 3 joins \u00b7 group by \u00b7 window \u00b7 limit 1000\n[measure] 24/40 t53_s4 0.264s (5 reps) 5M rows \u00b7 1 join \u00b7 group by \u00b7 limit 1000\n[measure] 25/40 t37_s1 0.040s (15 reps) 5M rows \u00b7 0 joins \u00b7 no group by \u00b7 limit 100\n[measure] 26/40 t40_s4 0.413s (5 reps) 3M rows \u00b7 3 joins \u00b7 group by \u00b7 window \u00b7 limit 100\n[measure] 27/40 t41_s2 0.030s (20 reps) 3M rows \u00b7 1 join \u00b7 no group by \u00b7 limit 1000\n[measure] 28/40 t32_s4 0.301s (5 reps) 8M rows \u00b7 0 joins \u00b7 group by \u00b7 order by \u00b7 limit 1000\n[measure] 29/40 t14_s3 0.050s (13 reps) 5M rows \u00b7 2 joins \u00b7 no group by \u00b7 limit 1000\n[measure] 30/40 t49_s1 0.027s (22 reps) 3M rows \u00b7 0 joins \u00b7 group by \u00b7 window \u00b7 limit 100\n[measure] 31/40 t42_s4 0.191s (5 reps) 3M rows \u00b7 0 joins \u00b7 group by \u00b7 window \u00b7 order by \u00b7 no limit\n[measure] 32/40 t18_s3 0.133s (5 reps) 2M rows \u00b7 2 joins \u00b7 group by \u00b7 no limit\n[measure] 33/40 t03_s3 0.197s (5 reps) 8M rows \u00b7 2 joins \u00b7 no group by \u00b7 window \u00b7 no limit\n[measure] 34/40 t19_s4 1.203s (5 reps) 8M rows \u00b7 3 joins \u00b7 group by \u00b7 window \u00b7 order by \u00b7 limit 100\n[measure] 35/40 t30_s3 0.234s (5 reps) 5M rows \u00b7 1 join \u00b7 group by \u00b7 window \u00b7 no limit\n[measure] 36/40 t46_s3 0.355s (5 reps) 8M rows \u00b7 1 join \u00b7 group by \u00b7 window \u00b7 order by \u00b7 limit 100\n[measure] 37/40 t11_s2 0.040s (15 reps) 3M rows \u00b7 0 joins \u00b7 group by \u00b7 limit 1000\n[measure] 38/40 t25_s4 0.083s (8 reps) 8M rows \u00b7 1 join \u00b7 no group by \u00b7 limit 100\n[measure] 39/40 t46_s1 0.075s (9 reps) 8M rows \u00b7 1 join \u00b7 group by \u00b7 window \u00b7 order by \u00b7 limit 100\n[measure] 40/40 t56_s2 0.069s (9 reps) 8M rows \u00b7 2 joins \u00b7 no group by \u00b7 limit 1000\n[calibration] 0.096 / 0.092 / 0.100 / 0.102 / 0.103 \u00b7 reference 0.089s\n[measure] 80 measured queries from 2 batch(es)\n[train] onnx model.onnx \u00b7 526 KB \u00b7 max |onnx - sklearn| 5.9e-07\n[train] v2-8cc5fcc0 \u00b7 40 train / 40 holdout\n[train] holdout MAPE 25.34% [19.28, 31.46] \u00b7 R2 0.8845 \u00b7 MAE 0.0329s \u00b7 baseline 38.99%\n[train] gate: FAIL (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds)\n[publish] data/measurements.csv \u2192 80 rows\n[publish] data/predictions.csv \u2192 80 rows\n[publish] data/model_versions.csv \u2192 2 rows\n[publish] data/sla.csv \u2192 47 rows\n[check] PASS \u00b7 every measured query has a prediction \u00b7 80 of 80 measured queries scored\n[check] PASS \u00b7 no prediction is zero or negative \u00b7 0 non-positive predictions\n[check] PASS \u00b7 one prediction per query \u00b7 0 duplicate query_id rows\n[check] PASS \u00b7 every prediction is out of sample \u00b7 scopes ['cross_validated', 'holdout']\n[check] PASS \u00b7 one published model at a time \u00b7 1 model version(s) in the detail table\n[check] PASS \u00b7 every model version is gated \u00b7 2 version(s), verdicts ['fail']"
+ "python": "\u001b[0;93m2026-08-22 00:17:14.888845389 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at \"/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171\" because filename \"5620e0c7-8062-4dce-aeb7-520c7ef76171\" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+\u001b[m\n[reset] queue, measurements and trained model cleared"
 }
