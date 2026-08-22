@@ -1,26 +1,26 @@
 {
- "generated_at": "2026-08-22T01:50:14+00:00",
+ "generated_at": "2026-08-22T01:53:22+00:00",
  "files_loaded": [
-  "batch_01"
+  "batch_01",
+  "batch_02"
  ],
  "files_pending": [
-  "batch_02",
   "batch_03",
   "batch_04",
   "batch_05",
   "batch_06"
  ],
- "next_file": "batch_02",
+ "next_file": "batch_03",
  "row_counts": {
-  "query_history": 40,
+  "query_history": 80,
   "tables": 7,
-  "calibration": 40,
-  "predictions": 40,
-  "model_versions": 1,
-  "sla": 31
+  "calibration": 80,
+  "predictions": 80,
+  "model_versions": 2,
+  "sla": 47
  },
- "queries_measured": 40,
- "templates": 31,
+ "queries_measured": 80,
+ "templates": 47,
  "warehouse_tables": 7,
  "query_history_columns": [
   "QUERY_ID",
@@ -307,57 +307,61 @@
   "has_prior",
   "log_prior_ms"
  ],
- "models_trained": 1,
- "model_version": "v1-ece1c0d7",
- "holdout_mape_pct": 24.686,
- "mape_ci_low_pct": 16.003,
- "mape_ci_high_pct": 32.823,
- "holdout_r2": 0.8972,
- "holdout_mae_ms": 118.054,
- "baseline_mape_pct": 31.01,
- "cv_mape_pct": 65.487,
+ "models_trained": 2,
+ "model_version": "v2-97ec9ebd",
+ "holdout_mape_pct": 40.348,
+ "mape_ci_low_pct": 28.871,
+ "mape_ci_high_pct": 52.788,
+ "holdout_r2": 0.7863,
+ "holdout_mae_ms": 149.223,
+ "baseline_mape_pct": 43.378,
+ "cv_mape_pct": 49.263,
  "passes_gate": false,
  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms",
  "gate_mape_pct": 15.0,
  "gate_r2": 0.9,
- "n_train_rows": 28,
- "n_holdout_rows": 12,
+ "n_train_rows": 40,
+ "n_holdout_rows": 40,
  "engine": "duckdb-1.3.2",
  "warehouse_sizes": [
   "X-Small",
   "Small",
   "Medium"
  ],
- "seen_before_share": 0.0,
+ "seen_before_share": 0.25,
  "reps_median": 5,
  "importances": [
   {
    "feature": "log_table_rows",
-   "importance": 0.3075
+   "importance": 0.2876
   },
   {
    "feature": "predicate_literal",
-   "importance": 0.3005
-  },
-  {
-   "feature": "has_group_by",
-   "importance": 0.1726
+   "importance": 0.2875
   },
   {
    "feature": "warehouse_threads",
-   "importance": 0.0716
+   "importance": 0.1461
   },
   {
-   "feature": "n_tables",
-   "importance": 0.0359
-  },
-  {
-   "feature": "has_order_by",
-   "importance": 0.0322
+   "feature": "has_group_by",
+   "importance": 0.1243
   },
   {
    "feature": "has_window",
-   "importance": 0.0148
+   "importance": 0.0482
+  },
+  {
+   "feature": "n_tables",
+   "importance": 0.0179
+  },
+  {
+   "feature": "has_order_by",
+   "importance": 0.0161
+  },
+  {
+   "feature": "log_limit_rows",
+   "importance": 0.0023
   },
   {
    "feature": "log_table_bytes",
@@ -378,47 +382,92 @@
   {
    "feature": "log_prior_ms",
    "importance": 0.0
-  },
-  {
-   "feature": "log_limit_rows",
-   "importance": -0.0019
   }
  ],
  "calibration": [
   {
    "decile": 1,
    "queries": 4,
-   "predicted_ms": 97.11,
-   "actual_ms": 116.1,
-   "abs_pct_error": 15.88
+   "predicted_ms": 70.19,
+   "actual_ms": 70.4,
+   "abs_pct_error": 33.05
   },
   {
    "decile": 2,
    "queries": 4,
-   "predicted_ms": 372.52,
-   "actual_ms": 318.65,
-   "abs_pct_error": 29.83
+   "predicted_ms": 102.69,
+   "actual_ms": 96.26,
+   "abs_pct_error": 14.27
   },
   {
    "decile": 3,
    "queries": 4,
-   "predicted_ms": 672.97,
-   "actual_ms": 810.37,
-   "abs_pct_error": 28.34
+   "predicted_ms": 162.52,
+   "actual_ms": 156.18,
+   "abs_pct_error": 60.03
+  },
+  {
+   "decile": 4,
+   "queries": 4,
+   "predicted_ms": 204.62,
+   "actual_ms": 185.68,
+   "abs_pct_error": 20.89
+  },
+  {
+   "decile": 5,
+   "queries": 4,
+   "predicted_ms": 270.07,
+   "actual_ms": 281.93,
+   "abs_pct_error": 23.3
+  },
+  {
+   "decile": 6,
+   "queries": 4,
+   "predicted_ms": 330.39,
+   "actual_ms": 249.53,
+   "abs_pct_error": 76.88
+  },
+  {
+   "decile": 7,
+   "queries": 4,
+   "predicted_ms": 366.23,
+   "actual_ms": 582.44,
+   "abs_pct_error": 50.0
+  },
+  {
+   "decile": 8,
+   "queries": 4,
+   "predicted_ms": 438.11,
+   "actual_ms": 543.32,
+   "abs_pct_error": 33.86
+  },
+  {
+   "decile": 9,
+   "queries": 4,
+   "predicted_ms": 652.47,
+   "actual_ms": 842.57,
+   "abs_pct_error": 57.04
+  },
+  {
+   "decile": 10,
+   "queries": 4,
+   "predicted_ms": 1222.92,
+   "actual_ms": 1365.0,
+   "abs_pct_error": 34.16
   }
  ],
- "runtime_fastest_ms": 55.04,
+ "runtime_fastest_ms": 44.97,
  "runtime_slowest_ms": 3147.2,
  "sla_ms": 200.0,
- "sla_breaches_called": 18,
- "sla_missed_breaches": 2,
+ "sla_breaches_called": 33,
+ "sla_missed_breaches": 0,
  "checks_passed": 6,
  "checks_failed": 0,
  "checks": [
   {
    "check": "every measured query has a prediction",
    "ok": true,
-   "detail": "40 of 40 measured queries scored"
+   "detail": "80 of 80 measured queries scored"
   },
   {
    "check": "no prediction is zero or negative",
@@ -443,8 +492,8 @@
   {
    "check": "every model version is gated",
    "ok": true,
-   "detail": "1 version(s), verdicts ['fail']"
+   "detail": "2 version(s), verdicts ['fail']"
   }
  ],
- "model_card": "# Query runtime model v1-ece1c0d7\n\nTrained 2026-08-22T01:50:12+00:00 on 28 measured queries from 1 batch(es).\n\n## What it predicts\n\nEXECUTION_TIME in milliseconds, from the QUERY_HISTORY columns that exist at\nsubmit time: the parsed QUERY_TEXT, WAREHOUSE_SIZE, the ROW_COUNT and BYTES of\nthe tables it names, and what the same QUERY_PARAMETERIZED_HASH cost before.\n\n## Data\n\n- 40 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Engine duckdb-1.3.2, warehouse sizes X-Small, Small, Medium applied as thread counts.\n- Runtimes range 55.0 ms to 3147.2 ms (median 277.9 ms).\n- Calibration factors ranged 1.000 to 1.026. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(EXECUTION_TIME in ms, runner drift divided out). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 118.05 ms |\n| holdout MAPE | 24.69% (95% CI 16.00-32.82) |\n| holdout R2 (log10 ms) | 0.8972 |\n| 5-fold CV MAPE | 65.49% |\n| OLS baseline MAPE | 31.01% |\n| gate | FAIL (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms) |\n\n## Permutation importance (holdout, log ms)\n\n| feature | importance |\n|---|---|\n| log_table_rows | 0.3075 |\n| predicate_literal | 0.3005 |\n| has_group_by | 0.1726 |\n| warehouse_threads | 0.0716 |\n| n_tables | 0.0359 |\n| has_order_by | 0.0322 |\n| has_window | 0.0148 |\n| log_table_bytes | 0.0000 |\n| n_joins | 0.0000 |\n| n_predicates | 0.0000 |\n| has_prior | 0.0000 |\n| log_prior_ms | 0.0000 |\n| log_limit_rows | -0.0019 |\n\n## Calibration\n\n| decile | queries | predicted ms | actual ms | error |\n|---|---|---|---|---|\n| 1 | 4 | 97.1 | 116.1 | 15.9% |\n| 2 | 4 | 372.5 | 318.6 | 29.8% |\n| 3 | 4 | 673.0 | 810.4 | 28.3% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit, on three warehouse sizes. It does not cover spills to disk,\n  concurrency, or user-defined functions, and the model should not be trusted\n  outside that envelope.\n"
+ "model_card": "# Query runtime model v2-97ec9ebd\n\nTrained 2026-08-22T01:53:19+00:00 on 40 measured queries from 2 batch(es).\n\n## What it predicts\n\nEXECUTION_TIME in milliseconds, from the QUERY_HISTORY columns that exist at\nsubmit time: the parsed QUERY_TEXT, WAREHOUSE_SIZE, the ROW_COUNT and BYTES of\nthe tables it names, and what the same QUERY_PARAMETERIZED_HASH cost before.\n\n## Data\n\n- 80 measured queries, median of 5 timed repetitions each after a warm-up run.\n- Engine duckdb-1.3.2, warehouse sizes X-Small, Small, Medium applied as thread counts.\n- Runtimes range 45.0 ms to 3147.2 ms (median 258.4 ms).\n- Calibration factors ranged 1.000 to 1.056. The calibration query is re-timed every ten queries and every reading is divided by the value interpolated to its position.\n\n## Method\n\n- Target: log(EXECUTION_TIME in ms, runner drift divided out). Model: HistGradientBoostingRegressor.\n- Baseline: ordinary least squares on the same features.\n- Holdout: the most recent batch, never used for fitting.\n- Published predictions are out of sample (holdout model, or 5-fold cross-validated for earlier batches).\n\n## Results\n\n| metric | value |\n|---|---|\n| holdout MAE | 149.22 ms |\n| holdout MAPE | 40.35% (95% CI 28.87-52.79) |\n| holdout R2 (log10 ms) | 0.7863 |\n| 5-fold CV MAPE | 49.26% |\n| OLS baseline MAPE | 43.38% |\n| gate | FAIL (holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms) |\n\n## Permutation importance (holdout, log ms)\n\n| feature | importance |\n|---|---|\n| log_table_rows | 0.2876 |\n| predicate_literal | 0.2875 |\n| warehouse_threads | 0.1461 |\n| has_group_by | 0.1243 |\n| has_window | 0.0482 |\n| n_tables | 0.0179 |\n| has_order_by | 0.0161 |\n| log_limit_rows | 0.0023 |\n| log_table_bytes | 0.0000 |\n| n_joins | 0.0000 |\n| n_predicates | 0.0000 |\n| has_prior | 0.0000 |\n| log_prior_ms | 0.0000 |\n\n## Calibration\n\n| decile | queries | predicted ms | actual ms | error |\n|---|---|---|---|---|\n| 1 | 4 | 70.2 | 70.4 | 33.0% |\n| 2 | 4 | 102.7 | 96.3 | 14.3% |\n| 3 | 4 | 162.5 | 156.2 | 60.0% |\n| 4 | 4 | 204.6 | 185.7 | 20.9% |\n| 5 | 4 | 270.1 | 281.9 | 23.3% |\n| 6 | 4 | 330.4 | 249.5 | 76.9% |\n| 7 | 4 | 366.2 | 582.4 | 50.0% |\n| 8 | 4 | 438.1 | 543.3 | 33.9% |\n| 9 | 4 | 652.5 | 842.6 | 57.0% |\n| 10 | 4 | 1222.9 | 1365.0 | 34.2% |\n\n## Limits\n\n- One engine, one hardware family. A model trained on this runner predicts this\n  runner; production would train on production.\n- Warm caches. Every query is run once before the timed repetitions.\n- The catalogue covers scans, joins to three dimensions, group by, sort, window\n  and limit, on three warehouse sizes. It does not cover spills to disk,\n  concurrency, or user-defined functions, and the model should not be trusted\n  outside that envelope.\n"
 }

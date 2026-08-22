@@ -1,6 +1,6 @@
 {
- "model_version": "v1-ece1c0d7",
- "trained_at": "2026-08-22T01:50:12+00:00",
+ "model_version": "v2-97ec9ebd",
+ "trained_at": "2026-08-22T01:53:19+00:00",
  "input_name": "X",
  "output_name": "variable",
  "features": [
@@ -24,8 +24,8 @@
    "max": 6.906076
   },
   "log_table_bytes": {
-   "min": 7.451964,
-   "max": 8.057029
+   "min": 7.455966,
+   "max": 8.058026
   },
   "n_tables": {
    "min": 1.0,
@@ -65,23 +65,23 @@
   },
   "has_prior": {
    "min": 0.0,
-   "max": 0.0
+   "max": 1.0
   },
   "log_prior_ms": {
    "min": 0.0,
-   "max": 0.0
+   "max": 3.300861
   }
  },
  "target": "log(EXECUTION_TIME in ms, runner drift divided out)",
  "target_inverse": "exp",
  "calibration_scale": 1.0,
- "onnx_vs_sklearn_max_diff": 2.01e-06,
- "onnx_bytes": 445190,
- "n_rows": 40,
- "holdout_mape_pct": 24.686,
- "mape_ci_low_pct": 16.003,
- "mape_ci_high_pct": 32.823,
- "holdout_r2": 0.8972,
+ "onnx_vs_sklearn_max_diff": 1.5e-06,
+ "onnx_bytes": 445342,
+ "n_rows": 80,
+ "holdout_mape_pct": 40.348,
+ "mape_ci_low_pct": 28.871,
+ "mape_ci_high_pct": 52.788,
+ "holdout_r2": 0.7863,
  "passes_gate": false,
  "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms",
  "warehouse": {
@@ -103,25 +103,25 @@
    {
     "name": "FACT_EVENT_S",
     "rows": 2000000,
-    "bytes": 28311552,
+    "bytes": 28573696,
     "comment": "event fact, small"
    },
    {
     "name": "FACT_EVENT_M",
     "rows": 3000000,
-    "bytes": 42205184,
+    "bytes": 42467328,
     "comment": "event fact, medium"
    },
    {
     "name": "FACT_EVENT_L",
     "rows": 5000000,
-    "bytes": 70778880,
+    "bytes": 70516736,
     "comment": "event fact, large"
    },
    {
     "name": "FACT_EVENT_X",
     "rows": 8000000,
-    "bytes": 112984064,
+    "bytes": 113246208,
     "comment": "event fact, extra large"
    },
    {

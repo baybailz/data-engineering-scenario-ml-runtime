@@ -360,5 +360,727 @@
    "in_holdout": 1,
    "predicted_at": "2026-08-22T01:50:12+00:00"
   }
+ ],
+ "v2-97ec9ebd": [
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "5b79dfac-b656-4f6f-9896-fc706ff758d6",
+   "actual_ms": 69.29,
+   "predicted_ms": 126.781,
+   "abs_pct_error": 82.971,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "534b09d8-ae17-4f5c-8213-00c6a3d5a708",
+   "actual_ms": 331.695,
+   "predicted_ms": 275.831,
+   "abs_pct_error": 16.842,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "a9e6ecb7-9b09-4e87-aa16-bf86c4ae3c17",
+   "actual_ms": 3147.198,
+   "predicted_ms": 1529.203,
+   "abs_pct_error": 51.411,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b3cfe4ab-ec06-4165-b341-3b9050f26403",
+   "actual_ms": 237.116,
+   "predicted_ms": 366.971,
+   "abs_pct_error": 54.765,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "1a804d04-e194-4ebf-8ca2-6a02856c8d89",
+   "actual_ms": 941.205,
+   "predicted_ms": 443.853,
+   "abs_pct_error": 52.842,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "0bbf5429-373d-481a-b0d0-5044dcad36f6",
+   "actual_ms": 339.772,
+   "predicted_ms": 227.134,
+   "abs_pct_error": 33.151,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c8a59ebb-d85a-4dec-8cbd-aeed8afa18dc",
+   "actual_ms": 64.239,
+   "predicted_ms": 73.312,
+   "abs_pct_error": 14.124,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "50d0733e-ef3e-4b07-bab9-c2d826603b0f",
+   "actual_ms": 191.823,
+   "predicted_ms": 232.047,
+   "abs_pct_error": 20.969,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "633f87d9-f8c2-4ecc-ba64-248a5ea89d2a",
+   "actual_ms": 282.022,
+   "predicted_ms": 374.72,
+   "abs_pct_error": 32.869,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "0f22fbfb-da92-4599-91cf-41a633d95070",
+   "actual_ms": 55.04,
+   "predicted_ms": 117.807,
+   "abs_pct_error": 114.039,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b6f06daf-a102-4efd-941e-c7c60e8ab14e",
+   "actual_ms": 73.553,
+   "predicted_ms": 140.687,
+   "abs_pct_error": 91.274,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "cd1ad39b-2ec9-4ae1-a4f1-2038e0c13573",
+   "actual_ms": 462.308,
+   "predicted_ms": 769.338,
+   "abs_pct_error": 66.412,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "d22f9085-8218-4adb-a578-d7ffc026d548",
+   "actual_ms": 1998.223,
+   "predicted_ms": 1011.145,
+   "abs_pct_error": 49.398,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "4c80b249-16cb-4ff0-9b53-3005ad55f266",
+   "actual_ms": 196.449,
+   "predicted_ms": 364.514,
+   "abs_pct_error": 85.551,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "6e3ad27d-bd36-47d1-b68b-29ab426f4b46",
+   "actual_ms": 253.587,
+   "predicted_ms": 332.335,
+   "abs_pct_error": 31.053,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "aef8da35-41cb-4874-b9cb-600983c6cd0c",
+   "actual_ms": 151.284,
+   "predicted_ms": 304.406,
+   "abs_pct_error": 101.215,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "49fa392f-113c-4efd-a717-7bc66cb1a5c8",
+   "actual_ms": 929.535,
+   "predicted_ms": 405.107,
+   "abs_pct_error": 56.418,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "6000412b-24ac-4c40-8da2-372c20195730",
+   "actual_ms": 1627.796,
+   "predicted_ms": 1209.063,
+   "abs_pct_error": 25.724,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c461181b-68f9-460f-9ec8-848087e13574",
+   "actual_ms": 936.695,
+   "predicted_ms": 568.263,
+   "abs_pct_error": 39.333,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "3b400399-86f3-4738-a972-f2c66be7a7be",
+   "actual_ms": 67.205,
+   "predicted_ms": 71.089,
+   "abs_pct_error": 5.779,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "878681cb-e2d2-4c39-999d-db237dbf6a41",
+   "actual_ms": 1593.371,
+   "predicted_ms": 1075.711,
+   "abs_pct_error": 32.488,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "a0bddf8c-739f-4712-b4e9-9a14564f5fdf",
+   "actual_ms": 191.335,
+   "predicted_ms": 87.35,
+   "abs_pct_error": 54.347,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "6a6687f2-7957-4e21-9dcb-3154822d5bdf",
+   "actual_ms": 154.456,
+   "predicted_ms": 209.274,
+   "abs_pct_error": 35.491,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "045314e7-ee3a-4ca6-a9f4-d623769e50a8",
+   "actual_ms": 135.659,
+   "predicted_ms": 251.359,
+   "abs_pct_error": 85.287,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "80c9ba28-5244-4c49-8a96-fe7cf3e2b897",
+   "actual_ms": 684.333,
+   "predicted_ms": 495.429,
+   "abs_pct_error": 27.604,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "f4685e3b-c28c-4682-bbe7-64a4e703405d",
+   "actual_ms": 149.915,
+   "predicted_ms": 225.979,
+   "abs_pct_error": 50.738,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "acefddc3-cade-4599-9203-0dbc14259621",
+   "actual_ms": 299.487,
+   "predicted_ms": 276.639,
+   "abs_pct_error": 7.629,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "38f6b1a2-92fd-4d34-be2f-8b43c4115f39",
+   "actual_ms": 278.469,
+   "predicted_ms": 860.528,
+   "abs_pct_error": 209.021,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "e0277460-f45b-458e-b962-f3adcd6a12dc",
+   "actual_ms": 214.079,
+   "predicted_ms": 737.143,
+   "abs_pct_error": 244.332,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "706a1bd8-9924-4ec6-99fa-fe396c06734d",
+   "actual_ms": 536.423,
+   "predicted_ms": 412.277,
+   "abs_pct_error": 23.143,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "f138ef9f-3be7-4910-9143-42189ad3ff96",
+   "actual_ms": 72.403,
+   "predicted_ms": 58.325,
+   "abs_pct_error": 19.444,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c56aa9cb-6295-4beb-be75-bb1aea972500",
+   "actual_ms": 1054.625,
+   "predicted_ms": 939.47,
+   "abs_pct_error": 10.919,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "85faaef0-0a0b-4bc4-9b85-421b65db7f74",
+   "actual_ms": 461.821,
+   "predicted_ms": 409.014,
+   "abs_pct_error": 11.435,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "5155fda0-f539-4925-ad4f-2de932f8df18",
+   "actual_ms": 216.353,
+   "predicted_ms": 269.252,
+   "abs_pct_error": 24.45,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "04eeec6b-9ed9-466f-ae37-789b64270a47",
+   "actual_ms": 321.353,
+   "predicted_ms": 325.834,
+   "abs_pct_error": 1.394,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "f4a4e4ab-59b0-4d4c-9e52-dd6d4344686e",
+   "actual_ms": 1097.513,
+   "predicted_ms": 684.548,
+   "abs_pct_error": 37.627,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "5cb86277-c578-43c5-9008-3b844ab5e57f",
+   "actual_ms": 552.902,
+   "predicted_ms": 750.378,
+   "abs_pct_error": 35.716,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "0db0be74-6773-45d3-b066-623698e3d03c",
+   "actual_ms": 112.567,
+   "predicted_ms": 105.617,
+   "abs_pct_error": 6.174,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "35fe56f5-655d-461b-8510-ca73b0629d98",
+   "actual_ms": 277.348,
+   "predicted_ms": 234.277,
+   "abs_pct_error": 15.53,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "fbb56dc0-615f-4d7b-a83a-295914bfc37f",
+   "actual_ms": 63.081,
+   "predicted_ms": 70.413,
+   "abs_pct_error": 11.624,
+   "in_holdout": 0,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "957caf08-839c-4ecb-bd4c-e2c4d2ac99a3",
+   "actual_ms": 273.298,
+   "predicted_ms": 163.762,
+   "abs_pct_error": 40.079,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "1c427afb-8917-4ad6-81d3-ad399ac5f3af",
+   "actual_ms": 212.407,
+   "predicted_ms": 314.154,
+   "abs_pct_error": 47.902,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "d0864001-25c9-4862-83cd-19b7d15ef99f",
+   "actual_ms": 156.505,
+   "predicted_ms": 146.454,
+   "abs_pct_error": 6.422,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "ecd622bb-053e-4fdc-a87c-8578cc2b7c06",
+   "actual_ms": 47.793,
+   "predicted_ms": 64.479,
+   "abs_pct_error": 34.912,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "575739f5-fb21-489c-9f9d-67f216f27b71",
+   "actual_ms": 436.302,
+   "predicted_ms": 325.238,
+   "abs_pct_error": 25.456,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c4651243-f610-4ed5-96ec-e9d1c62ae6db",
+   "actual_ms": 1014.139,
+   "predicted_ms": 497.814,
+   "abs_pct_error": 50.913,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "8b2479f1-663b-4748-9403-ea71c3130883",
+   "actual_ms": 131.868,
+   "predicted_ms": 325.218,
+   "abs_pct_error": 146.624,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "bb956f66-e3e8-4be7-97d7-0bc3b9c9a104",
+   "actual_ms": 363.492,
+   "predicted_ms": 233.817,
+   "abs_pct_error": 35.675,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "adafc066-84b2-4dff-8456-e255f78a25ca",
+   "actual_ms": 199.574,
+   "predicted_ms": 201.906,
+   "abs_pct_error": 1.168,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "e0f4b7ea-0c5b-4b01-869e-3a17d53c56ac",
+   "actual_ms": 61.75,
+   "predicted_ms": 159.332,
+   "abs_pct_error": 158.028,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "e21ffde2-91f4-48d4-847d-2818da623275",
+   "actual_ms": 288.672,
+   "predicted_ms": 265.195,
+   "abs_pct_error": 8.133,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "8baace1c-6904-4c6a-b5b1-956cb986d2ad",
+   "actual_ms": 324.454,
+   "predicted_ms": 344.313,
+   "abs_pct_error": 6.121,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "63764c39-6874-42a5-9c42-529303794700",
+   "actual_ms": 155.768,
+   "predicted_ms": 327.068,
+   "abs_pct_error": 109.971,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "0762eefd-8d66-47be-9693-3afeaa75be5b",
+   "actual_ms": 274.188,
+   "predicted_ms": 344.022,
+   "abs_pct_error": 25.469,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "55130f32-6444-4096-8bdb-3545c879743f",
+   "actual_ms": 1158.52,
+   "predicted_ms": 585.395,
+   "abs_pct_error": 49.47,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b3fbd6a9-6a5a-43b6-9b6a-34681b9e41f1",
+   "actual_ms": 116.898,
+   "predicted_ms": 118.405,
+   "abs_pct_error": 1.289,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c7b9cd33-69c1-4518-9f00-867f96b27ea0",
+   "actual_ms": 44.967,
+   "predicted_ms": 68.985,
+   "abs_pct_error": 53.413,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "0b51d064-3026-4611-a74f-f8e7fc89b086",
+   "actual_ms": 77.249,
+   "predicted_ms": 91.226,
+   "abs_pct_error": 18.094,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b36803ce-d0bf-48ad-b538-75dabb0d4566",
+   "actual_ms": 263.145,
+   "predicted_ms": 267.109,
+   "abs_pct_error": 1.506,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "bf0f0cf3-518b-44f3-8da7-ca7af2e234e2",
+   "actual_ms": 240.901,
+   "predicted_ms": 549.81,
+   "abs_pct_error": 128.231,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "5daab540-891e-4aed-9fc0-a4314320af3d",
+   "actual_ms": 173.312,
+   "predicted_ms": 209.844,
+   "abs_pct_error": 21.079,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "f5cd41d9-3bef-4fb2-b461-5b2fd7d6e969",
+   "actual_ms": 133.151,
+   "predicted_ms": 180.54,
+   "abs_pct_error": 35.59,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "06e5a3fd-7a2d-44a3-8394-f7665a2a29d8",
+   "actual_ms": 436.844,
+   "predicted_ms": 795.084,
+   "abs_pct_error": 82.006,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "296c77bf-3f44-4bf2-ba24-13e229b06aa0",
+   "actual_ms": 1065.796,
+   "predicted_ms": 388.44,
+   "abs_pct_error": 63.554,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b2b383a5-474b-4cfb-8331-77d90b0eae5b",
+   "actual_ms": 102.094,
+   "predicted_ms": 79.002,
+   "abs_pct_error": 22.618,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "beabab8b-c119-44eb-93e5-2a2e0d132a89",
+   "actual_ms": 748.011,
+   "predicted_ms": 384.219,
+   "abs_pct_error": 48.635,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "8d4d2c73-db81-45b9-b9ad-877d4862f309",
+   "actual_ms": 86.746,
+   "predicted_ms": 68.291,
+   "abs_pct_error": 21.275,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "f276af7e-eb9e-4ef9-a172-3604b490cfae",
+   "actual_ms": 1454.736,
+   "predicted_ms": 1080.359,
+   "abs_pct_error": 25.735,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "6832eec0-7911-4814-b9a6-a0adef3ccf30",
+   "actual_ms": 142.797,
+   "predicted_ms": 210.811,
+   "abs_pct_error": 47.63,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "66d19298-5fa0-41cb-ac1c-4dcfdbc08f2d",
+   "actual_ms": 72.257,
+   "predicted_ms": 93.07,
+   "abs_pct_error": 28.804,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c38c78cb-49c0-4c3d-a7dd-e53dd8cb6a2b",
+   "actual_ms": 459.774,
+   "predicted_ms": 458.561,
+   "abs_pct_error": 0.264,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "e81da3b2-f886-4508-aa2a-3188cd448b39",
+   "actual_ms": 459.831,
+   "predicted_ms": 390.755,
+   "abs_pct_error": 15.022,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "fe604785-d995-414e-a956-ceddc35f549c",
+   "actual_ms": 967.643,
+   "predicted_ms": 698.655,
+   "abs_pct_error": 27.798,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b55af9d5-5be8-43e2-a067-d5fdb2cb7012",
+   "actual_ms": 2626.339,
+   "predicted_ms": 2189.61,
+   "abs_pct_error": 16.629,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "32eebee9-44c2-4868-87c6-af05b879ff30",
+   "actual_ms": 1003.212,
+   "predicted_ms": 776.016,
+   "abs_pct_error": 22.647,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "bee6abea-909e-4ce1-a72d-d3c32e99ae53",
+   "actual_ms": 942.072,
+   "predicted_ms": 826.643,
+   "abs_pct_error": 12.253,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "4cad31b2-f6d8-4dff-bc86-d75aaeb03147",
+   "actual_ms": 118.638,
+   "predicted_ms": 108.074,
+   "abs_pct_error": 8.905,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "d77cab9d-a0da-41c5-a988-c3bc8940af2f",
+   "actual_ms": 239.517,
+   "predicted_ms": 405.325,
+   "abs_pct_error": 69.226,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "c2b69a58-2317-4901-9552-ca2f2e68f8c3",
+   "actual_ms": 191.511,
+   "predicted_ms": 347.967,
+   "abs_pct_error": 81.696,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  },
+  {
+   "model_version": "v2-97ec9ebd",
+   "query_id": "b2a53513-9334-403d-b6d6-eb06509a0234",
+   "actual_ms": 227.023,
+   "predicted_ms": 195.928,
+   "abs_pct_error": 13.697,
+   "in_holdout": 1,
+   "predicted_at": "2026-08-22T01:53:19+00:00"
+  }
  ]
 }
