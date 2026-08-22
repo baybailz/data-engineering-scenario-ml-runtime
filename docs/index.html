@@ -233,7 +233,7 @@
     .ide .code{border-left:0}
   }
 
-  /* lineage + diagrams */
+  /* diagrams */
   /* the architecture diagram is short relative to the slide, so centre it
      in the leftover space instead of letting it hug the lead paragraph */
   .slide-arch{display:flex;flex-direction:column}
@@ -256,21 +256,8 @@
     border:1px solid var(--border2);border-radius:99px;padding:6px 14px;cursor:pointer;
     box-shadow:var(--shadow-1);transition:all .15s}
   .zoombtn:hover{color:var(--accent);border-color:var(--accent)}
-  .dagnode{stroke-width:1.3;rx:10}
-  .dagtext{font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;fill:var(--ink)}
-  .dagtag{font-family:"Inter",sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.08em;fill:var(--ink3)}
-  .dagline{fill:none;stroke:var(--border2);stroke-width:1.4;marker-end:url(#arr2)}
-  .n-seed{fill:var(--surface2);stroke:var(--border2)}
-  .n-stg{fill:color-mix(in srgb,var(--accent) 7%,var(--surface));stroke:var(--accent-2)}
-  .n-int{fill:color-mix(in srgb,var(--trn-c) 13%,var(--surface));stroke:var(--trn-c)}
-  .n-dim{fill:color-mix(in srgb,var(--accent-deep) 13%,var(--surface));stroke:var(--accent-deep)}
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--ink2)}
   .legend span{display:inline-flex;align-items:center;gap:7px}
-  .sw{width:12px;height:12px;border-radius:4px;border:1.4px solid}
-  .sw.seed{background:var(--surface2);border-color:var(--border2)}
-  .sw.stg{background:color-mix(in srgb,var(--accent) 7%,var(--surface));border-color:var(--accent-2)}
-  .sw.int{background:color-mix(in srgb,var(--trn-c) 13%,var(--surface));border-color:var(--trn-c)}
-  .sw.dim{background:color-mix(in srgb,var(--accent-deep) 13%,var(--surface));border-color:var(--accent-deep)}
 
   /* deck controls */
   .deckbar{display:flex;align-items:center;gap:14px;margin-top:14px}
@@ -382,12 +369,10 @@
   .newdot.inline{position:static;transform:none;display:inline-flex;
     vertical-align:middle;margin:0 1px 0 4px;position:relative;top:-1px}
   .fxrow.added{color:var(--ink)}
-  .dagnode.added{stroke:var(--accent);stroke-width:1.6;stroke-dasharray:5 3}
-  .sw.addsw{background:transparent;border:1.6px dashed var(--accent)}
 
   /* vertical diagram flow (narrow viewports) */
   .vflow{display:flex;flex-direction:column;align-items:stretch;gap:0}
-  .vlayer,.vgroup{border:1px solid var(--border);border-radius:13px;padding:10px;
+  .vgroup{border:1px solid var(--border);border-radius:13px;padding:10px;
     background:var(--surface2);display:flex;flex-direction:column;gap:7px}
   .vgroup{border-style:dashed;background:none;padding:12px 10px}
   .vtag{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
@@ -398,12 +383,7 @@
   .vnode b{display:block;font-family:"Inter",sans-serif;font-size:13px;font-weight:750}
   .vnode span{display:block;font-size:11px;font-weight:400;color:var(--ink3);margin-top:2px;
     word-break:break-word}
-  .vnode.n-seed{border-color:var(--border2)}
-  .vnode.n-stg{border-color:var(--accent)}
-  .vnode.n-int{border-color:var(--trn-c)}
-  .vnode.n-dim{border-color:var(--accent-deep)}
   .vnode.n-page,.vnode.n-step{border-color:var(--border2);font-family:"Inter",sans-serif}
-  .vnode.added{border-style:dashed;border-color:var(--accent)}
   .varrow{align-self:center;display:flex;align-items:center;gap:8px;
     height:26px;color:var(--ink3);font-size:10.5px}
   .varrow::before{content:"";width:1.5px;height:100%;
@@ -527,7 +507,7 @@
     text-decoration:underline;cursor:pointer;padding:0}
   .linklike:hover{color:var(--bad)}
   @media (prefers-reduced-motion: reduce){
-    .hline.flowing,.conn.flow,.fchip.loading,.dagline{animation:none}
+    .hline.flowing,.conn.flow,.fchip.loading{animation:none}
   }
   @media (max-width:640px){
     .wrap{padding:16px 14px 70px}
@@ -577,9 +557,6 @@
     .conn{width:2px;height:22px;margin:2px 0 2px 26px;align-self:flex-start;
       background:repeating-linear-gradient(180deg,var(--border2) 0 5px,transparent 5px 10px)}
   }
-  .dagnode.n-dm{fill:var(--warn-soft);stroke:var(--warn-line)}
-  .vnode.n-dm{background:var(--warn-soft);border-color:var(--warn-line)}
-  .sw.dm{background:var(--warn-soft);border-color:var(--warn-line)}
   .extraActs{display:inline-flex;gap:8px;margin-right:10px}
   .whw{display:grid;grid-template-columns:max-content 1fr;gap:12px 18px;max-width:780px;margin:8px 0 22px;
     font-size:clamp(15px,1.3vw,17.5px);line-height:1.55;color:var(--ink2)}
@@ -665,7 +642,7 @@ const ICO={
   close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
 };
 
-let D={summary:null,tables:{},next:{name:null,rows:[]},logs:null,models:null,modelData:null,lineage:null,audit:[]};
+let D={summary:null,tables:{},next:{name:null,rows:[]},logs:null,models:null,modelData:null,audit:[]};
 let modelPick=null, archZoom=false, ideFull=false, ideView='code';
 let mode='present', slideIdx=0, slideDir=1, currentTab=null;
 let running=false, runPhase='idle', runLink=null, runMsg='', histBase=0;
@@ -717,10 +694,10 @@ async function fetchJson(name,viaApi){
 }
 async function loadAll(viaApi=false){
   const opt=n=>fetchJson(n,viaApi).catch(()=>null);
-  const [summary,tables,next,logs,models,modelData,lineage,audit]=await Promise.all(
+  const [summary,tables,next,logs,models,modelData,audit]=await Promise.all(
     [fetchJson('summary.json',viaApi),opt('tables.json'),opt('next_file.json'),opt('logs.json'),
-     opt('models.json'),opt('model_data.json'),opt('lineage.json'),opt('audit.json')]);
-  D={summary,tables:tables||{},next:next||{name:null,rows:[]},logs,models,modelData,lineage,audit:audit||[]};
+     opt('models.json'),opt('model_data.json'),opt('audit.json')]);
+  D={summary,tables:tables||{},next:next||{name:null,rows:[]},logs,models,modelData,audit:audit||[]};
   if(!modelPick&&models?.files?.length){
     modelPick=(models.files.find(f=>f.path.startsWith('models/transform/')&&f.path.endsWith('.sql'))||models.files.find(f=>f.path.endsWith('.sql'))||models.files[0]).path;
   }
@@ -755,8 +732,7 @@ function fileTree(files,cur){
   const root={};
   files.forEach(f=>{const parts=f.path.split('/');let n=root;
     parts.forEach((p,i)=>{if(i===parts.length-1)(n.__files??=[]).push(f);else n=(n[p]??={});});});
-  const ORDER={src:0,runtime_model:0,scripts:1,tests:2,data:3,macros:4,models:5,seeds:6,
-               '.github':7,workflows:0,stage:0,staging:0,transform:1,conformed:2,datamart:3};
+  const ORDER={src:0,runtime_model:0,scripts:1,tests:2,data:3,'.github':7,workflows:0};
   const rec=(node,depth)=>{
     let h='';
     Object.keys(node).filter(k=>k!=='__files').sort((a,b)=>(ORDER[a]??9)-(ORDER[b]??9)||a.localeCompare(b))
@@ -860,39 +836,6 @@ function archZoomToggle(){
   const step=now=>{const p=Math.min(1,(now-t0)/ms),e=ease(p);
     svg.setAttribute('viewBox',from.map((f,i)=>f+(to[i]-f)*e).join(' '));if(p<1)requestAnimationFrame(step);};
   requestAnimationFrame(step);
-}
-const LAYER_CLS={seed:'n-seed',raw:'n-seed',stage:'n-stg',staging:'n-stg',transform:'n-int',conformed:'n-dim',datamart:'n-dm'};
-const LAYER_TAG={seed:'SEED',raw:'RAW',stage:'STG',staging:'STG',transform:'TRN',conformed:'DIM',datamart:'DM'};
-function dagLayers(){
-  const L=D.lineage;if(!L?.nodes?.length)return [];
-  const order=L.layers||['seed','stage','transform','conformed','datamart'];
-  const by={};L.nodes.forEach(n=>(by[n.layer]??=[]).push(n));
-  return order.filter(l=>by[l]).map(l=>({layer:l,cls:LAYER_CLS[l]||'n-int',nodes:by[l].map(n=>n.id)}));
-}
-function svgDag(){
-  const layers=dagLayers();if(!layers.length)return '';
-  const W=1060,NW=layers.length>4?176:196,NH=46,GAP=22,colGap=(W-layers.length*NW)/Math.max(1,layers.length-1);
-  const maxRows=Math.max(...layers.map(l=>l.nodes.length));
-  const H=Math.max(150,maxRows*(NH+GAP)+30);
-  const pos={};let nodes='';
-  layers.forEach((l,ci)=>{const x=layers.length===1?(W-NW)/2:ci*(NW+colGap);
-    const total=l.nodes.length*(NH+GAP)-GAP,y0=(H-total)/2;
-    l.nodes.forEach((n,ri)=>{const y=y0+ri*(NH+GAP);pos[n]={x,y};
-      nodes+=`<rect class="dagnode ${l.cls}" x="${x}" y="${y}" width="${NW}" height="${NH}" rx="10"/>
-        <text class="dagtag" x="${x+NW-12}" y="${y+16}" text-anchor="end">${LAYER_TAG[l.layer]||l.layer.toUpperCase()}</text>
-        <text class="dagtext" x="${x+14}" y="${y+32}">${esc(n)}</text>`;});});
-  const edges=D.lineage.edges.filter(([a,b])=>pos[a]&&pos[b]).map(([a,b])=>{
-    const x1=pos[a].x+NW,y1=pos[a].y+NH/2,x2=pos[b].x,y2=pos[b].y+NH/2;
-    return `<path class="dagline" d="M${x1} ${y1} C ${x1+55} ${y1}, ${x2-55} ${y2}, ${x2} ${y2}"/>`;}).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="dbt lineage graph">
-    <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="var(--border2)"/></marker></defs>${edges}${nodes}</svg>`;
-}
-function dagFlow(){
-  return `<div class="vflow">${dagLayers().map((L,i)=>`${i?'<div class="varrow"></div>':''}<div class="vlayer"><div class="vtag">${esc(L.layer)}</div>${L.nodes.map(n=>`<div class="vnode ${L.cls}">${esc(n)}</div>`).join('')}</div>`).join('')}</div>`;
-}
-function dagLegend(){
-  const sw={seed:'seed',raw:'seed',stage:'stg',staging:'stg',transform:'int',conformed:'dim',datamart:'dm'};
-  return `<div class="legend">${dagLayers().map(l=>`<span><span class="sw ${sw[l.layer]||'int'}"></span>${esc(l.layer)}</span>`).join('')}</div>`;
 }
 
 /* ---------- generic widgets ---------- */
@@ -1079,7 +1022,7 @@ $('resetBtn').onclick=confirmReset;
 
 // Everything slides.js / panels.js may use.
 window.S={esc,fmtN,fmtTime,fmtCell,tableHTML,searchBox,meter,badge,tablePanel,incomingPanel,runButton,
-  codePanel,ideHtml,svgArch,archFlow,svgDag,dagFlow,dagLegend,isNarrow,token,toast,ICO,
+  codePanel,ideHtml,svgArch,archFlow,isNarrow,token,toast,ICO,
   get D(){return D;},get CFG(){return CFG;},get running(){return running;},get archZoom(){return archZoom;}};
 
 async function boot(){
