@@ -1,1 +1,2 @@
 model_sequence,model_version,trained_at,batches_measured,n_train_rows,n_holdout_rows,holdout_mape_pct,mape_ci_low_pct,mape_ci_high_pct,holdout_r2,holdout_mae_ms,cv_mape_pct,baseline_mape_pct,mape_gain_over_baseline,mape_change,gate_status
+1,v1-ece1c0d7,2026-08-22T01:50:12+00:00,1,28,12,24.686,16.003,32.823,0.8972,118.054,65.487,31.01,6.324,,fail

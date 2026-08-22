@@ -1,1 +1,41 @@
 query_id,batch_name,template_id,template_label,warehouse_size,reps,execution_ms,min_execution_ms,max_execution_ms,calibration_ms,machine_factor,calibrated_execution_ms
+5b79dfac-b656-4f6f-9896-fc706ff758d6,batch_01,t36,2M rows · 3 joins · no group by · window · order by · no limit,Small,9,69.29,68.943,70.471,247.304,1.0,69.29
+534b09d8-ae17-4f5c-8213-00c6a3d5a708,batch_01,t23,5M rows · 1 join · no group by · order by · limit 1000,X-Small,5,332.553,330.485,339.765,247.944,1.002588,331.695
+a9e6ecb7-9b09-4e87-aa16-bf86c4ae3c17,batch_01,t24,5M rows · 3 joins · group by · window · order by · no limit,Small,5,3163.489,3084.666,3186.465,248.584,1.005176,3147.198
+b3cfe4ab-ec06-4165-b341-3b9050f26403,batch_01,t54,8M rows · 0 joins · no group by · no limit,Small,5,238.957,238.72,239.434,249.224,1.007764,237.116
+1a804d04-e194-4ebf-8ca2-6a02856c8d89,batch_01,t39,2M rows · 3 joins · group by · window · no limit,X-Small,5,950.949,943.915,961.546,249.864,1.010353,941.205
+0bbf5429-373d-481a-b0d0-5044dcad36f6,batch_01,t29,5M rows · 0 joins · group by · order by · limit 1000,Medium,5,344.169,339.028,350.454,250.504,1.012941,339.772
+c8a59ebb-d85a-4dec-8cbd-aeed8afa18dc,batch_01,t50,2M rows · 3 joins · no group by · limit 1000,Small,10,65.237,65.061,66.006,251.144,1.015529,64.239
+50d0733e-ef3e-4b07-bab9-c2d826603b0f,batch_01,t34,2M rows · 0 joins · no group by · window · limit 100,Medium,5,195.298,190.938,199.011,251.784,1.018117,191.823
+633f87d9-f8c2-4ecc-ba64-248a5ea89d2a,batch_01,t33,2M rows · 1 join · group by · no limit,X-Small,5,287.861,284.6,294.746,252.424,1.020705,282.022
+0f22fbfb-da92-4599-91cf-41a633d95070,batch_01,t28,2M rows · 3 joins · group by · limit 100,Medium,11,56.322,55.133,58.645,253.064,1.023293,55.04
+b6f06daf-a102-4efd-941e-c7c60e8ab14e,batch_01,t45,2M rows · 1 join · group by · window · order by · no limit,Small,8,75.457,74.925,76.333,253.704,1.025882,73.553
+cd1ad39b-2ec9-4ae1-a4f1-2038e0c13573,batch_01,t47,8M rows · 1 join · no group by · window · order by · limit 1000,Medium,5,474.037,464.642,480.155,253.578,1.025371,462.308
+d22f9085-8218-4adb-a578-d7ffc026d548,batch_01,t19,8M rows · 3 joins · group by · window · order by · limit 100,Small,5,2047.899,2038.157,2075.39,253.452,1.02486,1998.223
+4c80b249-16cb-4ff0-9b53-3005ad55f266,batch_01,t41,3M rows · 1 join · no group by · limit 1000,X-Small,5,201.232,200.615,201.927,253.325,1.024349,196.449
+6e3ad27d-bd36-47d1-b68b-29ab426f4b46,batch_01,t30,5M rows · 1 join · group by · window · no limit,Medium,5,259.632,256.105,267.99,253.199,1.023838,253.587
+aef8da35-41cb-4874-b9cb-600983c6cd0c,batch_01,t37,5M rows · 0 joins · no group by · limit 100,Medium,5,154.813,154.369,158.05,253.073,1.023327,151.284
+49fa392f-113c-4efd-a717-7bc66cb1a5c8,batch_01,t35,5M rows · 0 joins · no group by · window · order by · limit 1000,X-Small,5,950.744,933.742,967.653,252.946,1.022816,929.535
+6000412b-24ac-4c40-8da2-372c20195730,batch_01,t16,8M rows · 3 joins · group by · order by · limit 100,Medium,5,1664.105,1651.936,1670.717,252.82,1.022306,1627.796
+c461181b-68f9-460f-9ec8-848087e13574,batch_01,t15,8M rows · 0 joins · group by · no limit,Small,5,957.11,951.661,980.195,252.694,1.021795,936.695
+3b400399-86f3-4738-a972-f2c66be7a7be,batch_01,t20,2M rows · 2 joins · no group by · limit 1000,Small,9,68.635,68.467,70.017,252.567,1.021284,67.205
+878681cb-e2d2-4c39-999d-db237dbf6a41,batch_01,t47,8M rows · 1 join · no group by · window · order by · limit 1000,X-Small,5,1626.47,1595.489,1664.952,252.441,1.020773,1593.371
+a0bddf8c-739f-4712-b4e9-9a14564f5fdf,batch_01,t21,2M rows · 3 joins · group by · order by · no limit,Medium,5,195.379,190.969,196.542,252.531,1.021137,191.335
+6a6687f2-7957-4e21-9dcb-3154822d5bdf,batch_01,t34,2M rows · 0 joins · no group by · window · limit 100,X-Small,5,157.777,157.082,158.931,252.621,1.0215,154.456
+045314e7-ee3a-4ca6-a9f4-d623769e50a8,batch_01,t23,5M rows · 1 join · no group by · order by · limit 1000,Medium,5,138.625,138.594,139.741,252.711,1.021864,135.659
+80c9ba28-5244-4c49-8a96-fe7cf3e2b897,batch_01,t55,5M rows · 2 joins · group by · window · limit 100,X-Small,5,699.544,696.145,705.814,252.801,1.022228,684.333
+f4685e3b-c28c-4682-bbe7-64a4e703405d,batch_01,t14,5M rows · 2 joins · no group by · limit 1000,Small,5,153.302,152.376,154.401,252.891,1.022591,149.915
+acefddc3-cade-4599-9203-0dbc14259621,batch_01,t15,8M rows · 0 joins · group by · no limit,Medium,5,306.362,304.878,309.999,252.98,1.022955,299.487
+38f6b1a2-92fd-4d34-be2f-8b43c4115f39,batch_01,t36,2M rows · 3 joins · no group by · window · order by · no limit,X-Small,5,284.963,283.339,290.33,253.07,1.023319,278.469
+e0277460-f45b-458e-b962-f3adcd6a12dc,batch_01,t05,3M rows · 3 joins · no group by · order by · limit 1000,X-Small,5,219.149,218.723,219.912,253.16,1.023683,214.079
+706a1bd8-9924-4ec6-99fa-fe396c06734d,batch_01,t56,8M rows · 2 joins · no group by · limit 1000,X-Small,5,549.322,548.796,550.384,253.25,1.024046,536.423
+f138ef9f-3be7-4910-9143-42189ad3ff96,batch_01,t18,2M rows · 2 joins · group by · no limit,Small,9,74.17,73.763,75.856,253.34,1.02441,72.403
+c56aa9cb-6295-4beb-be75-bb1aea972500,batch_01,t55,5M rows · 2 joins · group by · window · limit 100,Medium,5,1080.074,1072.038,1118.582,253.271,1.024131,1054.625
+85faaef0-0a0b-4bc4-9b85-421b65db7f74,batch_01,t54,8M rows · 0 joins · no group by · no limit,X-Small,5,472.837,470.584,477.92,253.202,1.023852,461.821
+5155fda0-f539-4925-ad4f-2de932f8df18,batch_01,t06,2M rows · 1 join · no group by · window · order by · no limit,Small,5,221.453,217.74,231.186,253.133,1.023574,216.353
+04eeec6b-9ed9-466f-ae37-789b64270a47,batch_01,t59,3M rows · 1 join · group by · window · order by · limit 1000,Medium,5,328.839,324.887,329.606,253.065,1.023295,321.353
+f4a4e4ab-59b0-4d4c-9e52-dd6d4344686e,batch_01,t16,8M rows · 3 joins · group by · order by · limit 100,X-Small,5,1122.774,1118.494,1138.395,252.996,1.023016,1097.513
+5cb86277-c578-43c5-9008-3b844ab5e57f,batch_01,t32,8M rows · 0 joins · group by · order by · limit 1000,Medium,5,565.474,554.207,574.458,252.927,1.022738,552.902
+0db0be74-6773-45d3-b066-623698e3d03c,batch_01,t50,2M rows · 3 joins · no group by · limit 1000,X-Small,6,115.095,114.995,115.456,252.858,1.022459,112.567
+35fe56f5-655d-461b-8510-ca73b0629d98,batch_01,t49,3M rows · 0 joins · group by · window · limit 100,X-Small,5,283.5,280.749,285.75,252.789,1.02218,277.348
+fbb56dc0-615f-4d7b-a83a-295914bfc37f,batch_01,t12,2M rows · 0 joins · no group by · no limit,Small,9,64.463,63.966,83.471,252.72,1.021901,63.081
