@@ -1,45 +1,45 @@
 {
- "model_version": "v3-f2f82ba4",
- "trained_at": "2026-08-22T00:25:35+00:00",
+ "model_version": "v3-c193ca11",
+ "trained_at": "2026-08-22T01:38:12+00:00",
  "input_name": "X",
  "output_name": "variable",
  "features": [
-  "log_rows_in",
-  "log_bytes_est",
-  "log_rows_after_filter",
+  "log_table_rows",
+  "log_table_bytes",
+  "n_tables",
   "n_joins",
-  "has_groupby",
-  "selectivity",
-  "has_orderby",
+  "has_group_by",
+  "has_order_by",
   "has_window",
-  "log_limit_rows"
+  "log_limit_rows",
+  "n_predicates",
+  "predicate_literal",
+  "warehouse_threads",
+  "has_prior",
+  "log_prior_ms"
  ],
  "feature_ranges": {
-  "log_rows_in": {
+  "log_table_rows": {
    "min": 6.30103,
    "max": 6.906076
   },
-  "log_bytes_est": {
-   "min": 8.158362,
-   "max": 8.762052
+  "log_table_bytes": {
+   "min": 7.451964,
+   "max": 8.05603
   },
-  "log_rows_after_filter": {
-   "min": 4.60206,
-   "max": 6.857332
+  "n_tables": {
+   "min": 1.0,
+   "max": 4.0
   },
   "n_joins": {
    "min": 0.0,
    "max": 3.0
   },
-  "has_groupby": {
+  "has_group_by": {
    "min": 0.0,
    "max": 1.0
   },
-  "selectivity": {
-   "min": 0.02,
-   "max": 0.9
-  },
-  "has_orderby": {
+  "has_order_by": {
    "min": 0.0,
    "max": 1.0
   },
@@ -50,62 +50,110 @@
   "log_limit_rows": {
    "min": 0.0,
    "max": 3.000434
+  },
+  "n_predicates": {
+   "min": 1.0,
+   "max": 1.0
+  },
+  "predicate_literal": {
+   "min": 20.0,
+   "max": 900.0
+  },
+  "warehouse_threads": {
+   "min": 1.0,
+   "max": 4.0
+  },
+  "has_prior": {
+   "min": 0.0,
+   "max": 1.0
+  },
+  "log_prior_ms": {
+   "min": 0.0,
+   "max": 3.068423
   }
  },
- "target": "log(seconds)",
+ "target": "log(EXECUTION_TIME in ms, runner drift divided out)",
  "target_inverse": "exp",
  "calibration_scale": 1.0,
- "onnx_vs_sklearn_max_diff": 1.21e-06,
- "onnx_bytes": 547470,
+ "onnx_vs_sklearn_max_diff": 8.6e-07,
+ "onnx_bytes": 445342,
  "n_rows": 120,
- "holdout_mape_pct": 11.719,
- "mape_ci_low_pct": 9.158,
- "mape_ci_high_pct": 14.69,
- "holdout_r2": 0.9713,
- "passes_gate": true,
- "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 seconds",
- "catalogue": {
-  "fact_tables": [
+ "holdout_mape_pct": 17.17,
+ "mape_ci_low_pct": 13.452,
+ "mape_ci_high_pct": 21.12,
+ "holdout_r2": 0.968,
+ "passes_gate": false,
+ "gate_rule": "holdout MAPE <= 15% and holdout R2 >= 0.90 on log10 ms",
+ "warehouse": {
+  "sizes": [
    {
-    "name": "fact_event_s",
-    "rows": 2000000
+    "name": "X-Small",
+    "threads": 1
    },
    {
-    "name": "fact_event_m",
-    "rows": 3000000
+    "name": "Small",
+    "threads": 2
    },
    {
-    "name": "fact_event_l",
-    "rows": 5000000
-   },
-   {
-    "name": "fact_event_x",
-    "rows": 8000000
+    "name": "Medium",
+    "threads": 4
    }
   ],
-  "fact_row_bytes": 72,
-  "joins": [
+  "tables": [
    {
-    "dim": "dim_customer_wl",
+    "name": "FACT_EVENT_S",
+    "rows": 2000000,
+    "bytes": 28311552,
+    "comment": "event fact, small"
+   },
+   {
+    "name": "FACT_EVENT_M",
+    "rows": 3000000,
+    "bytes": 42467328,
+    "comment": "event fact, medium"
+   },
+   {
+    "name": "FACT_EVENT_L",
+    "rows": 5000000,
+    "bytes": 70778880,
+    "comment": "event fact, large"
+   },
+   {
+    "name": "FACT_EVENT_X",
+    "rows": 8000000,
+    "bytes": 112721920,
+    "comment": "event fact, extra large"
+   },
+   {
+    "name": "DIM_CUSTOMER_WL",
     "rows": 50000,
-    "row_bytes": 40
+    "bytes": 524288,
+    "comment": "customer dimension"
    },
    {
-    "dim": "dim_product_wl",
+    "name": "DIM_PRODUCT_WL",
     "rows": 5000,
-    "row_bytes": 32
+    "bytes": 262144,
+    "comment": "product dimension"
    },
    {
-    "dim": "dim_region_wl",
+    "name": "DIM_REGION_WL",
     "rows": 200,
-    "row_bytes": 24
+    "bytes": 262144,
+    "comment": "region dimension"
    }
   ],
-  "selectivities": [
-   0.02,
-   0.15,
-   0.45,
-   0.9
+  "join_dims": [
+   "DIM_CUSTOMER_WL",
+   "DIM_PRODUCT_WL",
+   "DIM_REGION_WL"
+  ],
+  "fact_prefix": "FACT_EVENT",
+  "filter_literals": [
+   20,
+   150,
+   450,
+   900
   ],
   "limits": [
    0,

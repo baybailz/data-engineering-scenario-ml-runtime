@@ -1,15 +1,13 @@
 """Score a query that has not been run yet. The point of the whole thing.
 
-Two entry points, both taking shapes rather than measurements:
+The input is the same handful of pre-run columns the training rows were built
+from: the SQL text, the warehouse it would be sent to, and -- if the same
+parameterised shape has been measured before -- what it cost then. Nothing here
+touches a measurement of the query being scored, because there is not one.
 
-    predict_rows(rows)    catalogue rows -- the queue of queries waiting to be
-                          measured, scored before anything executes
-    predict_shape(...)    seven knobs -- table size, joins, group by, filter
-                          selectivity, order by, window, limit
-
-rows_in and bytes_est are derived here exactly as workload.py derives them for
-the catalogue, from the declared table sizes and column widths. That is a
-planner's estimate, available before the query starts, not a measurement.
+    queue_rows(rows, index)   the queue: catalogue rows with a prior attached
+    predict_rows(...)         milliseconds for a list of pre-run rows
+    predict_text(...)         milliseconds for one statement and one warehouse
 """
 
 import pickle
@@ -18,9 +16,7 @@ from pathlib import Path
 import numpy as np
 
 from .features import featurise
-from .workload import DIM_ROW_BYTES, DIM_ROWS, FACT_ROW_BYTES, FACT_TABLES, JOIN_DIMS
-
-FACT_TABLE_NAMES = list(FACT_TABLES)
+from .snowflake import WAREHOUSE_SIZES, parameterized_hash
 
 
 def load_model(path: Path) -> dict:
@@ -29,36 +25,34 @@ def load_model(path: Path) -> dict:
         return pickle.load(handle)
 
 
-def shape_row(fact_table: str, n_joins: int, has_groupby: int, selectivity: float,
-              has_orderby: int = 0, has_window: int = 0, limit_rows: int = 0) -> dict:
-    """Seven knobs to the row the feature vector is built from."""
-    if fact_table not in FACT_TABLES:
-        raise ValueError(f"unknown table {fact_table!r}; expected one of {FACT_TABLE_NAMES}")
-    n_joins = max(0, min(len(JOIN_DIMS), int(n_joins)))
-    fact_rows = FACT_TABLES[fact_table]
-    joined = JOIN_DIMS[:n_joins]
-    return {
-        "fact_table": fact_table,
-        "fact_rows": fact_rows,
-        "rows_in": fact_rows + sum(DIM_ROWS[dim] for dim, _, _ in joined),
-        "bytes_est": fact_rows * FACT_ROW_BYTES + sum(
-            DIM_ROWS[dim] * DIM_ROW_BYTES[dim] for dim, _, _ in joined),
-        "n_joins": n_joins,
-        "has_groupby": int(has_groupby),
-        "selectivity": float(selectivity),
-        "has_orderby": int(has_orderby),
-        "has_window": int(has_window),
-        "limit_rows": int(limit_rows),
-    }
+def pre_run_row(query_text: str, warehouse_size: str) -> dict:
+    """A statement and a warehouse, in the column names QUERY_HISTORY uses."""
+    if warehouse_size not in WAREHOUSE_SIZES:
+        raise ValueError(f"unknown warehouse size {warehouse_size!r}; "
+                         f"expected one of {list(WAREHOUSE_SIZES)}")
+    return {"QUERY_TEXT": query_text, "WAREHOUSE_SIZE": warehouse_size,
+            "QUERY_PARAMETERIZED_HASH": parameterized_hash(query_text)}
 
 
-def predict_rows(model, rows: list[dict]) -> list[float]:
-    """Seconds for each row. The model is fitted on log seconds, so exponentiate."""
+def queue_rows(rows: list[dict], index: dict | None = None) -> list[dict]:
+    """Catalogue rows from incoming/batch_*.csv as pre-run rows, priors filled."""
+    from .features import attach_prior
+
+    built = [pre_run_row(row["query_text"], row["warehouse_size"]) for row in rows]
+    return attach_prior(built, index or {})
+
+
+def predict_rows(model, rows: list[dict], tables: dict) -> list[float]:
+    """Milliseconds for each row. The model is fitted on log ms, so exponentiate."""
     if not rows:
         return []
-    return [float(value) for value in np.exp(model.predict(featurise(rows)))]
+    return [float(value) for value in np.exp(model.predict(featurise(rows, tables)))]
 
 
-def predict_shape(model, **shape) -> float:
-    """Seconds for one query shape described by its knobs."""
-    return predict_rows(model, [shape_row(**shape)])[0]
+def predict_text(model, query_text: str, warehouse_size: str, tables: dict,
+                 index: dict | None = None) -> float:
+    """Milliseconds for one statement on one warehouse size."""
+    from .features import attach_prior
+
+    row = attach_prior([pre_run_row(query_text, warehouse_size)], index or {})[0]
+    return predict_rows(model, [row], tables)[0]

@@ -1,7 +1,8 @@
 {
- "cpu_count": 4,
+ "cpu_count": 28,
  "duckdb_threads": 4,
- "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
- "python": "3.12.14",
- "calibration_baseline_seconds": 0.249105
+ "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+ "python": "3.12.3",
+ "engine": "duckdb-1.3.2",
+ "calibration_baseline_seconds": 0.08769732399377972
 }

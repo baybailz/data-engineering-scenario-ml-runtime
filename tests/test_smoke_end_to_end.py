@@ -32,6 +32,8 @@ def project(tmp_path_factory) -> Path:
         shutil.copy(ROOT / "incoming" / name, home / "incoming" / name)
     (home / "docs").mkdir()
     shutil.copy(ROOT / "docs" / "scenario.json", home / "docs" / "scenario.json")
+    (home / "data").mkdir()
+    shutil.copy(ROOT / "data" / "tables.csv", home / "data" / "tables.csv")
     return home
 
 
@@ -61,30 +63,48 @@ def measured(project: Path) -> Path:
 def test_reset_leaves_no_model_and_empty_tables(project: Path):
     run(project, "scripts/run.py", "--action", "reset")
     assert json.loads((project / "state" / "loaded_files.json").read_text()) == []
-    assert read_csv_rows(project / "data" / "measurements.csv") == []
+    assert read_csv_rows(project / "data" / "query_history.csv") == []
     assert not (project / "docs" / "data" / "model.onnx").exists()
+    # tables.csv describes the warehouse, not the state of the demo.
+    assert len(read_csv_rows(project / "data" / "tables.csv")) == 7
 
 
 def test_a_batch_is_measured_trained_and_published(measured: Path):
-    measurements = read_csv_rows(measured / "data" / "measurements.csv")
+    from runtime_model import snowflake
+
+    history = read_csv_rows(measured / "data" / "query_history.csv")
+    calibration = read_csv_rows(measured / "data" / "calibration.csv")
     predictions = read_csv_rows(measured / "data" / "predictions.csv")
     versions = read_csv_rows(measured / "data" / "model_versions.csv")
     sla = read_csv_rows(measured / "data" / "sla.csv")
 
-    assert len(measurements) == QUERIES
+    assert len(history) == QUERIES
+    assert len(calibration) == QUERIES
     assert len(predictions) == QUERIES
     assert len(versions) == 1
     assert sla
-    assert all(float(row["median_seconds"]) > 0 for row in measurements)
-    assert all(int(row["reps"]) >= 5 for row in measurements)
-    assert all(float(row["predicted_seconds"]) > 0 for row in predictions)
+    assert list(history[0]) == snowflake.QUERY_HISTORY_COLUMNS
+    assert all(float(row["EXECUTION_TIME"]) > 0 for row in history)
+    assert all(float(row["COMPILATION_TIME"]) > 0 for row in history)
+    assert all(int(row["ROWS_PRODUCED"]) > 0 for row in history)
+    assert all(row["WAREHOUSE_SIZE"] in snowflake.WAREHOUSE_SIZES for row in history)
+    assert all(row["EXECUTION_STATUS"] == "SUCCESS" for row in history)
+    assert all(row["ERROR_CODE"] == "" for row in history)
+    assert all(int(row["reps"]) >= 5 for row in calibration)
+    assert all(float(row["predicted_ms"]) > 0 for row in predictions)
     assert versions[0]["gate_status"] in ("pass", "fail")
+
+
+def test_the_parquet_copy_is_written(measured: Path):
+    assert (measured / "data" / "query_history.parquet").stat().st_size > 0
+    assert (measured / "data" / "tables.parquet").stat().st_size > 0
 
 
 def test_the_model_and_its_card_are_written(measured: Path):
     assert (measured / "artifacts" / "model.pkl").stat().st_size > 0
     assert "# Query runtime model" in (measured / "artifacts" / "model_card.md").read_text()
     meta = json.loads((measured / "docs" / "data" / "model_meta.json").read_text())
+    assert meta["warehouse"]["tables"]
     assert meta["onnx_vs_sklearn_max_diff"] < 1e-4
     assert (measured / "docs" / "data" / "model.onnx").stat().st_size == meta["onnx_bytes"]
 
@@ -100,7 +120,10 @@ def test_the_page_json_is_complete(measured: Path):
     assert summary["checks_failed"] == 0 and summary["checks_passed"] > 0
     assert summary["model_version"] and summary["model_card"]
     assert summary["holdout_mape_pct"] > 0
-    assert set(tables) == {"predictions", "model_versions", "sla"}
+    assert set(tables) == {"query_history", "tables", "calibration", "predictions",
+                           "model_versions", "sla"}
+    assert len(tables["query_history"]) == QUERIES
+    assert len(tables["tables"]) == 7
     assert logs["history"][-1]["measure"].startswith("batch_01")
     assert "PASS=" in logs["history"][-1]["publish"]
     assert any(f["path"] == "src/runtime_model/train.py" for f in models["files"])
@@ -111,21 +134,22 @@ def test_the_queue_is_scored_before_it_is_measured(measured: Path):
     queued = json.loads((measured / "docs" / "data" / "next_file.json").read_text())
     assert queued["name"] == "batch_02"
     assert queued["rows"]
-    assert all(row["predicted_seconds"] > 0 for row in queued["rows"])
+    assert all(row["predicted_ms"] > 0 for row in queued["rows"])
+    assert all(row["query_text"].startswith("with") for row in queued["rows"])
     assert {row["predicted_by"] for row in queued["rows"]} == {
         json.loads((measured / "docs" / "data" / "summary.json").read_text())["model_version"]}
 
 
 def test_the_queue_accumulates_then_stops(measured: Path):
     """Published tables are rebuilt from state, so an extra run cannot duplicate."""
-    before = read_csv_rows(measured / "data" / "measurements.csv")
+    before = read_csv_rows(measured / "data" / "query_history.csv")
     run(measured, "scripts/run.py", "--action", "measure_batch", "--limit", str(QUERIES))
-    after = read_csv_rows(measured / "data" / "measurements.csv")
+    after = read_csv_rows(measured / "data" / "query_history.csv")
     assert len(after) == 2 * len(before)
-    assert {row["batch_name"] for row in after} == {"batch_01", "batch_02"}
+    assert {row["QUERY_TAG"] for row in after} == {"batch_01", "batch_02"}
 
     output = run(measured, "scripts/run.py", "--action", "measure_batch")
     assert "every batch has been measured" in output
-    again = read_csv_rows(measured / "data" / "measurements.csv")
+    again = read_csv_rows(measured / "data" / "query_history.csv")
     assert len(again) == len(after)
-    assert len({row["query_id"] for row in again}) == len(again)
+    assert len({row["QUERY_ID"] for row in again}) == len(again)

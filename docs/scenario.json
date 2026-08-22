@@ -12,16 +12,17 @@
     { "key": "publish", "label": "Publish" }
   ],
   "arch_subtitles": {
-    "measure": "40 queries, timed",
+    "measure": "→ QUERY_HISTORY",
     "train": "gradient boosting",
     "publish": "tables + ONNX model"
   },
   "landing": {
-    "seed": "measurements",
-    "columns": ["query_id", "template_id", "rows_in", "n_joins", "selectivity",
-                "median_seconds"]
+    "seed": "query_history",
+    "columns": ["QUERY_ID", "WAREHOUSE_SIZE", "EXECUTION_TIME", "ROWS_PRODUCED",
+                "PARTITIONS_TOTAL"]
   },
   "export": {
-    "tables": ["predictions", "model_versions", "sla"]
+    "tables": ["query_history", "tables", "calibration", "predictions",
+               "model_versions", "sla"]
   }
 }
