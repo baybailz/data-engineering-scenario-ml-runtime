@@ -1,30 +1,27 @@
 {
   "repo": "baybailz/data-engineering-scenario-ml-runtime",
   "title": "Query Runtime Model",
-  "subtitle": "Data engineering scenario · Bailey Thompson",
+  "subtitle": "Machine learning scenario · Bailey Thompson",
   "author": "Bailey Thompson",
   "workflow": "pipeline.yml",
   "actions": { "run": "measure_batch", "reset": "reset" },
   "run_label": "Measure the next batch",
-  "dbt_select": "tag:scenario",
   "pipeline_steps": [
     { "key": "measure", "label": "Measure" },
     { "key": "train", "label": "Train" },
-    { "key": "dbt", "label": "dbt build" }
+    { "key": "publish", "label": "Publish" }
   ],
   "arch_subtitles": {
-    "measure": "40 queries, timed on the runner",
-    "train": "gradient boosting on log seconds",
-    "dbt": "stage → conformed → datamart"
+    "measure": "40 queries, timed",
+    "train": "gradient boosting",
+    "publish": "tables + ONNX model"
   },
   "landing": {
-    "seed": "query_run_landing",
+    "seed": "measurements",
     "columns": ["query_id", "template_id", "rows_in", "n_joins", "selectivity",
                 "median_seconds"]
   },
   "export": {
-    "tables": ["dm_prediction_detail", "dim_model_version", "dm_runtime_sla",
-               "dm_model_scorecard"],
-    "layers": ["seed", "stage", "transform", "conformed", "datamart"]
+    "tables": ["predictions", "model_versions", "sla"]
   }
 }

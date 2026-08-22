@@ -1,8 +1,6 @@
-target/
-dbt_packages/
-logs/
 workload.duckdb
 *.duckdb.wal
 .venv/
 __pycache__/
-.user.yml
+.pytest_cache/
+.ruff_cache/

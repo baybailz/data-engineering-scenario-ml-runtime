@@ -1,6 +1,6 @@
-# One dispatchable workflow = one pipeline run:
-# measure the next batch -> retrain -> dbt build -> publish JSON for the page.
-# Fails closed: a red build commits nothing.
+# One dispatchable workflow = one run of the solution:
+# measure the next batch -> retrain -> publish the tables -> export JSON for
+# the page. Fails closed: a failed check commits nothing.
 name: pipeline
 
 on:
@@ -22,9 +22,9 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       ACTION: ${{ inputs.action || 'measure_batch' }}
-      DBT_PROFILES_DIR: .
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,31 +34,18 @@ jobs:
       - run: pip install -r requirements.txt
 
       # shell: bash => pipefail, so a failing step still fails through tee
-      - name: Measure the next batch (Python)
+      - name: Measure, train and publish
         shell: bash
-        run: python scripts/run.py --action "$ACTION" 2>&1 | tee /tmp/python.log
-
-      - name: Train on everything measured so far
-        if: env.ACTION != 'reset'
-        shell: bash
-        run: python scripts/train.py 2>&1 | tee -a /tmp/python.log
-
-      - name: dbt build (seeds + models + tests)
-        shell: bash
-        run: |
-          SELECT=$(python -c "import json;print(json.load(open('docs/scenario.json'))['dbt_select'])")
-          FLAGS=""; [ "$ACTION" = "reset" ] && FLAGS="--full-refresh"
-          echo "+ dbt build --select $SELECT $FLAGS"
-          dbt build --select "$SELECT" $FLAGS --no-use-colors 2>&1 | tee /tmp/dbt.log
+        run: python scripts/run.py --action "$ACTION" 2>&1 | tee /tmp/run.log
 
       - name: Export JSON for the page
-        run: python scripts/export_json.py --action "$ACTION" --python-log /tmp/python.log --dbt-log /tmp/dbt.log
+        run: python scripts/export_json.py --action "$ACTION" --log /tmp/run.log
 
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add state seeds artifacts docs/data scenario.duckdb
+          git add state data artifacts docs/data
           git diff --cached --quiet && echo "nothing changed" && exit 0
           git commit -m "pipeline: $ACTION ($(date -u +%FT%TZ))"
           git pull --rebase -X theirs origin main || true

@@ -1,0 +1,19 @@
+# Tooling config only. There is nothing to install: scripts put src/ on the
+# path themselves, so `python scripts/run.py` works in a clean checkout.
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# The entry points insert src/ on sys.path before importing the package.
+"scripts/*.py" = ["E402"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"

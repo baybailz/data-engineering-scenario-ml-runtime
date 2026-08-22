@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Edit these for each scenario. The rest of the page reads docs/scenario.json at runtime. -->
-<meta name="description" content="Predict how long a query will run before it runs. Real measurements on the CI runner, a gradient booster on pre-run features, a dbt warehouse around it, and the error published with a confidence interval.">
+<meta name="description" content="Predict how long a query will run before it runs. A standalone Python solution: time real queries on DuckDB, train a gradient booster on features known before the query starts, and publish the error with a confidence interval.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Predict how long a query will run before it runs.">
-<meta property="og:description" content="Measure 240 real queries on the runner, train on features known before the query starts, publish the holdout error with a 95% confidence interval and an explicit pass/fail gate.">
+<meta property="og:description" content="Measure 240 real queries on the runner, train on features known before the query starts, publish the holdout error with a 95% confidence interval and an explicit pass/fail gate. Try the published model in your browser.">
 <meta name="twitter:card" content="summary">
 <title>Query Runtime Model</title>
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%23016698"/><path d="M36 10 18 36h11l-3 18 20-28H34l2-16z" fill="white"/></svg>'>
@@ -755,8 +755,8 @@ function fileTree(files,cur){
   const root={};
   files.forEach(f=>{const parts=f.path.split('/');let n=root;
     parts.forEach((p,i)=>{if(i===parts.length-1)(n.__files??=[]).push(f);else n=(n[p]??={});});});
-  const ORDER={macros:0,models:1,tests:2,seeds:3,scripts:4,'.github':5,workflows:0,
-               stage:0,staging:0,transform:1,conformed:2,datamart:3};
+  const ORDER={src:0,runtime_model:0,scripts:1,tests:2,data:3,macros:4,models:5,seeds:6,
+               '.github':7,workflows:0,stage:0,staging:0,transform:1,conformed:2,datamart:3};
   const rec=(node,depth)=>{
     let h='';
     Object.keys(node).filter(k=>k!=='__files').sort((a,b)=>(ORDER[a]??9)-(ORDER[b]??9)||a.localeCompare(b))
@@ -833,20 +833,20 @@ function svgArch(){
       <rect class="hnode" x="802" y="118" width="170" height="94" rx="14"/>
       <text class="htext" x="887" y="150" text-anchor="middle">Repository</text>
       <text class="hsub" x="887" y="170" text-anchor="middle">docs/data/*.json</text>
-      <text class="hsub" x="887" y="186" text-anchor="middle">state · landing seed</text>
+      <text class="hsub" x="887" y="186" text-anchor="middle">state · data/*.csv</text>
       <path class="hline flowing" d="M198 165 H270"/><text class="hlabel" x="237" y="153" text-anchor="middle">dispatch</text>
       <path class="hline flowing" d="M724 165 H796"/><text class="hlabel" x="763" y="153" text-anchor="middle">commit</text>
       <path class="hline flowing" d="M887 216 L887 248 Q887 258 877 258 L123 258 Q113 258 113 248 L113 222"/>
       <text class="hlabel" x="500" y="282" text-anchor="middle">poll the run · pull fresh tables + logs</text>
     </g>
     <rect class="hgroup" x="260" y="76" width="480" height="152" rx="16"/>
-    <text class="hlabel" x="276" y="100">Data pipeline via GitHub Actions</text>
+    <text class="hlabel" x="276" y="100">One run via GitHub Actions</text>
     ${boxes}<path class="hline" d="M408 165 H417"/><path class="hline" d="M575 165 H584"/></svg>`;
 }
 function archFlow(){
   const sub=CFG.arch_subtitles||{};
   return `<div class="vflow"><div class="vnode n-page"><b>This page</b><span>GitHub Pages · static</span></div>
-    <div class="varrow" data-l="dispatch"></div><div class="vgroup"><div class="vtag">Data pipeline via GitHub Actions</div>
+    <div class="varrow" data-l="dispatch"></div><div class="vgroup"><div class="vtag">One run via GitHub Actions</div>
     ${CFG.pipeline_steps.map((s,i)=>`${i?'<div class="varrow"></div>':''}<div class="vnode n-step"><b>${esc(s.label)}</b><span>${esc(sub[s.key]||'')}</span></div>`).join('')}
     </div><div class="varrow" data-l="commit · poll the run"></div>
     <div class="vnode n-page"><b>This page</b><span>refreshed from docs/data</span></div></div>`;
@@ -1005,9 +1005,9 @@ function renderPanel(){
 }
 function renderConsole(){
   const P=window.PANELS;
-  $('main').innerHTML=`<section class="pipe-card"><div class="pipehead"><div class="pipeh-l"><div class="pipetitle">Data pipeline</div></div>
+  $('main').innerHTML=`<section class="pipe-card"><div class="pipehead"><div class="pipeh-l"><div class="pipetitle">Run log</div></div>
       <span class="extraActs" id="extraActs"></span><button class="btn btn-primary cta" id="ctaBtn">Run</button></div>
-    <div class="piperow"><aside class="srcbox"><div class="srclabel">Source</div><div class="queue" id="queue"></div></aside><div class="pipe" id="pipe"></div></div>
+    <div class="piperow"><aside class="srcbox"><div class="srclabel">Queue</div><div class="queue" id="queue"></div></aside><div class="pipe" id="pipe"></div></div>
     <div class="runline" id="runline" style="display:none"></div></section>
     <div class="tabs" role="tablist" id="tabs">${P.tabs.map(t=>`<button class="tab" role="tab" data-tab="${esc(t.key)}"><span class="mono">${esc(t.label)}</span><span class="cnt" id="cnt-${esc(t.key)}"></span></button>`).join('')}</div>
     <div id="panel"></div>`;
@@ -1060,8 +1060,8 @@ async function runPipeline(action){
     runLink=run.html_url;setPhase('running','Running…');
     while(true){await sleep(3000);run=await gh(`/repos/${REPO}/actions/runs/${run.id}`);if(run.status==='completed')break;}
     if(run.conclusion!=='success')throw new Error(`CI run ${run.conclusion}. Check the Actions log`);
-    setPhase('refresh','Tests passed. Pulling fresh tables…');await sleep(1200);await loadAll(true);running=false;
-    setPhase('done',isReset?'Demo reset.':'Done. dbt tests passed and the tables refreshed.');
+    setPhase('refresh','Run finished. Pulling fresh tables…');await sleep(1200);await loadAll(true);running=false;
+    setPhase('done',isReset?'Demo reset.':'Done. Checks passed and the tables refreshed.');
     if(mode==='console'&&window.PANELS.afterRun)currentTab=window.PANELS.afterRun(action)||currentTab;
     render();
     if(window.PANELS.toast){const t=window.PANELS.toast(action,prevSummary,D.summary);if(t)toast(t,5200);}

@@ -10,10 +10,11 @@ const secs = v => v == null ? '—' : `${Number(v).toFixed(3)}s`;
 const pct = v => v == null ? '—' : `${Number(v).toFixed(1)}%`;
 
 function latestVersion() { return S.D.summary?.model_version || null; }
-function predictionRows() { return S.D.tables.dm_prediction_detail || []; }
+function predictionRows() { return S.D.tables.predictions || []; }
 
-/* The queue: the next batch of queries with the features the model will see.
-   The runtime column is empty on purpose. That is the column being predicted. */
+/* The queue: the next batch of queries, with the runtime the published model
+   expects. Nothing here has been run. The next run measures these same queries,
+   so the claim in the last column is checkable. */
 function incomingPanel() {
   const next = S.D.next;
   if (!next?.name) {
@@ -21,6 +22,7 @@ function incomingPanel() {
       <b>Every batch has been measured.</b><br>
       <button class="btn btn-primary" id="resetBtn2">Reset the demo ↺</button></div></div>`;
   }
+  const scored = next.rows.length && next.rows[0].predicted_seconds != null;
   const rows = next.rows.map((r, i) => `<tr>
     <td class="num faded">${i + 1}</td>
     <td class="mono">${S.esc(r.query_id)}</td>
@@ -29,11 +31,15 @@ function incomingPanel() {
     <td class="num">${S.esc(r.n_joins)}</td>
     <td class="num">${S.esc(r.selectivity)}</td>
     <td class="num faded">${S.esc(r.limit_rows) === '0' ? '—' : S.esc(r.limit_rows)}</td>
+    <td class="num mono">${scored ? secs(r.predicted_seconds) : '<span class="dim">no model yet</span>'}</td>
     <td class="dim">not run yet</td></tr>`).join('');
   return `<div class="card"><div class="cardhead">
       <h2><span class="mono">incoming/${S.esc(next.name)}.csv</span></h2>
-      <span class="hint">the next batch: features known before anything runs</span></div>
-    ${S.tableHTML(['#', 'query', 'shape', 'rows in', 'joins', 'selectivity', 'limit', 'runtime'], rows)}
+      <span class="hint">${scored
+        ? `scored by model ${S.esc(latestVersion())} before anything runs`
+        : 'features known before anything runs'}</span></div>
+    ${S.tableHTML(['#', 'query', 'shape', 'rows in', 'joins', 'selectivity', 'limit',
+                   'predicted', 'measured'], rows)}
     <div class="loadbar">${S.runButton('loadBtn')}</div></div>`;
 }
 
@@ -53,14 +59,14 @@ function predictionPanel() {
     <td>${r.prediction_scope === 'holdout'
       ? S.badge('holdout', 'b-new') : S.badge('cross-validated', 'b-crm')}</td></tr>`).join('');
   return `<div class="card"><div class="cardhead">
-      <h2 class="mono">dm_prediction_detail</h2>
+      <h2 class="mono">data/predictions.csv</h2>
       <span class="hint">model ${S.esc(latestVersion() || '')} · out of sample · worst first · rows over 30% error highlighted</span></div>
     ${S.tableHTML(['query', 'shape', 'measured', 'predicted', 'error · share of actual',
                    'scored by'], body)}</div>`;
 }
 
 function modelVersionPanel() {
-  const rows = S.D.tables.dim_model_version || [];
+  const rows = S.D.tables.model_versions || [];
   if (!rows.length) {
     return `<div class="card"><div class="empty"><div class="big">∅</div>
       No model has been trained yet.</div></div>`;
@@ -76,7 +82,7 @@ function modelVersionPanel() {
     <td class="num faded">${pct(r.baseline_mape_pct)}</td>
     <td>${gateBadgeCell(r.gate_status)}</td></tr>`).join('');
   return `<div class="card"><div class="cardhead">
-      <h2 class="mono">dim_model_version</h2>
+      <h2 class="mono">data/model_versions.csv</h2>
       <span class="hint">one row per training run · gate: ${S.esc(S.D.summary?.gate_rule || '')}</span></div>
     ${S.tableHTML(['version', 'batches', 'train / holdout', 'MAPE', '95% CI', 'R²', 'MAE',
                    'OLS baseline', 'gate'], body)}</div>`;
@@ -89,7 +95,7 @@ function modelCardPanel() {
       No model card published yet.</div></div>`;
   }
   return `<div class="card"><div class="cardhead"><h2 class="mono">artifacts/model_card.md</h2>
-      <span class="hint">written by scripts/train.py on every run, committed with the model</span></div>
+      <span class="hint">written on every run, committed with the model</span></div>
     ${S.codePanel('model_card.md', 'markdown', text, 'yml', 620)}</div>`;
 }
 
@@ -107,22 +113,22 @@ window.PANELS = {
   tabs: [
     {key: 'incoming', label: 'incoming batch', count: () => S.D.next?.name ? S.D.next.rows.length : 0},
     {key: 'try_it', label: 'try it', count: () => ''},
-    {key: 'dm_prediction_detail', label: 'dm_prediction_detail', count: () => predictionRows().length},
-    {key: 'dim_model_version', label: 'dim_model_version', count: () => (S.D.tables.dim_model_version || []).length},
-    {key: 'dm_runtime_sla', label: 'dm_runtime_sla', count: () => (S.D.tables.dm_runtime_sla || []).length},
+    {key: 'predictions', label: 'predictions', count: () => predictionRows().length},
+    {key: 'model_versions', label: 'model versions', count: () => (S.D.tables.model_versions || []).length},
+    {key: 'sla', label: 'sla', count: () => (S.D.tables.sla || []).length},
     {key: 'model_card', label: 'model card', count: () => ''},
   ],
   render: {
     try_it: () => tryItPanel(),
     incoming: () => incomingPanel(),
-    dm_prediction_detail: () => predictionPanel(),
-    dim_model_version: () => modelVersionPanel(),
-    dm_runtime_sla: () => S.tablePanel('dm_runtime_sla', 'what BI reads: every shape against the SLA',
+    predictions: () => predictionPanel(),
+    model_versions: () => modelVersionPanel(),
+    sla: () => S.tablePanel('sla', 'every shape against the SLA, called before the query runs',
       {rowClass: r => r.sla_verdict === 'missed_breach' ? 'rowdup'
         : r.sla_verdict === 'false_alarm' ? 'rowimp' : ''}),
     model_card: () => modelCardPanel(),
   },
-  afterRun: action => action === S.CFG.actions.reset ? 'incoming' : 'dm_prediction_detail',
+  afterRun: action => action === S.CFG.actions.reset ? 'incoming' : 'predictions',
   toast: (action, before, after) => {
     if (action === S.CFG.actions.reset) return 'Demo reset ↺';
     const parts = [];
