@@ -1,88 +1,50 @@
 #!/usr/bin/env python3
-"""The measurement step: run the next batch of queries and record what they cost.
+"""One batch, end to end: measure, train, predict, publish.
 
-This is the ingest stage of the scenario, except the data does not arrive in a
-file: it is produced on the runner. Each query in the batch is executed once to
-warm the caches, then repeated until at least 0.6 s of timed work has
-accumulated (at least 5 repetitions, at most 25), and the median wall time of
-those repetitions is the reading. Sub-100 ms queries need the repetitions:
-below that, scheduler noise is bigger than the effect being measured.
+    python scripts/run.py --action measure_batch   the next batch in the queue
+    python scripts/run.py --action reset           back to the starting state
+    python scripts/run.py --action measure_batch --limit 16    a short batch
 
-A fixed calibration query is re-measured every ten queries. The label is the
-reading divided by the calibration value interpolated to that query's position,
-so a runner that got busy halfway through a batch is not read as a batch that
-turned slower halfway through.
+Nothing arrives in a file. The data is produced here, by timing real queries on
+this machine, and state/ is the record of what has been measured so far. Every
+published file is rebuilt from state/ on every run, so a re-run is idempotent
+and cannot double-count a batch.
 
-The features are all recorded from the catalogue, never from the run: table
-sizes, join count, group by, filter selectivity, order by, window, limit. That
-is the whole point. A feature that is only knowable afterwards would make the
-model useless for the thing it is for.
-
-    --action measure_batch   measure the next batch in the queue (default)
-    --action reset           clear the queue, the measurements and the model
-
-The landing seeds are rebuilt from state/ on every run, so they are a pure
-function of the state files and a re-run cannot double-count anything.
+The publish step ends with a set of checks against the files it just wrote. If
+one fails the run fails and nothing is committed.
 """
 
 import argparse
 import csv
 import json
-import os
-import platform
 import shutil
-import statistics
-import time
-from datetime import datetime, timezone
+import sys
 from pathlib import Path
 
-from make_workload import ensure_workload, sql_for
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from runtime_model import report, train  # noqa: E402
+from runtime_model.measure import MEASUREMENT_COLUMNS, machine_facts, measure_batch  # noqa: E402
+
 INCOMING = ROOT / "incoming"
 STATE = ROOT / "state"
-SEEDS = ROOT / "seeds"
+DATA = ROOT / "data"
 ARTIFACTS = ROOT / "artifacts"
 DOCS_DATA = ROOT / "docs" / "data"
-STATE_FILE = STATE / "loaded_files.json"
+
+LOADED_FILE = STATE / "loaded_files.json"
 MEASUREMENTS_FILE = STATE / "measurements.json"
 MACHINE_FILE = STATE / "machine.json"
 MODELS_FILE = STATE / "models.json"
 PREDICTIONS_FILE = STATE / "predictions.json"
 
-DUCKDB_THREADS = 4
-MIN_TIMED_SECONDS = 0.6
-MIN_REPS = 5
-MAX_REPS = 25
-
-# The calibration query. It is re-measured every CALIBRATION_EVERY queries and
-# never enters the training set. A shared runner drifts: a noisy neighbour makes
-# every query slower at once, and a time-ordered holdout turns that drift into
-# apparent model error. Each reading is divided by the calibration value
-# interpolated to its position in the batch, which removes the part of the drift
-# that is common to everything running at that moment.
-CALIBRATION_SPEC = {"fact_table": "fact_event_m", "n_joins": 1, "has_groupby": 1,
-                    "has_orderby": 0, "has_window": 0, "limit_rows": 0,
-                    "selectivity": 0.45}
-CALIBRATION_EVERY = 10
-
-RUN_COLUMNS = [
-    "batch_name", "query_id", "template_id", "template_label", "fact_table",
-    "fact_rows", "rows_in", "bytes_est", "n_joins", "has_groupby", "selectivity",
-    "has_orderby", "has_window", "limit_rows", "reps", "median_seconds",
-    "min_seconds", "max_seconds", "calibration_seconds", "machine_factor",
-    "normalized_seconds", "cpu_count", "duckdb_threads", "measured_at",
-]
-PREDICTION_COLUMNS = [
-    "model_version", "query_id", "actual_seconds", "predicted_seconds",
-    "abs_pct_error", "in_holdout", "predicted_at",
-]
-MODEL_COLUMNS = [
-    "model_version", "trained_at", "batches_measured", "n_train_rows", "n_holdout_rows",
-    "model_kind", "holdout_mae_seconds", "holdout_mape_pct", "mape_ci_low_pct",
-    "mape_ci_high_pct", "holdout_r2", "cv_mape_pct", "baseline_mape_pct",
-    "passes_gate", "gate_rule",
-]
+PUBLISHED = {
+    "measurements.csv": MEASUREMENT_COLUMNS,
+    "predictions.csv": report.DETAIL_COLUMNS,
+    "model_versions.csv": report.VERSION_COLUMNS,
+    "sla.csv": report.SLA_COLUMNS,
+}
 
 
 def read_json(path: Path, default):
@@ -94,8 +56,9 @@ def write_json(path: Path, payload) -> None:
     path.write_text(json.dumps(payload, indent=1) + "\n")
 
 
-def write_seed(name: str, columns: list[str], rows: list[dict]) -> int:
-    with open(SEEDS / f"{name}.csv", "w", newline="") as handle:
+def write_csv(name: str, columns: list[str], rows: list[dict]) -> int:
+    DATA.mkdir(parents=True, exist_ok=True)
+    with open(DATA / name, "w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns, lineterminator="\n",
                                 extrasaction="ignore")
         writer.writeheader()
@@ -103,84 +66,78 @@ def write_seed(name: str, columns: list[str], rows: list[dict]) -> int:
     return len(rows)
 
 
-def machine_facts() -> dict:
-    return {"cpu_count": os.cpu_count(), "duckdb_threads": DUCKDB_THREADS,
-            "platform": platform.platform(), "python": platform.python_version()}
+def measured_rows(loaded: list[str], measurements: dict) -> list[dict]:
+    """Every measurement so far, in the order the batches were measured."""
+    return [row for name in loaded for row in measurements.get(name, [])]
 
 
-def time_query(con, sql: str) -> dict:
-    """Warm once, then repeat until the timed work is long enough to trust."""
-    con.execute(f"create or replace temp table q_result as {sql}")
-    timings, spent = [], 0.0
-    while len(timings) < MIN_REPS or (spent < MIN_TIMED_SECONDS and len(timings) < MAX_REPS):
-        started = time.perf_counter()
-        con.execute(f"create or replace temp table q_result as {sql}")
-        elapsed = time.perf_counter() - started
-        timings.append(elapsed)
-        spent += elapsed
-    return {"reps": len(timings), "median_seconds": round(statistics.median(timings), 6),
-            "min_seconds": round(min(timings), 6), "max_seconds": round(max(timings), 6)}
+def publish(rows: list[dict], history: list[dict], predictions: dict) -> list[dict]:
+    """Rebuild every published table from state, then check what was written."""
+    latest = history[-1]["model_version"] if history else None
+    detail = report.prediction_detail(rows, predictions.get(latest, []) if latest else [])
+    versions = report.model_versions(history)
+    sla = report.sla_table(detail)
+
+    counts = {
+        "measurements.csv": write_csv("measurements.csv", MEASUREMENT_COLUMNS, rows),
+        "predictions.csv": write_csv("predictions.csv", report.DETAIL_COLUMNS, detail),
+        "model_versions.csv": write_csv("model_versions.csv", report.VERSION_COLUMNS, versions),
+        "sla.csv": write_csv("sla.csv", report.SLA_COLUMNS, sla),
+    }
+    for name, count in counts.items():
+        print(f"[publish] data/{name} → {count} rows")
+
+    if not detail:
+        return []
+    results = report.checks(rows, detail, versions)
+    for result in results:
+        print(f"[check] {'PASS' if result['ok'] else 'FAIL'} · {result['check']} "
+              f"· {result['detail']}")
+    failed = [result["check"] for result in results if not result["ok"]]
+    if failed:
+        raise SystemExit(f"[check] {len(failed)} check(s) failed: {', '.join(failed)}")
+    return results
 
 
-def interpolate(checkpoints: list[tuple[int, float]], index: int) -> float:
-    """The calibration value at one position, straight-lined between readings."""
-    for (left, left_seconds), (right, right_seconds) in zip(checkpoints, checkpoints[1:]):
-        if left <= index <= right:
-            if right == left:
-                return left_seconds
-            weight = (index - left) / (right - left)
-            return left_seconds + (right_seconds - left_seconds) * weight
-    return checkpoints[-1][1]
+def train_on(rows: list[dict]) -> tuple[list[dict], dict]:
+    """Fit on everything measured so far and write the model, the card and the ONNX."""
+    history = read_json(MODELS_FILE, [])
+    predictions = read_json(PREDICTIONS_FILE, {})
+    if len(rows) < train.MIN_ROWS_TO_TRAIN:
+        print(f"[train] {len(rows)} measured queries: not enough to train on yet")
+        return history, predictions
 
+    result = train.fit(rows, history)
+    metrics, version = result["metrics"], result["metrics"]["model_version"]
+    history.append({column: metrics[column] for column in train.MODEL_COLUMNS})
+    predictions[version] = result["predictions"]
+    write_json(MODELS_FILE, history)
+    write_json(PREDICTIONS_FILE, predictions)
 
-def measure_batch(batch_name: str, baseline_seconds: float | None,
-                  limit: int | None = None) -> tuple[list[dict], float]:
-    facts = machine_facts()
-    with open(INCOMING / f"{batch_name}.csv", newline="") as handle:
-        queries = list(csv.DictReader(handle))
-    if limit:
-        queries = queries[:limit]
-    con = ensure_workload(DUCKDB_THREADS)
-    measured_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    train.save_model(result["model"], version, ARTIFACTS / "model.pkl")
+    (ARTIFACTS / "metrics.json").write_text(json.dumps(metrics, indent=1) + "\n")
+    (ARTIFACTS / "model_card.md").write_text(report.model_card(metrics))
+    train.export_onnx(result["model"], result["features"], metrics,
+                      DOCS_DATA / "model.onnx", DOCS_DATA / "model_meta.json")
 
-    calibration_sql = sql_for(CALIBRATION_SPEC)
-    checkpoints = [(0, time_query(con, calibration_sql)["median_seconds"])]
-    rows = []
-    for index, query in enumerate(queries):
-        if index and index % CALIBRATION_EVERY == 0:
-            checkpoints.append((index, time_query(con, calibration_sql)["median_seconds"]))
-        timing = time_query(con, query["query_sql"])
-        rows.append({"batch_name": batch_name, "measured_at": measured_at,
-                     "cpu_count": facts["cpu_count"], "duckdb_threads": DUCKDB_THREADS,
-                     **{c: query[c] for c in RUN_COLUMNS if c in query}, **timing})
-        print(f"[measure] {index + 1:2d}/{len(queries)} {query['query_id']} "
-              f"{timing['median_seconds']:.3f}s ({timing['reps']} reps) {query['template_label']}")
-    checkpoints.append((len(queries), time_query(con, calibration_sql)["median_seconds"]))
-    con.close()
-
-    baseline = baseline_seconds or checkpoints[0][1]
-    for index, row in enumerate(rows):
-        calibration = interpolate(checkpoints, index)
-        row["calibration_seconds"] = round(calibration, 6)
-        row["machine_factor"] = round(calibration / baseline, 6)
-        row["normalized_seconds"] = round(row["median_seconds"] / row["machine_factor"], 6)
-    readings = " / ".join(f"{seconds:.3f}" for _, seconds in checkpoints)
-    print(f"[calibration] {readings} · reference {baseline:.3f}s")
-    return rows, baseline
-
-
-def rebuild_run_seed(loaded: list[str], measurements: dict) -> int:
-    rows = [row for name in loaded for row in measurements.get(name, [])]
-    return write_seed("query_run_landing", RUN_COLUMNS, rows)
+    print(f"[train] {version} · {metrics['n_train_rows']} train / "
+          f"{metrics['n_holdout_rows']} holdout")
+    print(f"[train] holdout MAPE {metrics['holdout_mape_pct']:.2f}% "
+          f"[{metrics['mape_ci_low_pct']:.2f}, {metrics['mape_ci_high_pct']:.2f}] "
+          f"· R2 {metrics['holdout_r2']:.4f} · MAE {metrics['holdout_mae_seconds']:.4f}s "
+          f"· baseline {metrics['baseline_mape_pct']:.2f}%")
+    print(f"[train] gate: {'PASS' if metrics['passes_gate'] else 'FAIL'} "
+          f"({train.GATE_RULE})")
+    return history, predictions
 
 
 def reset() -> None:
-    for path in (STATE_FILE, MEASUREMENTS_FILE, MODELS_FILE, PREDICTIONS_FILE, MACHINE_FILE):
+    for path in (LOADED_FILE, MEASUREMENTS_FILE, MODELS_FILE, PREDICTIONS_FILE, MACHINE_FILE):
         path.unlink(missing_ok=True)
-    write_json(STATE_FILE, [])
-    write_seed("query_run_landing", RUN_COLUMNS, [])
-    write_seed("query_prediction_landing", PREDICTION_COLUMNS, [])
-    write_seed("model_version_landing", MODEL_COLUMNS, [])
+    write_json(LOADED_FILE, [])
+    for name, columns in PUBLISHED.items():
+        write_csv(name, columns, [])
     for path in (DOCS_DATA / "model.onnx", DOCS_DATA / "model_meta.json"):
         path.unlink(missing_ok=True)
     shutil.rmtree(ARTIFACTS, ignore_errors=True)
@@ -191,7 +148,8 @@ def reset() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--action", default="measure_batch", choices=["measure_batch", "reset"])
+    parser.add_argument("--action", default="measure_batch",
+                        choices=["measure_batch", "reset"])
     parser.add_argument("--limit", type=int, default=0,
                         help="measure only the first N queries of the batch (CI smoke test)")
     args = parser.parse_args()
@@ -201,28 +159,32 @@ def main() -> None:
         reset()
         return
 
-    loaded = read_json(STATE_FILE, [])
+    loaded = read_json(LOADED_FILE, [])
     measurements = read_json(MEASUREMENTS_FILE, {})
     pending = [p.stem for p in sorted(INCOMING.glob("batch_*.csv")) if p.stem not in loaded]
+
     if not pending:
         print("[measure] every batch has been measured")
     else:
         batch_name = pending[0]
         facts = machine_facts()
-        print(f"[machine] {facts['cpu_count']} cpu · duckdb threads={DUCKDB_THREADS} "
-              f"· {facts['platform']}")
+        print(f"[machine] {facts['cpu_count']} cpu · duckdb threads="
+              f"{facts['duckdb_threads']} · {facts['platform']}")
         print(f"[pickup] {batch_name}.csv")
         machine = read_json(MACHINE_FILE, {})
-        rows, baseline = measure_batch(batch_name, machine.get("calibration_baseline_seconds"),
+        rows, baseline = measure_batch(INCOMING / f"{batch_name}.csv",
+                                       machine.get("calibration_baseline_seconds"),
                                        args.limit or None)
         measurements[batch_name] = rows
         loaded.append(batch_name)
         write_json(MACHINE_FILE, {**facts, "calibration_baseline_seconds": baseline})
         write_json(MEASUREMENTS_FILE, measurements)
-        write_json(STATE_FILE, loaded)
+        write_json(LOADED_FILE, loaded)
 
-    total = rebuild_run_seed(loaded, measurements)
-    print(f"[seed] query_run_landing → {total} measured queries from {len(loaded)} batch(es)")
+    rows = measured_rows(loaded, measurements)
+    print(f"[measure] {len(rows)} measured queries from {len(loaded)} batch(es)")
+    history, predictions = train_on(rows)
+    publish(rows, history, predictions)
 
 
 if __name__ == "__main__":

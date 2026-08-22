@@ -6,10 +6,10 @@ const m = t => `<span class="mono">${t}</span>`;
 const n1 = v => v == null ? '—' : Number(v).toFixed(1);
 const n2 = v => v == null ? '—' : Number(v).toFixed(2);
 
-/* Predictions from the model that is currently published. The datamart has
-   already restricted them to the latest version and joined the query shape. */
+/* Predictions from the model that is currently published. report.py has already
+   restricted them to the latest version and attached the query shape. */
 function latestPredictions() {
-  return S.D.tables.dm_prediction_detail || [];
+  return S.D.tables.predictions || [];
 }
 function gateBadge() {
   const s = S.D.summary || {};
@@ -19,7 +19,7 @@ function gateBadge() {
 }
 
 /* Predicted against actual, both on log axes, with the 45 degree line.
-   Drawn here from dm_prediction_detail rather than shipped as an image, so it
+   Drawn here from data/predictions.csv rather than shipped as an image, so it
    cannot disagree with the table two tabs away.
    `mark` is a predicted runtime from the try-it widget: it has no measured
    counterpart, so it is drawn on the diagonal, which is where a prediction sits
@@ -90,7 +90,7 @@ function importanceSvg() {
 
 /* The learning curve: holdout MAPE per model version as batches accumulate. */
 function learningSvg() {
-  const rows = (S.D.tables.dm_model_scorecard || []).slice();
+  const rows = (S.D.tables.model_versions || []).slice();
   if (!rows.length) return '<div class="empty">No models trained yet.</div>';
   const W = 560, H = 330, L = 48, R = 34, T = 26, B = 46;
   const max = Math.max(20, ...rows.map(r => Math.max(r.holdout_mape_pct, r.baseline_mape_pct)));
@@ -337,17 +337,16 @@ window.TRYIT = {
 };
 
 window.SLIDES = [
-  {id: 'title', kicker: 'ML · DATA ENGINEERING SCENARIO', render() {
-    const s = S.D.summary || {};
+  {id: 'title', kicker: 'MACHINE LEARNING SCENARIO', render() {
     return `<div class="titleslide">
       <div class="kicker">Scenario walkthrough</div>
       <h2>Predict how long a query<br>will run before it runs.</h2>
       <div class="stackchips">
-        <span class="schip hot">python</span><span class="schip hot">dbt</span>
-        <span class="schip">duckdb</span><span class="schip">scikit-learn</span>
+        <span class="schip hot">python</span><span class="schip hot">scikit-learn</span>
+        <span class="schip">duckdb</span><span class="schip">onnx</span>
         <span class="schip">github actions</span>
       </div>
-      <div class="whw"><span class="whw-k">What</span><span>Teams size warehouses, set timeouts and price jobs on a guess of how long a query will take.</span><span class="whw-k">How</span><span>Real queries are timed on the same machine, a model learns from what is known before a query runs (table sizes, joins, filters), and it publishes its own error with a confidence interval.</span><span class="whw-k">Why</span><span>A prediction with a stated error can be used for scheduling and cost. And you can try it yourself on this page.</span></div>
+      <div class="whw"><span class="whw-k">What</span><span>Teams size machines, set timeouts and price jobs on a guess of how long a query will take.</span><span class="whw-k">How</span><span>A standalone model: time real queries, learn from what is known before a query runs (table sizes, joins, filters), predict the next ones, and publish the error with a confidence interval.</span><span class="whw-k">Why</span><span>A prediction with a stated error can be used for scheduling and cost. And you can try it yourself on this page.</span></div>
       <div class="byline">${S.esc(S.CFG.author)}</div>
     </div>`;}},
 
@@ -357,58 +356,58 @@ window.SLIDES = [
       <div class="ptsec">What I assumed</div>
       <ul class="pointlist">
         <li><span class="pt">1</span><span><b>Every feature is known before the query runs.</b>
-          Table sizes, join count, group by, filter selectivity, order by, window,
-          limit.</span></li>
-        <li><span class="pt">2</span><span><b>A model predicts the hardware it trained on.</b>
-          These numbers come from the machine that ran the pipeline: ${s.cpu_count || 4} vCPU,
-          DuckDB threads pinned to ${s.duckdb_threads || 4}.</span></li>
+          Table sizes, join count, group by, filter selectivity, order by, window, limit.
+          A feature you can only read afterwards is no use for deciding what to do with a
+          query.</span></li>
+        <li><span class="pt">2</span><span><b>A model predicts the hardware it measured.</b>
+          These numbers come from the machine that ran it: ${s.cpu_count || 4} vCPU, DuckDB
+          threads pinned to ${s.duckdb_threads || 4}.</span></li>
         <li><span class="pt">3</span><span><b>The data is measured, not simulated.</b>
           ${S.fmtN(s.queries_measured || 0)} queries on tables of 2M to 8M rows, the median of
           ${s.reps_median || 5}+ timed repetitions after a warm-up.</span></li>
-        <li><span class="pt">4</span><span><b>A shared runner drifts.</b> The same calibration
+        <li><span class="pt">4</span><span><b>A shared machine drifts.</b> The same calibration
           query is re-timed every ten queries; each reading is divided by the value interpolated
           to its position.</span></li>
       </ul>
       <div class="ptsec">How it is built</div>
       <ul class="pointlist">
-        <li><span class="pt">1</span><span><b>The gate is fixed before the numbers are known.</b>
+        <li><span class="pt">1</span><span><b>A standalone solution, not a pipeline.</b> Six
+          Python modules and two entry points: ${m('measure')} → ${m('train')} →
+          ${m('predict')} → ${m('publish')}. No warehouse, no orchestrator, no notebook.</span></li>
+        <li><span class="pt">2</span><span><b>The gate is fixed before the numbers are known.</b>
           ${m(S.esc(s.gate_rule || 'holdout MAPE ≤ 15% and R² ≥ 0.90'))}. A model that misses it
-          is published anyway, marked FAIL here and in ${m('dim_model_version')}.</span></li>
-        <li><span class="pt">2</span><span><b>The interval is reported, not hidden.</b> 2,000
-          bootstrap draws over the holdout errors give the 95% CI printed beside every MAPE.</span></li>
-        <li><span class="pt">3</span><span><b>Retraining is a pipeline step.</b> Measure, train,
-          ${m('dbt build')}, publish; not a notebook someone runs by hand.</span></li>
-        <li><span class="pt">4</span><span><b>Layered like the warehouse.</b> stage → transform →
-          conformed (keyed, incremental, tested) → datamart, so model output is queryable data,
-          not a pickle in a bucket.</span></li>
+          is published anyway, marked FAIL here and in ${m('model_versions.csv')}.</span></li>
+        <li><span class="pt">3</span><span><b>The interval is reported, not hidden.</b> 2,000
+          bootstrap draws over the holdout errors give the 95% CI printed beside every
+          MAPE.</span></li>
+        <li><span class="pt">4</span><span><b>Retraining is part of the run.</b> Every run
+          measures, refits on everything measured so far, and republishes the model and its
+          card. ${s.models_trained || 0} versions so far.</span></li>
+        <li><span class="pt">5</span><span><b>The tests do not measure anything.</b> The suite
+          runs on synthetic rows in seconds, then one smoke test does the real thing on a short
+          batch.</span></li>
       </ul>`;}},
 
   {id: 'arch', kicker: 'THE ARCHITECTURE', render() {
     return `<h2>The architecture</h2>
-      <p class="lead">Run dispatches a GitHub Actions workflow: Python measures the next batch of
-        queries, scikit-learn retrains on everything measured so far, dbt builds and tests, results
-        are committed back as JSON. A real pipeline, driven from a web page.</p>
+      <p class="lead">Run dispatches a GitHub Actions workflow. Python times the next batch of
+        queries on DuckDB, scikit-learn refits on everything measured so far, and the tables, the
+        model card and the ONNX model are committed back to the repository. The page reads what
+        the run wrote.</p>
       <div class="diagram" style="position:relative">
         ${S.isNarrow() ? S.archFlow() : S.svgArch()}
         ${S.isNarrow() ? '' : `<button class="zoombtn" id="archZoomBtn">${S.archZoom ? '&#8854; full picture' : '&#8853; zoom to pipeline'}</button>`}
       </div>`;}},
-
-  {id: 'lineage', kicker: 'DBT LINEAGE', render() {
-    return `<h2>dbt lineage</h2>
-      <p class="lead">Read from the dbt manifest after the last build, so the picture can never
-        drift from the project. The model's output lands in a seed and is conformed like any
-        other source.</p>
-      <div class="diagram" style="margin:38px 0 26px">${S.isNarrow() ? S.dagFlow() : S.svgDag()}</div>
-      ${S.dagLegend()}`;}},
 
   {id: 'code', kicker: 'THE CODE', render() {
     const files = S.D.models?.files || [];
     const lines = files.reduce((a, f) => a + f.sql.split('\n').length, 0);
     return `<h2>The code</h2>
       <p class="lead">${files.length} files, ~${Math.round(lines / 10) * 10} lines.
-        ${m('scripts/make_workload.py')} builds the tables and the query catalogue,
-        ${m('scripts/run.py')} times them, ${m('scripts/train.py')} fits and scores the model.
-        Press ▶ on a model to see its rows from the last run.</p>
+        ${m('workload.py')} builds the tables and the query catalogue, ${m('measure.py')} times
+        them and divides out the drift, ${m('train.py')} fits, scores and gates,
+        ${m('report.py')} writes the tables below. Press ▶ on a published table to see its
+        rows.</p>
       ${S.ideHtml()}`;}},
 
   {id: 'accuracy', kicker: 'THE RESULT', render() {
@@ -436,19 +435,9 @@ window.SLIDES = [
           border:2px solid var(--bad)"></span>30% error or worse</span>
       </div>`;}},
 
-  {id: 'tryit', kicker: 'TRY IT', render() {
-    const s = S.D.summary || {};
-    return `<h2>Try it</h2>
-      <p class="lead">Set the shape of a query. The model published by the last run scores it in
-        your browser, before anything is executed. Same model as the scatter above: the pipeline
-        exports it to ONNX on the runner and the page downloads it. Ringed point on the diagonal
-        is your query.</p>
-      ${window.TRYIT.html()}`;},
-    after() { window.TRYIT.mount(); }},
-
   {id: 'signal', kicker: 'WHY IT WORKS', render() {
     const s = S.D.summary || {};
-    const versions = S.D.tables.dm_model_scorecard || [];
+    const versions = S.D.tables.model_versions || [];
     const first = versions[0] || {}, last = versions[versions.length - 1] || {};
     const pane = (title, body) => `<div><div class="ptsec" style="margin:0 0 8px">${title}</div>
       <div style="overflow-x:auto">${body}</div></div>`;
@@ -466,7 +455,7 @@ window.SLIDES = [
 
   {id: 'sla', kicker: 'WHAT IT IS FOR', render() {
     const s = S.D.summary || {};
-    const all = S.D.tables.dm_runtime_sla || [];
+    const all = S.D.tables.sla || [];
     const rank = {missed_breach: 0, false_alarm: 1, breach_called: 2, inside_sla: 3};
     const rows = all.slice().sort((a, b) => rank[a.sla_verdict] - rank[b.sla_verdict]
       || b.worst_actual_seconds - a.worst_actual_seconds).slice(0, 11);
@@ -489,4 +478,13 @@ window.SLIDES = [
           <td class="num mono">${Number(r.worst_actual_seconds).toFixed(3)}s</td>
           <td>${S.badge(verdict[r.sla_verdict][0], verdict[r.sla_verdict][1])}</td>
         </tr>`).join('')}</tbody></table></div>`;}},
+
+  {id: 'tryit', kicker: 'TRY IT', render() {
+    return `<h2>Try it</h2>
+      <p class="lead">Set the shape of a query. The model published by the last run scores it in
+        your browser, before anything is executed. Same model as the scatter: training exports it
+        to ONNX, checked against scikit-learn to 1e-4 before it is written, and the page downloads
+        that file. Ringed point on the diagonal is your query.</p>
+      ${window.TRYIT.html()}`;},
+    after() { window.TRYIT.mount(); }},
 ];

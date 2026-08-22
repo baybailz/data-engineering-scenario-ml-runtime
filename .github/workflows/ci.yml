@@ -1,23 +1,22 @@
-# Every pull request: lint the SQL, build the whole project with its tests
-# against the committed measurements, then prove the measure-train-build path
-# still works end to end on a short batch. Nothing merges red.
+# Every pull request: lint, then run the tests. The suite ends with a smoke
+# test that builds the workload, times a short batch on DuckDB, trains,
+# publishes and exports -- the whole solution, on real measurements.
+# Nothing merges red.
 name: ci
 
 on:
   pull_request:
   push:
     branches: [main]
-    paths-ignore: ["docs/data/**", "state/**", "seeds/query_*.csv", "seeds/model_*.csv",
-                   "artifacts/**"]
+    paths-ignore: ["docs/data/**", "state/**", "data/**", "artifacts/**"]
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    env:
-      DBT_PROFILES_DIR: .
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,15 +24,7 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: sqlfluff lint
-        run: sqlfluff lint models macros tests
-      - name: dbt build --full-refresh
-        run: dbt build --full-refresh --no-use-colors
-      - name: export smoke test
-        run: python scripts/export_json.py --action measure_batch --dbt-log /dev/null
-      - name: measure and train a short batch
-        run: |
-          python scripts/run.py --action reset
-          python scripts/run.py --action measure_batch --limit 16
-          python scripts/train.py
-          dbt build --full-refresh --no-use-colors
+      - name: ruff
+        run: ruff check src scripts tests
+      - name: pytest
+        run: pytest
